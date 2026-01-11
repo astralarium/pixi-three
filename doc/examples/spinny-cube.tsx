@@ -38,6 +38,7 @@ export function SpinnyCube(props: ThreeElements["mesh"]) {
           width={clicked ? 64 : 128}
           height={clicked ? 64 : 128}
           attach="colorNode"
+          frameloop="always"
         >
           <SpinnyCubeTexture />
         </PixiTexture>
