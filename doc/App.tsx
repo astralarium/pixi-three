@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { CanvasContext } from "#canvas-context.tsx";
+import { CanvasView } from "#canvas-view.tsx";
+import { ThreeScene } from "#three-scene.tsx";
+import { useState } from "react";
+import { SpinnyCube } from "./examples/spinny-cube";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [toggle, setToggle] = useState(true);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className="bg-neutral-300 p-4">
+        <h1 className="text-2xl">Pixi + Three</h1>
+        <div className="mt-2 flex items-center gap-4">
+          <button
+            className="bg-amber-500 hover:bg-amber-400 cursor-pointer p-2 rounded-sm"
+            onClick={() => setToggle((x) => !x)}
+          >
+            Toggle canvas
+          </button>
+          <span>
+            Canvas is{" "}
+            <span
+              className={`${toggle ? "text-green-700" : "text-red-700"} font-bold`}
+            >
+              {toggle ? "mounted" : "unmounted"}
+            </span>
+          </span>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {toggle && (
+        <CanvasContext>
+          <CanvasView>
+            <ThreeScene>
+              <SpinnyCube position={[-2, -2, 0]} />
+              <SpinnyCube position={[0, -2, 0]} />
+              <SpinnyCube position={[2, -2, 0]} />
+              <SpinnyCube position={[-2, 0, 0]} />
+              <SpinnyCube position={[0, 0, 0]} />
+              <SpinnyCube position={[2, 0, 0]} />
+              <SpinnyCube position={[-2, 2, 0]} />
+              <SpinnyCube position={[0, 2, 0]} />
+              <SpinnyCube position={[2, 2, 0]} />
+            </ThreeScene>
+          </CanvasView>
+        </CanvasContext>
+      )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
