@@ -16,7 +16,7 @@ export default defineConfig({
       },
     }),
     tailwindcss(),
-    dts(),
+    dts({ tsconfigPath: "./tsconfig.app.json" }),
   ],
   build: {
     lib: {

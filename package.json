@@ -26,7 +26,10 @@
     "preview": "vite preview"
   },
   "exports": {
-    "./*": "./src/*.js"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/pixi-three.js"
+    }
   },
   "imports": {
     "#*": "./src/*"
