@@ -16,10 +16,10 @@ function App() {
             className="bg-amber-500 hover:bg-amber-400 cursor-pointer p-2 rounded-sm"
             onClick={() => setToggle((x) => !x)}
           >
-            Toggle canvas
+            Toggle canvas context
           </button>
           <span>
-            Canvas is{" "}
+            Canvas context is{" "}
             <span
               className={`${toggle ? "text-green-700" : "text-red-700"} font-bold`}
             >
@@ -30,7 +30,7 @@ function App() {
       </div>
       {toggle && (
         <CanvasContext>
-          <CanvasView>
+          <CanvasView className="h-[calc(100lvh-7rem)] w-full" alpha>
             <ThreeScene>
               <SpinnyCube position={[-2, -2, 0]} />
               <SpinnyCube position={[0, -2, 0]} />
