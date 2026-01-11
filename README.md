@@ -12,6 +12,14 @@ Pixi-Three assumes the `hidden` Tailwind class is available. If not, you may see
 
 ## Usage
 
+- `<CanvasContext>`: Context manager for all canvas views, which share GPU resources. Contains DOM children, including CanvasView.
+
+- `<CanvasView>`: A canvas DOM element. Contains React Pixi children.
+
+- `<ThreeScene>`: A Pixi Sprite. Contains React Three Fiber children.
+
+- `<PixiTexture>`: A Three TextureNode. Contains React Pixi children.
+
 ```tsx
 <CanvasContext>
   <CanvasView>
@@ -22,14 +30,6 @@ Pixi-Three assumes the `hidden` Tailwind class is available. If not, you may see
   </CanvasView>
 </CanvasContext>
 ```
-
-- `<CanvasContext>`: Context manager for all canvas views, which share GPU resources. Contains DOM children, including CanvasView.
-
-- `<CanvasView>`: A canvas DOM element. Contains React Pixi children.
-
-- `<ThreeScene>`: A Pixi Sprite. Contains React Three Fiber children.
-
-- `<PixiTexture>`: A Three TextureNode. Contains React Pixi children.
 
 See [a full working example](./doc/App.tsx)
 
