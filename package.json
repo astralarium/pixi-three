@@ -38,7 +38,7 @@
   "peerDependencies": {
     "@pixi/react": "^8.0.5",
     "@react-three/fiber": "^9.5.0",
-    "pixi.js": "https://pkg.pr.new/pixijs/pixijs/pixi.js@11816",
+    "pixi.js": "*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "three": "^0.180.0"
@@ -62,9 +62,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.1.18",
-    "three": "^0.180.0",
+    "three": "^0.182.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vite-plugin-dts": "^4.5.4"
   }
 }
