@@ -20,18 +20,18 @@
   },
   "homepage": "https://github.com/astralarya/pixi-three#readme",
   "files": [
-    "dist/build"
+    "dist"
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && pnpm pack --out dist/pack/%s-%v.tgz",
+    "build": "tsc -b && vite build && pnpm pack --out pack/%s-%v.tgz",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "exports": {
     ".": {
-      "types": "./dist/build/src/index.d.ts",
-      "import": "./dist/build/pixi-three.js"
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/pixi-three.js"
     }
   },
   "imports": {

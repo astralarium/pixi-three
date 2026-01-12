@@ -19,7 +19,7 @@ export default defineConfig({
     dts({ tsconfigPath: "./tsconfig.app.json" }),
   ],
   build: {
-    outDir: "dist/build",
+    outDir: "dist",
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       formats: ["es"],
