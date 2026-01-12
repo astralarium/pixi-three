@@ -193,11 +193,20 @@ function ThreeSceneSpriteInternal({
   }, [store, width, height, resolution]);
 
   const sprite = useRef(
-    new Sprite({
-      width,
-      height,
-      eventMode: "static",
-    }),
+    (() => {
+      const x = new Sprite({
+        width,
+        height,
+        eventMode: "static",
+      });
+      x.texture = new Texture({
+        source: new ExternalSource({
+          // resolution: size.resolution,
+          label: "three-scene",
+        }),
+      });
+      return x;
+    })(),
   );
   useEffect(() => {
     sprite.current.width = width;
@@ -205,13 +214,8 @@ function ThreeSceneSpriteInternal({
   }, [height, width]);
 
   function onTextureUpdate(texture: GPUTexture) {
-    sprite.current.texture = new Texture({
-      source: new ExternalSource({
-        resource: texture,
-        // resolution: size.resolution,
-        label: "three-scene",
-      }),
-    });
+    sprite.current.texture.source.resource = texture;
+    sprite.current.texture.source.update();
   }
   useImperativeHandle(spriteRef, () => sprite.current, []);
 
