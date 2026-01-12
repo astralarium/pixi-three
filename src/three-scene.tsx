@@ -201,7 +201,6 @@ function ThreeSceneSpriteInternal({
       });
       x.texture = new Texture({
         source: new ExternalSource({
-          // resolution: size.resolution,
           label: "three-scene",
         }),
       });
