@@ -1,11 +1,12 @@
-import { Application, useApplication } from "@pixi/react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { Application } from "@pixi/react";
+import type { Application as ApplicationType } from "pixi.js";
+import { type ReactNode, useRef, useState } from "react";
 import tunnel from "tunnel-rat";
 
 import { PixiDomEventSystem } from "./pixi-dom-event-system";
 import { PixiTextureRenderer } from "./pixi-texture";
 import { PixiThreeEventSystem } from "./pixi-three-event-system";
-import { RenderContextValue, useRenderContext } from "./render-context-hooks";
+import { RenderContextValue } from "./render-context-hooks";
 import { ThreeRoot, type ThreeRootBaseProps } from "./three-root";
 import { ThreeSceneRenderer } from "./three-scene";
 
@@ -33,13 +34,13 @@ export function RenderContext({
   const [pixiTextureEvents, setPixiTextureEvents] =
     useState<PixiThreeEventSystem | null>(null);
 
-  function setPixiApplication(state: ReturnType<typeof useApplication> | null) {
-    if (!state?.isInitialised) {
+  function setPixiApplication(app: ApplicationType | null) {
+    if (!app) {
       setPixiDomEvents(null);
       setPixiTextureEvents(null);
     } else {
-      setPixiDomEvents(new PixiDomEventSystem(state.app.renderer));
-      setPixiTextureEvents(new PixiThreeEventSystem(state.app.renderer));
+      setPixiDomEvents(new PixiDomEventSystem(app.renderer));
+      setPixiTextureEvents(new PixiThreeEventSystem(app.renderer));
     }
   }
 
@@ -57,7 +58,6 @@ export function RenderContext({
           threeSceneTunnel,
           pixiTextureTunnel,
           pixiTextureEvents,
-          setPixiApplication,
         }}
       >
         <Application
@@ -66,8 +66,10 @@ export function RenderContext({
           height={1}
           preference="webgpu"
           resolution={2}
+          onInit={(app) => {
+            setPixiApplication(app);
+          }}
         >
-          <InitContext />
           <pixiContainer renderable={false}>
             <canvasViewTunnel.Out />
           </pixiContainer>
@@ -85,14 +87,4 @@ export function RenderContext({
       </RenderContextValue>
     </div>
   );
-}
-
-function InitContext() {
-  const { setPixiApplication } = useRenderContext();
-  const pixi = useApplication();
-  useEffect(() => {
-    setPixiApplication(pixi);
-    return () => setPixiApplication(null);
-  }, [pixi, pixi.isInitialised, setPixiApplication]);
-  return null;
 }

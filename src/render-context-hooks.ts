@@ -1,4 +1,3 @@
-import { type useApplication } from "@pixi/react";
 import { createContext, type RefObject, useContext } from "react";
 import type tunnel from "tunnel-rat";
 
@@ -15,7 +14,6 @@ export interface RenderContextValue {
   threeSceneTunnel: ReturnType<typeof tunnel>;
   pixiTextureTunnel: ReturnType<typeof tunnel>;
   pixiTextureEvents: PixiThreeEventSystem | null;
-  setPixiApplication: (x: ReturnType<typeof useApplication> | null) => void;
 }
 
 /**
