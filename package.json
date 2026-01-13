@@ -27,7 +27,7 @@
     "build": "tsc -b && vite build && pnpm pack --out pack/%s-%v.tgz && typedoc",
     "lint": "eslint .",
     "preview": "vite preview",
-    "preview:docs": "vite preview --outDir docs"
+    "preview:docs": "concurrently \"typedoc --watch --preserveWatchOutput --options typedoc.json\" \"vite preview --outDir docs\""
   },
   "exports": {
     ".": {
@@ -59,6 +59,7 @@
     "@types/three": "^0.182.0",
     "@vitejs/plugin-react": "^5.1.1",
     "babel-plugin-react-compiler": "^1.0.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
