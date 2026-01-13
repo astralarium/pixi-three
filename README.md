@@ -31,7 +31,7 @@ Pixi-Three assumes the `hidden` Tailwind class is available. If not, you may see
 </CanvasContext>
 ```
 
-See [a full working example](./doc/App.tsx)
+[See a full working example](https://github.com/astralarya/pixi-three/tree/main/examples)
 
 ## Development
 

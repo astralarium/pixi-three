@@ -1,0 +1,16 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src/index.ts"],
+  "out": "./docs",
+  "tsconfig": "./tsconfig.app.json",
+  "name": "@astralarium/pixi-three",
+  "readme": "./README.md",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "navigationLinks": {
+    "GitHub": "https://github.com/astralarya/pixi-three"
+  }
+}
