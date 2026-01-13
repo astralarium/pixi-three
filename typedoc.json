@@ -11,6 +11,15 @@
   "excludeInternal": true,
   "excludeExternals": true,
   "categoryOrder": ["component", "hook", "*"],
+  "kindSortOrder": [
+    "Function",
+    "Variable",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Enum",
+    "Reference"
+  ],
   "navigation": {
     "includeCategories": true
   },
