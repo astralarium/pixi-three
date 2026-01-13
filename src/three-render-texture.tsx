@@ -30,6 +30,8 @@ import { ThreeSceneContext, useThreeSceneContext } from "./three-scene-context";
 import { useRenderSchedule } from "./use-render-schedule";
 
 /**
+ * See {@link ThreeRenderTexture}.
+ *
  * @category component
  * @expand
  */
@@ -63,8 +65,30 @@ export interface ThreeRenderTextureProps {
 }
 
 /**
+ * A Three RenderTarget Texture that contains React Three Fiber children.
+ *
+ * Renders Three.js 3D content into a Three.js RenderTarget texture.
+ * It must be inside a {@link ThreeScene} component.
+ *
  * @category component
  * @param props - Component props
+ * @example
+ * ```tsx
+ * <RenderContext>
+ *   <CanvasView>
+ *     <ThreeScene>
+ *       <mesh>
+ *         <boxGeometry />
+ *         <meshBasicMaterial>
+ *           <ThreeRenderTexture attach="map" width={512} height={512}>
+ *             <SpinnyCube />
+ *           </ThreeRenderTexture>
+ *         </meshBasicMaterial>
+ *       </mesh>
+ *     </ThreeScene>
+ *   </CanvasView>
+ * </RenderContext>
+ * ```
  */
 export function ThreeRenderTexture({
   ref,

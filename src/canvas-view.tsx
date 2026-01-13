@@ -26,6 +26,8 @@ import { useRenderSchedule } from "./use-render-schedule";
 extend({ Container });
 
 /**
+ * See {@link CanvasView}.
+ *
  * @category component
  * @expand
  */
@@ -49,8 +51,23 @@ export interface CanvasViewProps extends PropsWithChildren {
 }
 
 /**
+ * A canvas DOM element that contains React Pixi children.
+ *
+ * It must be inside a {@link RenderContext} component.
+ *
  * @category component
  * @param props - Component props
+ * @example
+ * ```tsx
+ * <RenderContext>
+ *   <CanvasView>
+ *     <ThreeScene>
+ *       <SpinnyCube /> // Three.js Object
+ *     </ThreeScene>
+ *     <SpinnyStar /> // Pixi.js Graphic
+ *   </CanvasView>
+ * </RenderContext>
+ * ```
  */
 export function CanvasView({
   className,

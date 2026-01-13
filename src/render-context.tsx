@@ -11,6 +11,8 @@ import { ThreeRoot, type ThreeRootBaseProps } from "./three-root";
 import { ThreeSceneRenderer } from "./three-scene";
 
 /**
+ * See {@link RenderContext}.
+ *
  * @category component
  * @expand
  */
@@ -19,9 +21,25 @@ export interface RenderContextProps extends ThreeRootBaseProps {
 }
 
 /**
+ * Context manager for all canvas views, which share GPU resources.
+ *
+ * This is the top-level component that manages shared GPU resources for all canvas views in your application.
+ * It wraps all {@link CanvasView} components and contains DOM children.
+ *
  * @category component
  * @param props - Component props
  * @expandType RenderContextProps
+ * @example
+ * ```tsx
+ * <RenderContext>
+ *   <CanvasView>
+ *     <ThreeScene>
+ *       <SpinnyCube /> // Three.js Object
+ *     </ThreeScene>
+ *     <SpinnyStar /> // Pixi.js Graphic
+ *   </CanvasView>
+ * </RenderContext>
+ * ```
  */
 export function RenderContext({
   children,

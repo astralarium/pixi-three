@@ -56,12 +56,16 @@ export function ThreeSceneRenderer() {
 }
 
 /**
+ * See {@link ThreeScene}.
+ *
  * @category component
  * @expand
  */
 export type ThreeSceneProps = PixiReactElementProps & ThreeSceneBaseProps;
 
 /**
+ * See {@link ThreeScene}.
+ *
  * @category component
  * @expand
  */
@@ -91,9 +95,25 @@ export interface ThreeSceneBaseProps {
 }
 
 /**
+ * A Pixi Sprite that contains React Three Fiber children.
+ *
+ * Renders Three.js 3D content as a Pixi.js sprite.
+ * It must be inside a {@link CanvasView} component.
+ *
  * @category component
  * @param props - Also accepts {@link https://github.com/pixijs/pixi-react/blob/main/src/typedefs/PixiReactNode.ts | PixiReactElementProps}
  * @expandType ThreeSceneBaseProps
+ * @example
+ * ```tsx
+ * <RenderContext>
+ *   <CanvasView>
+ *     <ThreeScene>
+ *       <SpinnyCube /> // Three.js Object
+ *     </ThreeScene>
+ *     <SpinnyStar /> // Pixi.js Graphic
+ *   </CanvasView>
+ * </RenderContext>
+ * ```
  */
 export function ThreeScene({
   ref,

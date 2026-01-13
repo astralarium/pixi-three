@@ -48,6 +48,8 @@ export function PixiTextureRenderer() {
 }
 
 /**
+ * See {@link PixiTexture}.
+ *
  * @category component
  * @expand
  */
@@ -73,8 +75,30 @@ export interface PixiTextureProps extends PropsWithChildren {
 }
 
 /**
+ * A Three TextureNode that contains React Pixi children.
+ *
+ * Renders Pixi.js 2D content into a Three.js texture.
+ * It must be inside a {@link ThreeScene} component.
+ *
  * @category component
- * @param props
+ * @param props - Component props
+ * @example
+ * ```tsx
+ * <RenderContext>
+ *   <CanvasView>
+ *     <ThreeScene>
+ *       <mesh>
+ *         <boxGeometry />
+ *         <meshBasicMaterial>
+ *           <PixiTexture attach="map" width={512} height={512}>
+ *             <SpinnyStar />
+ *           </PixiTexture>
+ *         </meshBasicMaterial>
+ *       </mesh>
+ *     </ThreeScene>
+ *   </CanvasView>
+ * </RenderContext>
+ * ```
  */
 export function PixiTexture({
   ref,
