@@ -26,15 +26,12 @@ import { type Object3D, type TextureNode, type Vector2 } from "three/webgpu";
 import type tunnel from "tunnel-rat";
 
 import { useCanvasContext } from "./canvas-context-hooks";
-import {
-  CanvasTreeContext,
-  useCanvasTree,
-  useCanvasTreeStore,
-} from "./canvas-tree-context";
+import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { PixiTextureContext } from "./pixi-texture-context";
 import { useAttachedObject } from "./three-fiber";
 import { useThreeSceneContext } from "./three-scene-context";
 import { useBridge } from "./use-bridge";
+import { useDemandRendering } from "./use-demand-rendering";
 
 extend({ Container });
 
@@ -144,19 +141,12 @@ function PixiTextureInternal({
   transform,
 }: PixiTextureInternalProps) {
   const app = useApplication();
-  const parentContext = useCanvasTree();
 
   const containerRef = useRef<Container>(null!);
   const pixiTextureRef = useRef(new RenderTexture());
 
-  const frameRequested = useRef(true);
-  function invalidate() {
-    frameRequested.current = true;
-  }
-  function clearFrameRequest() {
-    frameRequested.current = false;
-    parentContext.invalidate();
-  }
+  const { frameRequested, invalidate, clearFrameRequest } =
+    useDemandRendering();
 
   function render() {
     app.app.renderer.render({

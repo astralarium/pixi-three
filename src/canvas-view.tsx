@@ -21,6 +21,7 @@ import {
 import { useCanvasContext } from "./canvas-context-hooks";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { CanvasViewContext as CanvasViewContentContext } from "./canvas-view-context";
+import { useDemandRendering } from "./use-demand-rendering";
 
 extend({ Container });
 
@@ -138,7 +139,8 @@ function CanvasViewContent({
 
   const [isVisible, setIsVisible] = useState(true);
 
-  const frameRequested = useRef(true);
+  const { frameRequested, invalidate, clearFrameRequest } =
+    useDemandRendering();
 
   const store = useCanvasTreeStore();
   const { subscribe, updateSnapshot, notifySubscribers } = store;
@@ -223,15 +225,11 @@ function CanvasViewContent({
     });
   }
 
-  function invalidate() {
-    frameRequested.current = true;
-  }
-
   useTick({
     callback: () => {
       if (frameloop === "always" || frameRequested.current) {
         render();
-        frameRequested.current = false;
+        clearFrameRequest();
       }
     },
     isEnabled: isVisible,

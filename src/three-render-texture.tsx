@@ -11,7 +11,6 @@ import {
   type RefObject,
   useEffect,
   useImperativeHandle,
-  useRef,
   useState,
 } from "react";
 import {
@@ -23,14 +22,12 @@ import {
 } from "three";
 import tunnel from "tunnel-rat";
 
-import {
-  CanvasTreeContext,
-  useCanvasTree,
-  useCanvasTreeStore,
-} from "./canvas-tree-context";
+import { useCanvasTree } from "./canvas-tree-context";
+import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { useAttachedObject } from "./three-fiber";
 import { Portal } from "./three-portal";
 import { ThreeSceneContext, useThreeSceneContext } from "./three-scene-context";
+import { useDemandRendering } from "./use-demand-rendering";
 
 export interface ThreeRenderTextureProps {
   /** Render Texture Ref */
@@ -73,19 +70,9 @@ export function ThreeRenderTexture({
   compute,
   children,
 }: ThreeRenderTextureProps) {
-  const parentContext = useCanvasTree();
+  const { size } = useCanvasTree();
   const [scene] = useState(new Scene());
 
-  const frameRequested = useRef(true);
-  function invalidate() {
-    frameRequested.current = true;
-  }
-  function clearFrameRequest() {
-    frameRequested.current = false;
-    parentContext.invalidate();
-  }
-
-  const { size } = parentContext;
   const width = widthProp ?? size.width;
   const height = heightProp ?? size.height;
   const resolution = resolutionProp ?? size.resolution;
@@ -133,6 +120,9 @@ export function ThreeRenderTexture({
   }
 
   const sceneTunnel = tunnel();
+
+  const { frameRequested, invalidate, clearFrameRequest } =
+    useDemandRendering();
 
   return (
     <>

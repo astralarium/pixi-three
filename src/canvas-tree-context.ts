@@ -22,6 +22,13 @@ export const CanvasTreeContext = createContext<CanvasTreeContextValue | null>(
   null,
 );
 
+const noopStore: CanvasTreeStore = {
+  subscribe: () => () => {},
+  getSnapshot: () => ({ width: 0, height: 0, resolution: 1 }),
+  updateSnapshot: () => {},
+  notifySubscribers: () => {},
+};
+
 export function useCanvasTreeStore(): CanvasTreeStore {
   const subscribers = useRef(new Set<(size: CanvasViewSize) => void>());
   const sizeSnapshot = useRef<CanvasViewSize>({
@@ -53,14 +60,22 @@ export function useCanvasTreeStore(): CanvasTreeStore {
   return storeRef;
 }
 
-export function useCanvasTree() {
+export function useCanvasTreeOptional() {
   const context = useContext(CanvasTreeContext);
+  const store = context?.store ?? noopStore;
+  const size = useSyncExternalStore(store.subscribe, store.getSnapshot);
+  if (context === null) {
+    return null;
+  }
+  return { size, invalidate: context.invalidate };
+}
+
+export function useCanvasTree() {
+  const context = useCanvasTreeOptional();
   if (context === null) {
     throw Error(
       "useCanvasTree() must be called within a <CanvasViewContent />",
     );
   }
-  const { store, ...rest } = context;
-  const size = useSyncExternalStore(store.subscribe, store.getSnapshot);
-  return { size, ...rest };
+  return context;
 }
