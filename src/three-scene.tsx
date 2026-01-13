@@ -92,7 +92,7 @@ export interface ThreeSceneSpriteProps extends ThreeSceneBaseProps {
 
 /**
  * @category component
- * @param props - Also accepts {@link PixiReactElementProps}
+ * @param props - Also accepts {@link https://github.com/pixijs/pixi-react/blob/main/src/typedefs/PixiReactNode.ts | PixiReactElementProps}
  * @expandType ThreeSceneBaseProps
  */
 export function ThreeScene({
