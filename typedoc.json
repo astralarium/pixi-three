@@ -11,6 +11,7 @@
   "excludeInternal": true,
   "excludeExternals": true,
   "navigationLinks": {
-    "GitHub": "https://github.com/astralarya/pixi-three"
-  }
+    "GitHub": "https://github.com/astralarium/pixi-three"
+  },
+  "plugin": ["typedoc-rhineai-theme"]
 }
