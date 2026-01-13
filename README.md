@@ -12,13 +12,13 @@ Pixi-Three assumes the `hidden` Tailwind class is available. If not, you may see
 
 ## Usage
 
-- `<RenderContext>`: Context manager for all canvas views, which share GPU resources. Contains DOM children, including CanvasView.
+- [`<RenderContext>`](https://astralarium.github.io/pixi-three/functions/RenderContext.html): Context manager for all canvas views, which share GPU resources. Contains DOM children, including CanvasView.
 
-- `<CanvasView>`: A canvas DOM element. Contains React Pixi children.
+- [`<CanvasView>`](https://astralarium.github.io/pixi-three/functions/CanvasView.html): A canvas DOM element. Contains React Pixi children.
 
-- `<ThreeScene>`: A Pixi Sprite. Contains React Three Fiber children.
+- [`<ThreeScene>`](https://astralarium.github.io/pixi-three/functions/ThreeScene.html): A Pixi Sprite. Contains React Three Fiber children.
 
-- `<PixiTexture>`: A Three TextureNode. Contains React Pixi children.
+- [`<PixiTexture>`](https://astralarium.github.io/pixi-three/functions/PixiTexture.html): A Three TextureNode. Contains React Pixi children.
 
 ```tsx
 <RenderContext>
