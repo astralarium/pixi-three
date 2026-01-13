@@ -103,6 +103,12 @@ export function ThreeRoot({
           },
           onPointerMissed,
           events,
+          size: {
+            width: 1,
+            height: 1,
+            top: 0,
+            left: 0,
+          },
         });
         threeRoot.render(<Bridge>{children}</Bridge>);
       });
