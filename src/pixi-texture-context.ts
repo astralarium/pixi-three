@@ -4,9 +4,9 @@ import { createContext, type RefObject, useContext } from "react";
 import { type Object3D, type Vector2 } from "three";
 import type tunnel from "tunnel-rat";
 
-import { useCanvasContext } from "./canvas-context-hooks";
 import { useCanvasView } from "./canvas-view-context";
 import { type PixiThreeEventBindOptions } from "./pixi-three-event-system";
+import { useRenderContext } from "./render-context-hooks";
 
 export interface PixiTextureContextValue {
   width: number;
@@ -43,7 +43,7 @@ export function usePixiTextureEvents(
     | (RefObject<Container> | PixiThreeEventBindOptions)[],
   handlers?: EventHandlers,
 ) {
-  const { pixiTextureEvents } = useCanvasContext();
+  const { pixiTextureEvents } = useRenderContext();
   const { canvasRef } = useCanvasView();
   return pixiTextureEvents?.bind(canvasRef, container, handlers);
 }

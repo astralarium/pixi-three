@@ -32,7 +32,6 @@ import { type RenderTargetOptions, Scene } from "three";
 import { type PostProcessing } from "three/webgpu";
 import tunnel from "tunnel-rat";
 
-import { useCanvasContext } from "./canvas-context-hooks";
 import { useCanvasTree } from "./canvas-tree-context";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { useCanvasView } from "./canvas-view-context";
@@ -40,6 +39,7 @@ import {
   type PixiTextureContextValue,
   usePixiTextureContextOptional,
 } from "./pixi-texture-context";
+import { useRenderContext } from "./render-context-hooks";
 import { Portal } from "./three-portal";
 import { ThreeSceneContext } from "./three-scene-context";
 import { useBridge } from "./use-bridge";
@@ -48,7 +48,7 @@ import { useRenderSchedule } from "./use-render-schedule";
 extend({ Container, Sprite });
 
 export function ThreeSceneRenderer() {
-  const { threeSceneTunnel } = useCanvasContext();
+  const { threeSceneTunnel } = useRenderContext();
   return <threeSceneTunnel.Out />;
 }
 export type ThreeSceneProps = PixiReactElementProps & ThreeSceneBaseProps;
@@ -134,7 +134,7 @@ export function ThreeScene({
 export function ThreeSceneSprite(props: ThreeSceneSpriteProps) {
   const Bridge = useBridge();
   const { app } = useApplication();
-  const { threeSceneTunnel } = useCanvasContext();
+  const { threeSceneTunnel } = useRenderContext();
   const pixiTextureContext = usePixiTextureContextOptional();
 
   const key = useId();

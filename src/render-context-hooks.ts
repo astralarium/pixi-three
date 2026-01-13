@@ -8,7 +8,7 @@ import { type PixiThreeEventSystem } from "./pixi-three-event-system";
 /**
  * @internal
  */
-export interface CanvasContextValue {
+export interface RenderContextValue {
   tunnel: ReturnType<typeof tunnel>;
   eventContainer: RefObject<HTMLDivElement>;
   pixiDomEvents: PixiDomEventSystem | null;
@@ -21,19 +21,17 @@ export interface CanvasContextValue {
 /**
  * @internal
  */
-export const CanvasContextValue = createContext<CanvasContextValue | null>(
+export const RenderContextValue = createContext<RenderContextValue | null>(
   null,
 );
 
 /**
  * @internal
  */
-export function useCanvasContext() {
-  const context = useContext(CanvasContextValue);
+export function useRenderContext() {
+  const context = useContext(RenderContextValue);
   if (context === null) {
-    throw Error(
-      "useCanvasViewContext() must be called within a <CanvasViewContext />",
-    );
+    throw Error("useRenderContext() must be called within a <RenderContext />");
   }
   return context;
 }

@@ -18,9 +18,9 @@ import {
   useState,
 } from "react";
 
-import { useCanvasContext } from "./canvas-context-hooks";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { CanvasViewContext as CanvasViewContentContext } from "./canvas-view-context";
+import { useRenderContext } from "./render-context-hooks";
 import { useRenderSchedule } from "./use-render-schedule";
 
 extend({ Container });
@@ -56,7 +56,7 @@ export function CanvasView({
   fpsLimit,
 }: CanvasViewProps) {
   const id = useId();
-  const { tunnel, pixiDomEvents } = useCanvasContext();
+  const { tunnel, pixiDomEvents } = useRenderContext();
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const containerRef = useRef<Container>(null!);
   const renderTargetRef = useRef<RenderTarget>(null!);

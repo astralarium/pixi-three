@@ -2,24 +2,24 @@ import { Application, useApplication } from "@pixi/react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import tunnel from "tunnel-rat";
 
-import { CanvasContextValue, useCanvasContext } from "./canvas-context-hooks";
 import { PixiDomEventSystem } from "./pixi-dom-event-system";
 import { PixiTextureRenderer } from "./pixi-texture";
 import { PixiThreeEventSystem } from "./pixi-three-event-system";
+import { RenderContextValue, useRenderContext } from "./render-context-hooks";
 import { ThreeRoot, type ThreeRootBaseProps } from "./three-root";
 import { ThreeSceneRenderer } from "./three-scene";
 
-export interface CanvasContextProps extends ThreeRootBaseProps {
+export interface RenderContextProps extends ThreeRootBaseProps {
   children?: ReactNode;
 }
 
-export function CanvasContext({
+export function RenderContext({
   children,
   eventSource,
   threeRendererParameters,
   onCreated,
   onPointerMissed,
-}: CanvasContextProps) {
+}: RenderContextProps) {
   const eventContainer = useRef<HTMLDivElement>(null!);
 
   const [pixiDomEvents, setPixiDomEvents] = useState<PixiDomEventSystem | null>(
@@ -44,7 +44,7 @@ export function CanvasContext({
 
   return (
     <div ref={eventContainer} className="contents">
-      <CanvasContextValue
+      <RenderContextValue
         value={{
           tunnel: canvasViewTunnel,
           eventContainer,
@@ -62,7 +62,7 @@ export function CanvasContext({
           preference="webgpu"
           resolution={2}
         >
-          <PixiThreeContextInit />
+          <InitContext />
           <pixiContainer renderable={false}>
             <canvasViewTunnel.Out />
           </pixiContainer>
@@ -77,13 +77,13 @@ export function CanvasContext({
           <PixiTextureRenderer />
         </Application>
         {children}
-      </CanvasContextValue>
+      </RenderContextValue>
     </div>
   );
 }
 
-function PixiThreeContextInit() {
-  const { setPixiApplication } = useCanvasContext();
+function InitContext() {
+  const { setPixiApplication } = useRenderContext();
   const pixi = useApplication();
   useEffect(() => {
     setPixiApplication(pixi);

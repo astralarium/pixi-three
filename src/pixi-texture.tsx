@@ -25,9 +25,9 @@ import { texture } from "three/tsl";
 import { type Object3D, type TextureNode, type Vector2 } from "three/webgpu";
 import type tunnel from "tunnel-rat";
 
-import { useCanvasContext } from "./canvas-context-hooks";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { PixiTextureContext } from "./pixi-texture-context";
+import { useRenderContext } from "./render-context-hooks";
 import { useAttachedObject } from "./three-fiber";
 import { useThreeSceneContext } from "./three-scene-context";
 import { useBridge } from "./use-bridge";
@@ -36,7 +36,7 @@ import { useRenderSchedule } from "./use-render-schedule";
 extend({ Container });
 
 export function PixiTextureRenderer() {
-  const { pixiTextureTunnel } = useCanvasContext();
+  const { pixiTextureTunnel } = useRenderContext();
   return (
     <pixiContainer renderable={false}>
       <pixiTextureTunnel.Out />
@@ -78,7 +78,7 @@ export function PixiTexture({
   fpsLimit,
 }: PixiTextureProps) {
   const Bridge = useBridge();
-  const { pixiTextureTunnel } = useCanvasContext();
+  const { pixiTextureTunnel } = useRenderContext();
   const { sceneTunnel } = useThreeSceneContext();
   const key = useId();
 

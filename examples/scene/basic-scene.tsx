@@ -1,11 +1,11 @@
-import { CanvasContext, CanvasView, ThreeScene } from "@astralarium/pixi-three";
+import { CanvasView, RenderContext, ThreeScene } from "@astralarium/pixi-three";
 
 import { SpinnyCube } from "../components/spinny-cube";
 import { SpinnyStar } from "../components/spinny-star";
 
 export function BasicScene() {
   return (
-    <CanvasContext>
+    <RenderContext>
       <CanvasView className="h-full w-full" alpha>
         <ThreeScene>
           <SpinnyCube position={[-2, -2, 0]} />
@@ -20,6 +20,6 @@ export function BasicScene() {
         </ThreeScene>
         <SpinnyStar />
       </CanvasView>
-    </CanvasContext>
+    </RenderContext>
   );
 }

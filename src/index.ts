@@ -1,5 +1,3 @@
-export * from "./canvas-context";
-export * from "./canvas-context-hooks";
 export * from "./canvas-tree-context";
 export * from "./canvas-view";
 export * from "./canvas-view-context";
@@ -9,6 +7,8 @@ export * from "./pixi-synthetic-event-system";
 export * from "./pixi-texture";
 export * from "./pixi-texture-context";
 export * from "./pixi-three-event-system";
+export * from "./render-context";
+export * from "./render-context-hooks";
 export * from "./three-fiber";
 export * from "./three-portal";
 export * from "./three-render-texture";
