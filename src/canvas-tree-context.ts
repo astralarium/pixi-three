@@ -1,18 +1,20 @@
 import { createContext, useContext, useRef, useSyncExternalStore } from "react";
 
+/** @expand */
 export interface CanvasViewSize {
   width: number;
   height: number;
   resolution: number;
 }
 
-export interface CanvasTreeStore {
+interface CanvasTreeStore {
   subscribe: (callback: (size: CanvasViewSize) => void) => () => void;
   getSnapshot: () => CanvasViewSize;
   updateSnapshot: (update: Partial<CanvasViewSize>) => void;
   notifySubscribers: () => void;
 }
 
+/** @expand */
 export interface CanvasTreeContextValue {
   store: CanvasTreeStore;
   invalidate: () => void;
