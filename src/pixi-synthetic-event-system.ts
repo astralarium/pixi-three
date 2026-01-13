@@ -12,6 +12,7 @@ import {
 } from "pixi.js";
 import { type RefObject } from "react";
 
+/** Constant {@link https://pixijs.download/release/docs/maths.Point.html Point} indicating no intersection (-Infinity, -Infinity) */
 export const MISSED_POINT = new Point(-Infinity, -Infinity);
 
 const MOUSE_POINTER_ID = 1;
