@@ -1,6 +1,6 @@
 import { CanvasContext, CanvasView, ThreeScene } from "#index.ts";
-import { SpinnyCube } from "../examples/spinny-cube";
-import { SpinnyStar } from "../examples/spinny-star";
+import { SpinnyCube } from "../components/spinny-cube";
+import { SpinnyStar } from "../components/spinny-star";
 
 export function BasicScene() {
   return (

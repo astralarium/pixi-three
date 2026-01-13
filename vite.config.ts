@@ -16,7 +16,7 @@ export default defineConfig({
       },
     }),
     tailwindcss(),
-    dts({ tsconfigPath: "./tsconfig.app.json", exclude: ["doc"] }),
+    dts({ tsconfigPath: "./tsconfig.app.json", exclude: ["examples"] }),
   ],
   build: {
     outDir: "dist",
