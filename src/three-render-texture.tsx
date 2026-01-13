@@ -22,7 +22,7 @@ import {
 } from "three";
 import tunnel from "tunnel-rat";
 
-import { useCanvasTree } from "./canvas-tree-context";
+import { useViewport } from "./canvas-tree-context";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { useAttachedObject } from "./three-fiber";
 import { Portal } from "./three-portal";
@@ -78,7 +78,7 @@ export function ThreeRenderTexture({
   fpsLimit,
   children,
 }: ThreeRenderTextureProps) {
-  const size = useCanvasTree();
+  const size = useViewport();
   const [scene] = useState(new Scene());
 
   const width = widthProp ?? size.width;

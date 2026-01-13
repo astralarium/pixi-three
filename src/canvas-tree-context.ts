@@ -59,15 +59,13 @@ export function useCanvasTreeStore(): CanvasTreeStore {
 
 /**
  * @category hook
- * @returns The current canvas size.
+ * @returns The current viewport size.
  * @throws If called outside of a `<CanvasViewContent />`.
  */
-export function useCanvasTree(): CanvasViewSize {
+export function useViewport(): CanvasViewSize {
   const context = useContext(CanvasTreeContext);
   if (context === null) {
-    throw Error(
-      "useCanvasTree() must be called within a <CanvasViewContent />",
-    );
+    throw Error("useViewport() must be called within a <CanvasView />");
   }
   const size = useSyncExternalStore(
     context.store.subscribe,

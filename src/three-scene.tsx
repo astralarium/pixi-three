@@ -32,7 +32,7 @@ import { type RenderTargetOptions, Scene } from "three";
 import { type PostProcessing } from "three/webgpu";
 import tunnel from "tunnel-rat";
 
-import { useCanvasTree } from "./canvas-tree-context";
+import { useViewport } from "./canvas-tree-context";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { useCanvasView } from "./canvas-view-context";
 import {
@@ -194,7 +194,7 @@ function ThreeSceneSpriteInternal({
   children,
 }: ThreeSceneSpriteInternalProps) {
   const { canvasRef, containerRef: canvasContainerRef } = useCanvasView();
-  const size = useCanvasTree();
+  const size = useViewport();
   const [scene] = useState(new Scene());
 
   const width = widthProp ?? size.width;
