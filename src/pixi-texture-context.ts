@@ -8,6 +8,7 @@ import { useCanvasView } from "./canvas-view-context";
 import { type PixiThreeEventBindOptions } from "./pixi-three-event-system";
 import { useRenderContext } from "./render-context-hooks";
 
+/** @internal */
 export interface PixiTextureContextValue {
   width: number;
   height: number;
@@ -18,10 +19,12 @@ export interface PixiTextureContextValue {
   mapUvToPoint: (point: Point, uv: Vector2) => void;
 }
 
+/** @internal */
 export const PixiTextureContext = createContext<PixiTextureContextValue | null>(
   null,
 );
 
+/** @internal */
 export function usePixiTextureContext() {
   const context = useContext(PixiTextureContext);
   if (context === null) {
@@ -32,6 +35,7 @@ export function usePixiTextureContext() {
   return context;
 }
 
+/** @internal */
 export function usePixiTextureContextOptional() {
   return useContext(PixiTextureContext);
 }

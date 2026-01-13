@@ -3,6 +3,7 @@ import { traverseFiber, useFiber } from "its-fine";
 import { type RefObject } from "react";
 import { Object3D } from "three";
 
+/** @internal */
 export function useAttachedObject(objectRef?: RefObject<Object3D>) {
   const fiber = useFiber();
   return function getAttachedObject() {
