@@ -41,12 +41,13 @@ export function usePixiTextureContextOptional() {
 }
 
 /**
- * Hook for binding Three.js events to Pixi containers within a PixiTexture.
+ * Hook for binding {@link https://r3f.docs.pmnd.rs/api/events | React Three Fiber Events}
+ * to Pixi containers within a {@link PixiTexture}.
  *
+ * @category hook
  * @param container - {@link https://pixijs.download/release/docs/scene.Container.html | Container}(s) or bind options
  * @param handlers - Optional event handlers to chain
  * @returns EventHandlers to bind to a react-three-fiber mesh
- * @see {@link https://r3f.docs.pmnd.rs/api/events | React Three Fiber Events}
  */
 export function usePixiTextureEvents(
   container:
