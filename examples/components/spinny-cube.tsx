@@ -5,8 +5,7 @@ import { TextureNode } from "three/webgpu";
 import { Container, Graphics } from "pixi.js";
 import { extend } from "@pixi/react";
 
-import { PixiTexture } from "#pixi-texture";
-import { usePixiTextureEvents } from "#pixi-texture-context";
+import { PixiTexture, usePixiTextureEvents } from "@astralarium/pixi-three";
 import { SpinnyStar } from "./spinny-star";
 
 extend({ Graphics });

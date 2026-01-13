@@ -9,6 +9,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // https://vite.dev/config/
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@astralarium/pixi-three": resolve(__dirname, "src/index.ts"),
+    },
+  },
   plugins: [
     react({
       babel: {
