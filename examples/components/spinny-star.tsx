@@ -1,6 +1,8 @@
-import { useTick } from "@pixi/react";
+import { extend, useTick } from "@pixi/react";
 import { Graphics } from "pixi.js";
 import { useRef, useState } from "react";
+
+extend({ Graphics });
 
 function randomColor() {
   return (
