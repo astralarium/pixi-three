@@ -54,8 +54,11 @@ export function ThreeSceneRenderer() {
   const { threeSceneTunnel } = useRenderContext();
   return <threeSceneTunnel.Out />;
 }
+
+/** @expand */
 export type ThreeSceneProps = PixiReactElementProps & ThreeSceneBaseProps;
 
+/** @inline */
 export interface ThreeSceneBaseProps {
   /** Optional width of the texture, defaults to canvas parent bounds */
   width?: number;
@@ -90,6 +93,7 @@ export interface ThreeSceneSpriteProps extends ThreeSceneBaseProps {
 
 /**
  * @category component
+ * @param props - Also accepts {@link PixiReactElementProps}
  */
 export function ThreeScene({
   ref,

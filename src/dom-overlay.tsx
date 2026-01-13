@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 
+/** @inline */
 interface DomOverlayProps {
   className?: string;
   children?: ReactNode;
@@ -8,6 +9,7 @@ interface DomOverlayProps {
 
 /**
  * @category component
+ * @param props - Component props
  */
 export function DomOverlay({ className, children, overlay }: DomOverlayProps) {
   return (
