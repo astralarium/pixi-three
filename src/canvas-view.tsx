@@ -40,6 +40,8 @@ export interface CanvasViewProps extends PropsWithChildren {
   resolution?: number;
   /** Pixi view transform. Defaults to identity matrix */
   transform?: Matrix;
+  /** Optional FPS limit */
+  fpsLimit?: number;
 }
 
 export function CanvasView({
@@ -51,6 +53,7 @@ export function CanvasView({
   antialias = true,
   resolution = window.devicePixelRatio,
   transform = new Matrix(),
+  fpsLimit,
 }: CanvasViewProps) {
   const id = useId();
   const { tunnel, pixiDomEvents } = useCanvasContext();
@@ -104,6 +107,7 @@ export function CanvasView({
           renderTargetRef={renderTargetRef}
           transform={transform}
           frameloop={frameloop}
+          fpsLimit={fpsLimit}
         >
           {children}
         </CanvasViewContent>
@@ -123,6 +127,8 @@ interface CanvasViewContentProps extends PropsWithChildren {
   transform?: Matrix;
   /** Render mode: "always" or "demand", default "always" */
   frameloop: "always" | "demand";
+  /** Optional FPS limit */
+  fpsLimit?: number;
 }
 
 function CanvasViewContent({
@@ -131,6 +137,7 @@ function CanvasViewContent({
   renderTargetRef,
   transform,
   frameloop,
+  fpsLimit,
   children,
 }: CanvasViewContentProps) {
   const app = useApplication();
@@ -139,8 +146,9 @@ function CanvasViewContent({
 
   const [isVisible, setIsVisible] = useState(true);
 
-  const { isFrameRequested, invalidate, clearFrameRequest } =
-    useRenderSchedule();
+  const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
+    fpsLimit,
+  });
 
   const store = useCanvasTreeStore();
   const { subscribe, updateSnapshot, notifySubscribers } = store;
@@ -229,7 +237,7 @@ function CanvasViewContent({
     callback: () => {
       if (frameloop === "always" || isFrameRequested()) {
         render();
-        clearFrameRequest();
+        signalFrame();
       }
     },
     isEnabled: isVisible,

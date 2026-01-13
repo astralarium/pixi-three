@@ -52,6 +52,8 @@ export interface ThreeRenderTextureProps {
   frameloop?: "always" | "demand";
   /** Optional event compute, defaults to undefined */
   compute?: ComputeFunction;
+  /** Optional FPS limit */
+  fpsLimit?: number;
   /** Children will be rendered into a portal */
   children: ReactNode;
 }
@@ -68,6 +70,7 @@ export function ThreeRenderTexture({
   eventPriority = 0,
   frameloop = "always",
   compute,
+  fpsLimit,
   children,
 }: ThreeRenderTextureProps) {
   const { size } = useCanvasTree();
@@ -121,8 +124,9 @@ export function ThreeRenderTexture({
 
   const sceneTunnel = tunnel();
 
-  const { isFrameRequested, invalidate, clearFrameRequest } =
-    useRenderSchedule();
+  const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
+    fpsLimit,
+  });
 
   return (
     <>
@@ -142,7 +146,7 @@ export function ThreeRenderTexture({
               renderTargetOptions={options}
               frameloop={frameloop}
               isFrameRequested={isFrameRequested}
-              clearFrameRequest={clearFrameRequest}
+              signalFrame={signalFrame}
             >
               {children}
               <sceneTunnel.Out />

@@ -61,6 +61,8 @@ export interface PixiTextureProps extends PropsWithChildren {
   frameloop?: "always" | "demand";
   /** Pixi view transform. Defaults to identity matrix */
   transform?: Matrix;
+  /** Optional FPS limit */
+  fpsLimit?: number;
 }
 
 export function PixiTexture({
@@ -73,6 +75,7 @@ export function PixiTexture({
   height,
   frameloop,
   transform = new Matrix(),
+  fpsLimit,
 }: PixiTextureProps) {
   const Bridge = useBridge();
   const { pixiTextureTunnel } = useCanvasContext();
@@ -107,6 +110,7 @@ export function PixiTexture({
             height={height}
             frameloop={frameloop}
             transform={transform}
+            fpsLimit={fpsLimit}
           >
             {children}
           </PixiTextureInternal>
@@ -139,14 +143,16 @@ function PixiTextureInternal({
   height,
   frameloop,
   transform,
+  fpsLimit,
 }: PixiTextureInternalProps) {
   const app = useApplication();
 
   const containerRef = useRef<Container>(null!);
   const pixiTextureRef = useRef(new RenderTexture());
 
-  const { isFrameRequested, invalidate, clearFrameRequest } =
-    useRenderSchedule();
+  const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
+    fpsLimit,
+  });
 
   function render() {
     app.app.renderer.render({
@@ -161,7 +167,7 @@ function PixiTextureInternal({
     callback: () => {
       if (frameloop === "always" || isFrameRequested()) {
         render();
-        clearFrameRequest();
+        signalFrame();
       }
     },
   });

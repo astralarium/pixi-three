@@ -72,6 +72,8 @@ export interface ThreeSceneBaseProps {
   eventCompute?: ComputeFunction;
   /** Optional post processing factory, defaults to undefined */
   postProcessing?: (x: RootState) => PostProcessing;
+  /** Optional FPS limit */
+  fpsLimit?: number;
   /** Children will be rendered into a portal */
   children: ReactNode;
 }
@@ -94,6 +96,7 @@ export function ThreeScene({
   frameloop,
   eventCompute,
   postProcessing,
+  fpsLimit,
   children,
   ...props
 }: ThreeSceneProps) {
@@ -120,6 +123,7 @@ export function ThreeScene({
         frameloop={frameloop}
         eventCompute={eventCompute}
         postProcessing={postProcessing}
+        fpsLimit={fpsLimit}
       >
         {children}
       </ThreeSceneSprite>
@@ -175,6 +179,7 @@ function ThreeSceneSpriteInternal({
   frameloop = "always",
   eventCompute,
   postProcessing,
+  fpsLimit,
   children,
 }: ThreeSceneSpriteInternalProps) {
   const { canvasRef, containerRef: canvasContainerRef } = useCanvasView();
@@ -277,8 +282,9 @@ function ThreeSceneSpriteInternal({
 
   const sceneTunnel = tunnel();
 
-  const { isFrameRequested, invalidate, clearFrameRequest } =
-    useRenderSchedule();
+  const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
+    fpsLimit,
+  });
 
   return (
     <>
@@ -295,7 +301,7 @@ function ThreeSceneSpriteInternal({
               postProcessing={postProcessing}
               frameloop={frameloop}
               isFrameRequested={isFrameRequested}
-              clearFrameRequest={clearFrameRequest}
+              signalFrame={signalFrame}
             >
               {children}
               <sceneTunnel.Out />

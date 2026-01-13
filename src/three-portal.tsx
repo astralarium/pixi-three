@@ -34,7 +34,7 @@ export interface PortalProps {
   /** Function to check if a frame render is requested (for frameloop="demand") */
   isFrameRequested?: () => boolean;
   /** Callback to clear the frame request after rendering */
-  clearFrameRequest?: () => void;
+  signalFrame?: () => void;
 }
 
 export function Portal({
@@ -49,7 +49,7 @@ export function Portal({
   postProcessing,
   frameloop = "always",
   isFrameRequested,
-  clearFrameRequest,
+  signalFrame,
 }: PortalProps) {
   const state = useThree();
   const backendData = (
@@ -139,7 +139,7 @@ export function Portal({
       gl.autoClear = oldAutoClear;
       gl.xr.enabled = oldXrEnabled;
       gl.xr.isPresenting = oldIsPresenting;
-      clearFrameRequest?.();
+      signalFrame?.();
     }
   }, renderPriority);
   return <>{children}</>;
