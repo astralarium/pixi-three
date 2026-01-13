@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
+import { PixiTexture, usePixiTextureEvents } from "@astralarium/pixi-three";
+import { extend } from "@pixi/react";
 import { type ThreeElements, useFrame } from "@react-three/fiber";
+import { Container, Graphics } from "pixi.js";
+import { useRef, useState } from "react";
 import { type Mesh } from "three";
 import { TextureNode } from "three/webgpu";
-import { Container, Graphics } from "pixi.js";
-import { extend } from "@pixi/react";
 
-import { PixiTexture, usePixiTextureEvents } from "@astralarium/pixi-three";
 import { SpinnyStar } from "./spinny-star";
 
 extend({ Graphics });

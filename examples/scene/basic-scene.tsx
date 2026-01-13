@@ -1,4 +1,5 @@
 import { CanvasContext, CanvasView, ThreeScene } from "@astralarium/pixi-three";
+
 import { SpinnyCube } from "../components/spinny-cube";
 import { SpinnyStar } from "../components/spinny-star";
 

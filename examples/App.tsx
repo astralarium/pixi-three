@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
+
 import { BasicScene } from "./scene/basic-scene";
 
 type Tab = "unmounted" | "basic";
@@ -13,7 +14,7 @@ function App() {
     }`;
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex h-screen flex-col">
       <div className="bg-neutral-300 p-4">
         <h1 className="text-2xl">Pixi + Three</h1>
         <div className="mt-2 flex items-center gap-2">
@@ -38,7 +39,7 @@ function App() {
 
 function CenteredContent({ children }: PropsWithChildren) {
   return (
-    <div className="flex-1 flex items-center justify-center">{children}</div>
+    <div className="flex flex-1 items-center justify-center">{children}</div>
   );
 }
 
