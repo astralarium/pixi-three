@@ -110,15 +110,8 @@ export function ThreeRoot({
         threeState.events.connect?.(eventSource.current);
       }
 
-      pixi.app.renderer.on("resize", (width, height) => {
-        renderer.setSize(width, height);
-        (threeState.camera as THREE.PerspectiveCamera).aspect = width / height;
-        threeState.camera.updateProjectionMatrix();
-      });
-
       function render() {
         threeState.advance(pixi.app.ticker.lastTime * 0.001);
-        pixi.app.renderer.resetState();
       }
 
       const { prerender } = pixi.app.renderer.runners;
