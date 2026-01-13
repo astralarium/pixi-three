@@ -32,7 +32,7 @@ extend({ Container });
  * @expand
  */
 export interface CanvasViewProps extends PropsWithChildren {
-  /** Class name for the canvas element */
+  /** Class name for the canvas element, default "h-full w-full" */
   className?: string;
   /** Canvas fallback content */
   fallback?: ReactNode;
@@ -73,7 +73,7 @@ export interface CanvasViewProps extends PropsWithChildren {
  * ```
  */
 export function CanvasView({
-  className,
+  className = "h-full w-full",
   fallback,
   children,
   frameloop = "always",
@@ -122,7 +122,7 @@ export function CanvasView({
             ],
           });
         }}
-        className={className ?? "h-full w-full"}
+        className={className}
         {...pixiDomEvents?.bind(canvasRef, containerRef)}
       >
         {fallback}
