@@ -1,4 +1,9 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  type LinkProps,
+  Outlet,
+} from "@tanstack/react-router";
 import type { PropsWithChildren } from "react";
 
 export const Route = createFileRoute("/example")({
@@ -25,10 +30,7 @@ function NavLink({
   to,
   children,
 }: PropsWithChildren<{
-  to:
-    | "/example/unmounted"
-    | "/example/basic-scene"
-    | "/example/demand-rendering";
+  to: LinkProps["to"];
 }>) {
   return (
     <Link
