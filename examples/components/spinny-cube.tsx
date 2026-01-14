@@ -6,23 +6,24 @@ import { useRef, useState } from "react";
 import { type Mesh } from "three";
 import { TextureNode } from "three/webgpu";
 
-import { SpinnyStar } from "./spinny-star";
+import { SpinnyStar, type SpinnyStarColors } from "./spinny-star";
 
 extend({ Graphics });
 
 export interface SpinnyCubeProps {
   size?: number;
   speed?: number;
+  initialColors?: SpinnyStarColors;
 }
 
 export function SpinnyCube({
   size = 1,
   speed = 1,
+  initialColors,
   ...props
 }: ThreeElements["mesh"] & SpinnyCubeProps) {
   const ref = useRef<Mesh>(null);
   const [hovered, hover] = useState(false);
-  const [clicked, click] = useState(false);
 
   useFrame((_state, delta) => {
     ref.current!.rotation.x += delta * (hovered ? 0.2 : 1) * speed;
@@ -32,9 +33,6 @@ export function SpinnyCube({
   const pixiTexture = useRef<TextureNode>(null!);
   const containerRef = useRef<Container>(null!);
   const eventHandlers = usePixiTextureEvents(containerRef, {
-    onPointerDown: () => {
-      click((x) => !x);
-    },
     onPointerOver: () => hover(true),
     onPointerOut: () => hover(false),
   });
@@ -51,7 +49,7 @@ export function SpinnyCube({
           attach="colorNode"
           frameloop="always"
         >
-          <SpinnyStar speed={speed} />
+          <SpinnyStar speed={speed} initialColors={initialColors} />
         </PixiTexture>
       </meshBasicNodeMaterial>
     </mesh>

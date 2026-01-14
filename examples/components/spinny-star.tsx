@@ -13,11 +13,19 @@ function randomColor() {
   );
 }
 
-export interface SpinnyStarProps {
-  speed?: number;
+export interface SpinnyStarColors {
+  star1?: number;
+  star1Hover?: number;
+  star2?: number;
+  star2Hover?: number;
 }
 
-export function SpinnyStar({ speed = 1 }: SpinnyStarProps) {
+export interface SpinnyStarProps {
+  speed?: number;
+  initialColors?: SpinnyStarColors;
+}
+
+export function SpinnyStar({ speed = 1, initialColors }: SpinnyStarProps) {
   const size = useViewport();
   const center = new Point(size.width / 2, size.height / 2);
   const scale = Math.min(size.width, size.height);
@@ -29,10 +37,18 @@ export function SpinnyStar({ speed = 1 }: SpinnyStarProps) {
 
   const star1 = useRef<Graphics>(null!);
   const star2 = useRef<Graphics>(null!);
-  const [star1_color, setStar1Color] = useState(randomColor);
-  const [star1_colorHover, setStar1ColorHover] = useState(randomColor);
-  const [star2_color, setStar2Color] = useState(randomColor);
-  const [star2_colorHover, setStar2ColorHover] = useState(randomColor);
+  const [star1_color, setStar1Color] = useState(
+    () => initialColors?.star1 ?? randomColor(),
+  );
+  const [star1_colorHover, setStar1ColorHover] = useState(
+    () => initialColors?.star1Hover ?? randomColor(),
+  );
+  const [star2_color, setStar2Color] = useState(
+    () => initialColors?.star2 ?? randomColor(),
+  );
+  const [star2_colorHover, setStar2ColorHover] = useState(
+    () => initialColors?.star2Hover ?? randomColor(),
+  );
 
   const time1 = useRef(0);
   const time2 = useRef(0);
