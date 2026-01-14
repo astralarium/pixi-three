@@ -12,8 +12,8 @@ import {
 
 export function Navigation() {
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
+    <NavigationMenu className="w-full max-w-full justify-between">
+      <NavigationMenuList className="flex-none">
         <NavigationMenuItem>
           <NavigationMenuLink
             className={navigationMenuTriggerStyle()}
@@ -87,6 +87,17 @@ export function Navigation() {
               </li>
             </ul>
           </NavigationMenuContent>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+
+      <NavigationMenuList className="flex-none">
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            className={navigationMenuTriggerStyle()}
+            href="https://github.com/astralarium/pixi-three"
+          >
+            GitHub
+          </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
