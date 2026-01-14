@@ -12,6 +12,14 @@ function BasicScene() {
   return (
     <RenderContext>
       <CanvasView alpha>
+        <SpinnyStar
+          alpha={0.1}
+          speed={0.1}
+          initialColors={{
+            star1: "#049ef4",
+            star2: "#e91e63",
+          }}
+        />
         <ThreeScene>
           <SpinnyCube position={[-2, -2, 0]} />
           <SpinnyCube position={[0, -2, 0]} />
@@ -23,7 +31,6 @@ function BasicScene() {
           <SpinnyCube position={[0, 2, 0]} />
           <SpinnyCube position={[2, 2, 0]} />
         </ThreeScene>
-        <SpinnyStar />
       </CanvasView>
     </RenderContext>
   );

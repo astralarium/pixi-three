@@ -1,9 +1,9 @@
 import { useViewport } from "@astralarium/pixi-three";
 import { extend, useTick } from "@pixi/react";
-import { type ColorSource, Graphics, Point } from "pixi.js";
-import { useRef, useState } from "react";
+import { type ColorSource, Container, Graphics, Point } from "pixi.js";
+import { type ComponentProps, useRef, useState } from "react";
 
-extend({ Graphics });
+extend({ Container, Graphics });
 
 function randomColor(): ColorSource {
   return (
@@ -25,7 +25,11 @@ export interface SpinnyStarProps {
   initialColors?: SpinnyStarColors;
 }
 
-export function SpinnyStar({ speed = 1, initialColors }: SpinnyStarProps) {
+export function SpinnyStar({
+  speed = 1,
+  initialColors,
+  ...props
+}: SpinnyStarProps & ComponentProps<"pixiContainer">) {
   const size = useViewport();
   const center = new Point(size.width / 2, size.height / 2);
   const scale = Math.min(size.width, size.height);
@@ -93,7 +97,7 @@ export function SpinnyStar({ speed = 1, initialColors }: SpinnyStarProps) {
   }
 
   return (
-    <>
+    <pixiContainer {...props}>
       <pixiGraphics
         ref={star1}
         eventMode="static"
@@ -126,6 +130,6 @@ export function SpinnyStar({ speed = 1, initialColors }: SpinnyStarProps) {
           setJustClicked2(true);
         }}
       />
-    </>
+    </pixiContainer>
   );
 }
