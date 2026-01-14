@@ -10,13 +10,13 @@ npm install @astralarium/pixi-three https://pkg.pr.new/pixijs/pixijs/pixi.js@118
 
 ## Usage
 
-- [`<RenderContext>`](https://astralarium.github.io/pixi-three/functions/RenderContext.html): Context manager for all canvas views, which share GPU resources. Contains DOM children, including CanvasView.
+- [`<RenderContext>`](https://astralarium.github.io/pixi-three/docs/functions/RenderContext.html): Context manager for all canvas views, which share GPU resources. Contains DOM children, including CanvasView.
 
-- [`<CanvasView>`](https://astralarium.github.io/pixi-three/functions/CanvasView.html): A canvas DOM element. Contains React Pixi children.
+- [`<CanvasView>`](https://astralarium.github.io/pixi-three/docs/functions/CanvasView.html): A canvas DOM element. Contains React Pixi children.
 
-- [`<ThreeScene>`](https://astralarium.github.io/pixi-three/functions/ThreeScene.html): A Pixi Sprite. Contains React Three Fiber children.
+- [`<ThreeScene>`](https://astralarium.github.io/pixi-three/docs/functions/ThreeScene.html): A Pixi Sprite. Contains React Three Fiber children.
 
-- [`<PixiTexture>`](https://astralarium.github.io/pixi-three/functions/PixiTexture.html): A Three TextureNode. Contains React Pixi children.
+- [`<PixiTexture>`](https://astralarium.github.io/pixi-three/docs/functions/PixiTexture.html): A Three TextureNode. Contains React Pixi children.
 
 ```tsx
 <RenderContext>

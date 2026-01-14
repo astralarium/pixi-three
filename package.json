@@ -24,10 +24,12 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && pnpm pack --out pack/%s-%v.tgz && typedoc",
+    "dev:pages": "concurrently \"typedoc --watch --preserveWatchOutput\" \"vite --config vite.pages.config.ts\"",
+    "build": "tsc -b && vite build && pnpm pack --out pack/%s-%v.tgz",
+    "build:pages": "vite build --config vite.pages.config.ts && typedoc",
     "lint": "eslint .",
     "preview": "vite preview",
-    "preview:docs": "concurrently \"typedoc --watch --preserveWatchOutput --options typedoc.json\" \"vite preview --outDir docs\""
+    "preview:pages": "vite preview --config vite.pages.config.ts"
   },
   "exports": {
     ".": {
