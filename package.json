@@ -23,7 +23,7 @@
     "dist"
   ],
   "scripts": {
-    "dev": "concurrently \"typedoc --watch --preserveWatchOutput\" \"vite --config vite.pages.config.ts\"",
+    "dev": "concurrently -P \"typedoc --watch --preserveWatchOutput\" \"vite --config vite.pages.config.ts {@}\" --",
     "build": "tsc -b && vite build && pnpm pack --out pack/%s-%v.tgz",
     "build:pages": "typedoc && vite build --config vite.pages.config.ts",
     "lint": "eslint .",
