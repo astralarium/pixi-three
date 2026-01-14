@@ -2,19 +2,21 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import tailwindcss from "@tailwindcss/vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig, type UserConfig } from "vite";
+import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import tsConfigPaths from "vite-tsconfig-paths";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const sharedConfig = {
-  resolve: {
-    alias: {
-      "@astralarium/pixi-three": resolve(__dirname, "src/index.ts"),
-    },
-  },
+// Pages config - for dev server and building the examples/docs site
+export const pagesConfig = defineConfig({
+  base: "/pixi-three/",
+  publicDir: "dist-typedoc",
   plugins: [
+    tsConfigPaths(),
+    tanstackStart({ srcDirectory: "examples", prerender: { enabled: true } }),
     react({
       babel: {
         plugins: [["babel-plugin-react-compiler"]],
@@ -22,13 +24,6 @@ const sharedConfig = {
     }),
     tailwindcss(),
   ],
-} satisfies UserConfig;
-
-// Pages config - for dev server and building the examples/docs site
-export const pagesConfig = defineConfig({
-  ...sharedConfig,
-  base: "/pixi-three/",
-  publicDir: "dist-typedoc",
   server: {
     fs: {
       allow: [".", "dist-typedoc/docs"],
@@ -37,13 +32,23 @@ export const pagesConfig = defineConfig({
   build: {
     outDir: "dist-pages",
   },
+  resolve: {
+    alias: {
+      "@astralarium/pixi-three": resolve(__dirname, "src/index.ts"),
+    },
+  },
 });
 
 // Library config (default) - for building the npm package
 export default defineConfig({
-  ...sharedConfig,
   plugins: [
-    ...sharedConfig.plugins,
+    tsConfigPaths(),
+    react({
+      babel: {
+        plugins: [["babel-plugin-react-compiler"]],
+      },
+    }),
+    tailwindcss(),
     dts({ tsconfigPath: "./tsconfig.app.json", exclude: ["examples"] }),
   ],
   build: {
