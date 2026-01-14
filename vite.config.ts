@@ -16,7 +16,15 @@ export const pagesConfig = defineConfig({
   publicDir: "dist-typedoc",
   plugins: [
     tsConfigPaths({ projects: ["./tsconfig.pages.json"] }),
-    tanstackStart({ srcDirectory: "examples", prerender: { enabled: true } }),
+    tanstackStart({
+      srcDirectory: "examples",
+      spa: { enabled: true },
+      prerender: {
+        enabled: true,
+        crawlLinks: true,
+        autoStaticPathsDiscovery: true,
+      },
+    }),
     react({
       babel: {
         plugins: [["babel-plugin-react-compiler"]],
