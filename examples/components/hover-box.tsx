@@ -1,6 +1,9 @@
 import { useEffectInvalidate } from "@astralarium/pixi-three";
+import { extend } from "@pixi/react";
 import { Graphics } from "pixi.js";
 import { type ComponentProps, useState } from "react";
+
+extend({ Graphics });
 
 function drawRedBox(graphics: Graphics) {
   graphics.clear();
