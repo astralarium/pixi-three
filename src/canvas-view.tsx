@@ -203,6 +203,7 @@ function CanvasViewContent({
   );
 
   useEffect(() => {
+    const canvas = canvasRef.current;
     const resizeObserver = new ResizeObserver(([entry]) => {
       updateSnapshot({
         width: entry.contentRect.width,
@@ -210,7 +211,14 @@ function CanvasViewContent({
       });
       notifySubscribers();
     });
-    resizeObserver.observe(canvasRef.current);
+    resizeObserver.observe(canvas);
+    if (canvas.clientWidth > 0 && canvas.clientHeight > 0) {
+      updateSnapshot({
+        width: canvas.clientWidth,
+        height: canvas.clientHeight,
+      });
+      notifySubscribers();
+    }
     return () => {
       resizeObserver.disconnect();
     };
