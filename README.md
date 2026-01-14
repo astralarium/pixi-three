@@ -29,7 +29,7 @@ npm install @astralarium/pixi-three https://pkg.pr.new/pixijs/pixijs/pixi.js@118
 </RenderContext>
 ```
 
-[See a full working example](https://github.com/astralarya/pixi-three/tree/main/examples)
+[See examples on the documentation website](https://astralarium.github.io/pixi-three)
 
 ## Development
 
