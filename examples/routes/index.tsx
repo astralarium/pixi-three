@@ -29,7 +29,7 @@ function LandingPage({ children }: PropsWithChildren) {
       <div className="-z-10 -mt-[16svh] -mb-[14svh] grow">{children}</div>
 
       <div className="mb-[16svh] flex gap-4">
-        <Button size="lg" render={<a href="/pixi-three/docs/index.html" />}>
+        <Button size="lg" render={<a href="/pixi-three/docs/" />}>
           Docs
         </Button>
         <Button

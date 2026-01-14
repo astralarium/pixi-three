@@ -31,7 +31,7 @@ export function Navigation() {
         <NavigationMenuItem>
           <NavigationMenuLink
             className={navigationMenuTriggerStyle()}
-            href="/pixi-three/docs/index.html"
+            href="/pixi-three/docs/"
           >
             Docs
           </NavigationMenuLink>

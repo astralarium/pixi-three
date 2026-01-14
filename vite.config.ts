@@ -21,8 +21,8 @@ export const pagesConfig = defineConfig({
       spa: { enabled: true },
       prerender: {
         enabled: true,
-        crawlLinks: true,
         autoStaticPathsDiscovery: true,
+        filter: ({ path }) => path !== "/pixi-three/docs/",
       },
     }),
     react({
