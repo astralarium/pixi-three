@@ -1,4 +1,4 @@
-# Pixi-Three
+# PixiThree
 
 Write declarative apps seamlessly blending 2d and 3d components in React.
 

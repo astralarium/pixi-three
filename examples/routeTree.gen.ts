@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ExampleRouteImport } from './routes/example'
-import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExampleUnmountedRouteImport } from './routes/example/unmounted'
 import { Route as ExampleDemandRenderingRouteImport } from './routes/example/demand-rendering'
@@ -19,11 +18,6 @@ import { Route as ExampleBasicSceneRouteImport } from './routes/example/basic-sc
 const ExampleRoute = ExampleRouteImport.update({
   id: '/example',
   path: '/example',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocsRoute = DocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,7 +43,6 @@ const ExampleBasicSceneRoute = ExampleBasicSceneRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/docs': typeof DocsRoute
   '/example': typeof ExampleRouteWithChildren
   '/example/basic-scene': typeof ExampleBasicSceneRoute
   '/example/demand-rendering': typeof ExampleDemandRenderingRoute
@@ -57,7 +50,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/docs': typeof DocsRoute
   '/example': typeof ExampleRouteWithChildren
   '/example/basic-scene': typeof ExampleBasicSceneRoute
   '/example/demand-rendering': typeof ExampleDemandRenderingRoute
@@ -66,7 +58,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/docs': typeof DocsRoute
   '/example': typeof ExampleRouteWithChildren
   '/example/basic-scene': typeof ExampleBasicSceneRoute
   '/example/demand-rendering': typeof ExampleDemandRenderingRoute
@@ -76,7 +67,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/docs'
     | '/example'
     | '/example/basic-scene'
     | '/example/demand-rendering'
@@ -84,7 +74,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/docs'
     | '/example'
     | '/example/basic-scene'
     | '/example/demand-rendering'
@@ -92,7 +81,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/docs'
     | '/example'
     | '/example/basic-scene'
     | '/example/demand-rendering'
@@ -101,7 +89,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DocsRoute: typeof DocsRoute
   ExampleRoute: typeof ExampleRouteWithChildren
 }
 
@@ -112,13 +99,6 @@ declare module '@tanstack/react-router' {
       path: '/example'
       fullPath: '/example'
       preLoaderRoute: typeof ExampleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/docs': {
-      id: '/docs'
-      path: '/docs'
-      fullPath: '/docs'
-      preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -169,7 +149,6 @@ const ExampleRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DocsRoute: DocsRoute,
   ExampleRoute: ExampleRouteWithChildren,
 }
 export const routeTree = rootRouteImport

@@ -3,7 +3,7 @@
   "entryPoints": ["./src/index.ts"],
   "out": "./dist-typedoc/docs",
   "tsconfig": "./tsconfig.app.json",
-  "name": "@astralarium/pixi-three",
+  "name": "PixiThree",
   "readme": "./README.md",
   "includeVersion": true,
   "excludePrivate": true,
