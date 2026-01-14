@@ -29,10 +29,10 @@ export function SpinnyStar({ speed = 1 }: SpinnyStarProps) {
 
   const star1 = useRef<Graphics>(null!);
   const star2 = useRef<Graphics>(null!);
-  const star1_color1 = useRef(randomColor());
-  const star1_color2 = useRef(randomColor());
-  const star2_color1 = useRef(randomColor());
-  const star2_color2 = useRef(randomColor());
+  const [star1_color, setStar1Color] = useState(randomColor);
+  const [star1_colorHover, setStar1ColorHover] = useState(randomColor);
+  const [star2_color, setStar2Color] = useState(randomColor);
+  const [star2_colorHover, setStar2ColorHover] = useState(randomColor);
 
   const time1 = useRef(0);
   const time2 = useRef(0);
@@ -47,14 +47,14 @@ export function SpinnyStar({ speed = 1 }: SpinnyStarProps) {
     graphics.clear();
     graphics.star(center.x, center.y, 5, radius).stroke({
       width,
-      color: star1_color1.current,
+      color: star1_color,
     });
   }
   function drawStar1_hover(graphics: Graphics) {
     graphics.clear();
     graphics.star(center.x, center.y, 5, radius).stroke({
       width,
-      color: star1_color2.current,
+      color: star1_colorHover,
     });
   }
 
@@ -62,7 +62,7 @@ export function SpinnyStar({ speed = 1 }: SpinnyStarProps) {
     graphics.clear();
     graphics.star(center.x, center.y, 5, radius).stroke({
       width,
-      color: star2_color1.current,
+      color: star2_color,
     });
   }
 
@@ -70,7 +70,7 @@ export function SpinnyStar({ speed = 1 }: SpinnyStarProps) {
     graphics.clear();
     graphics.star(center.x, center.y, 5, radius).stroke({
       width,
-      color: star2_color2.current,
+      color: star2_colorHover,
     });
   }
 
@@ -83,6 +83,10 @@ export function SpinnyStar({ speed = 1 }: SpinnyStarProps) {
         origin={center}
         onPointerEnter={() => setHover1(true)}
         onPointerLeave={() => setHover1(false)}
+        onPointerDown={() => {
+          setStar1Color(randomColor());
+          setStar1ColorHover(randomColor());
+        }}
       />
       <pixiGraphics
         ref={star2}
@@ -91,6 +95,10 @@ export function SpinnyStar({ speed = 1 }: SpinnyStarProps) {
         origin={center}
         onPointerEnter={() => setHover2(true)}
         onPointerLeave={() => setHover2(false)}
+        onPointerDown={() => {
+          setStar2Color(randomColor());
+          setStar2ColorHover(randomColor());
+        }}
       />
     </>
   );

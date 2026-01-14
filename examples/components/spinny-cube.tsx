@@ -32,13 +32,15 @@ export function SpinnyCube({
   const pixiTexture = useRef<TextureNode>(null!);
   const containerRef = useRef<Container>(null!);
   const eventHandlers = usePixiTextureEvents(containerRef, {
-    onPointerDown: () => click((x) => !x),
+    onPointerDown: () => {
+      click((x) => !x);
+    },
     onPointerOver: () => hover(true),
     onPointerOut: () => hover(false),
   });
 
   return (
-    <mesh {...props} ref={ref} scale={clicked ? 1.5 : 1} {...eventHandlers}>
+    <mesh {...props} ref={ref} {...eventHandlers}>
       <boxGeometry args={[1 * size, 1 * size, 1 * size]} />
       <meshBasicNodeMaterial>
         <PixiTexture
