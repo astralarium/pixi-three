@@ -14,6 +14,7 @@ dist-typedoc
 dist-ssr
 pack
 *.local
+.env
 
 # Editor directories and files
 .claude

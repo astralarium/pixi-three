@@ -1,14 +1,24 @@
+import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import dts from "vite-plugin-dts";
 import tsConfigPaths from "vite-tsconfig-paths";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const env = loadEnv("development", __dirname, "");
+
+const readFile = (path: string | undefined) =>
+  path ? readFileSync(path, "utf-8") : undefined;
+
+const sslKey = readFile(env.SSL_KEY);
+const sslCert = readFile(env.SSL_CERT);
+const localDomain = env.LOCAL_DOMAIN;
 
 // Pages config - for dev server and building the examples/docs site
 export const pagesConfig = defineConfig({
@@ -33,6 +43,14 @@ export const pagesConfig = defineConfig({
     tailwindcss(),
   ],
   server: {
+    https:
+      sslKey && sslCert
+        ? {
+            key: sslKey,
+            cert: sslCert,
+          }
+        : undefined,
+    allowedHosts: localDomain ? [localDomain] : [],
     fs: {
       allow: [".", "dist-typedoc/docs"],
     },
