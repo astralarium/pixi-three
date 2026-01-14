@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
 function LandingPage({ children }: PropsWithChildren) {
   return (
     <div className="isolate flex h-[calc(100svh-3rem)] flex-col items-center">
-      <div className="mt-[calc(18svh-5rem)] text-center">
+      <div className="mx-2 mt-[calc(18svh-5rem)] text-center">
         <h1 className="text-6xl font-bold">
           <span className="text-pixi-red">Pixi</span>
           <span className="text-three-blue">Three</span>
