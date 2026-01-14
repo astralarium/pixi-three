@@ -15,7 +15,7 @@ export const pagesConfig = defineConfig({
   base: "/pixi-three/",
   publicDir: "dist-typedoc",
   plugins: [
-    tsConfigPaths(),
+    tsConfigPaths({ projects: ["./tsconfig.pages.json"] }),
     tanstackStart({ srcDirectory: "examples", prerender: { enabled: true } }),
     react({
       babel: {
