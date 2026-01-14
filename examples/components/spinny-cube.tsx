@@ -44,12 +44,12 @@ export function SpinnyCube({
         <PixiTexture
           ref={pixiTexture}
           containerRef={containerRef}
-          width={clicked ? 64 : 128}
-          height={clicked ? 64 : 128}
+          width={256}
+          height={256}
           attach="colorNode"
           frameloop="always"
         >
-          <SpinnyStar />
+          <SpinnyStar speed={speed} />
         </PixiTexture>
       </meshBasicNodeMaterial>
     </mesh>
