@@ -258,14 +258,20 @@ function ThreeSceneSpriteInternal({
       return x;
     })(),
   );
+
+  const changedSize = useRef(false);
+
   useEffect(() => {
-    sprite.current.width = width;
-    sprite.current.height = height;
+    changedSize.current = true;
   }, [height, width]);
 
   function onTextureUpdate(texture: GPUTexture) {
     sprite.current.texture.source.resource = texture;
     sprite.current.texture.source.update();
+    if (changedSize.current) {
+      sprite.current.setSize(width, height);
+      changedSize.current = false;
+    }
   }
   useImperativeHandle(spriteRef, () => sprite.current, []);
 
