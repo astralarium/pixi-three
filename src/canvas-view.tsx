@@ -122,6 +122,11 @@ export function CanvasView({
             ],
           });
         }}
+        style={{
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none",
+        }}
         className={className}
         {...pixiDomEvents?.bind(canvasRef, containerRef)}
       >
