@@ -264,10 +264,8 @@ function ThreeSceneSpriteInternal({
   }, [height, width]);
 
   function onTextureUpdate(texture: GPUTexture) {
-    sprite.current.texture.source = new ExternalSource({
-      resource: texture,
-      label: "three-scene",
-    });
+    sprite.current.texture.source.resource = texture;
+    sprite.current.texture.source.update();
   }
   useImperativeHandle(spriteRef, () => sprite.current, []);
 
