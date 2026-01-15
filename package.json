@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "dev": "concurrently -P \"typedoc --watch --preserveWatchOutput\" \"vite --config vite.pages.config.ts {@}\" --",
-    "build": "tsc -b && vite build && pnpm pack --out pack/%s-%v.tgz",
+    "build": "tsc -b && eslint . && vite build && pnpm pack --out pack/%s-%v.tgz",
     "build:pages": "typedoc && NODE_TLS_REJECT_UNAUTHORIZED=0 vite build --config vite.pages.config.ts",
     "lint": "eslint .",
     "preview": "vite preview --config vite.pages-preview.config.ts"
