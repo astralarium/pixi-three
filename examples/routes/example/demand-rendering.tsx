@@ -1,6 +1,7 @@
 import { CanvasView, RenderContext, ThreeScene } from "@astralarium/pixi-three";
 import { createFileRoute } from "@tanstack/react-router";
 
+import { FadeIn } from "#components/fade-in";
 import { HoverBox } from "#components/hover-box";
 import { HoverCube } from "#components/hover-cube";
 
@@ -14,15 +15,17 @@ function DemandRendering() {
   return (
     <Frame
       title="Demand Rendering"
-      subtitle="Frames are only rendered on interaction."
+      subtitle="Frames are rendered on demand."
       sourceUrl="https://github.com/astralarium/pixi-three/blob/main/examples/routes/example/demand-rendering.tsx"
     >
       <RenderContext>
         <CanvasView alpha frameloop="demand">
-          <ThreeScene frameloop="demand">
-            <HoverCube position={[-2, 0, 0]} />
-          </ThreeScene>
-          <HoverBox />
+          <FadeIn>
+            <ThreeScene frameloop="demand">
+              <HoverCube position={[-2, 0, 0]} />
+            </ThreeScene>
+            <HoverBox />
+          </FadeIn>
         </CanvasView>
       </RenderContext>
     </Frame>
