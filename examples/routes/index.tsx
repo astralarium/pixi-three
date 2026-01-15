@@ -2,9 +2,9 @@ import { CanvasView, RenderContext, ThreeScene } from "@astralarium/pixi-three";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { PropsWithChildren } from "react";
 
+import { FadeIn } from "#components/fade-in";
+import { SpinnyCube } from "#components/spinny-cube";
 import { Button } from "#components/ui/button";
-
-import { SpinnyCube } from "../components/spinny-cube";
 
 export const Route = createFileRoute("/")({
   component: LandingPageClient,
@@ -50,18 +50,20 @@ function LandingPageClient() {
     <LandingPage>
       <RenderContext>
         <CanvasView alpha>
-          <ThreeScene>
-            <SpinnyCube
-              size={2.5}
-              speed={0.25}
-              initialColors={{
-                star1: "#049ef4",
-                star1Hover: "#77ceff",
-                star2: "#e91e63",
-                star2Hover: "#fe68a6",
-              }}
-            />
-          </ThreeScene>
+          <FadeIn>
+            <ThreeScene>
+              <SpinnyCube
+                size={2.5}
+                speed={0.25}
+                initialColors={{
+                  star1: "#049ef4",
+                  star1Hover: "#77ceff",
+                  star2: "#e91e63",
+                  star2Hover: "#fe68a6",
+                }}
+              />
+            </ThreeScene>
+          </FadeIn>
         </CanvasView>
       </RenderContext>
     </LandingPage>
