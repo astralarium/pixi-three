@@ -1,6 +1,6 @@
 {
   "name": "@astralarium/pixi-three",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "module",
   "description": "Write declarative apps seamlessly blending 2d and 3d components in React",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "build": "tsc -b && vite build && pnpm pack --out pack/%s-%v.tgz",
     "build:pages": "typedoc && NODE_TLS_REJECT_UNAUTHORIZED=0 vite build --config vite.pages.config.ts",
     "lint": "eslint .",
-    "preview": "vite preview --outDir dist-pages/client --base /pixi-three/"
+    "preview": "vite preview --config vite.pages-preview.config.ts"
   },
   "exports": {
     ".": {
