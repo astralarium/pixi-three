@@ -16,11 +16,11 @@ function LandingPage({ children }: PropsWithChildren) {
   return (
     <div className="isolate flex h-[calc(100svh-3rem)] flex-col items-center">
       <div className="mx-2 mt-[clamp(0rem,10svh-2rem,8rem)] text-center">
-        <h1 className="text-[clamp(2.5rem,12svh,4rem)] font-bold [@media(max-height:400px)]:hidden">
+        <h1 className="text-[clamp(2.5rem,min(12svh,14svw),4rem)] font-bold [@media(max-height:400px)]:hidden [@media(max-width:200px)]:hidden">
           <span className="text-pixi-red">Pixi</span>
           <span className="text-three-blue">Three</span>
         </h1>
-        <p className="text-muted-foreground mt-[clamp(0rem,2svh,1rem)] max-w-md text-center text-[clamp(0.875rem,2.5svh,1.125rem)] [@media(max-height:600px)]:hidden">
+        <p className="text-muted-foreground mt-[clamp(0rem,2svh,1rem)] max-w-md text-center text-[clamp(0.875rem,2.5svh,1.125rem)] [@media(max-height:600px)]:hidden [@media(max-width:200px)]:hidden">
           <span className="max-sm:hidden">
             Declarative composition of 2D and 3D in React.
           </span>
@@ -32,7 +32,7 @@ function LandingPage({ children }: PropsWithChildren) {
         {children}
       </div>
 
-      <div className="mb-[clamp(0.1rem,12svh-2rem,8rem)] flex gap-4">
+      <div className="mb-[clamp(0.1rem,12svh-2rem,8rem)] flex gap-4 [@media(max-width:200px)]:flex-col">
         <Button size="lg" render={<a href="/pixi-three/docs/" />}>
           Docs
         </Button>
