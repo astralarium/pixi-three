@@ -344,9 +344,10 @@ function ThreeSceneSpriteInternal({
     const currentSprite = sprite.current;
     currentSprite.hitArea = hitArea && {
       contains(x: number, y: number): boolean {
-        const normalizedX = x / width;
-        const normalizedY = y / height;
-        return hitArea.contains(normalizedX, normalizedY);
+        return hitArea.contains(
+          x / width / size.resolution,
+          y / height / size.resolution,
+        );
       },
     };
   }
