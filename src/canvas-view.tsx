@@ -99,39 +99,44 @@ export function CanvasView({
 
   return (
     <>
-      <canvas
-        ref={(ref) => {
-          if (!ref) {
-            return;
-          }
-          canvasRef.current = ref;
-          renderTargetRef.current = new RenderTarget({
-            width: ref.clientWidth,
-            height: ref.clientHeight,
-            resolution: resolution,
-            antialias: antialias,
-            colorTextures: [
-              {
-                source: new CanvasSource({
-                  resource: ref,
-                  resolution: resolution,
-                  transparent: alpha,
-                  autoGarbageCollect: false,
-                }),
-              },
-            ],
-          });
-        }}
-        style={{
-          userSelect: "none",
-          WebkitUserSelect: "none",
-          WebkitTouchCallout: "none",
-        }}
-        className={className}
-        {...pixiDomEvents?.bind(canvasRef, containerRef)}
-      >
-        {fallback}
-      </canvas>
+      <div className={className} style={{ position: "relative" }}>
+        <canvas
+          ref={(ref) => {
+            if (!ref) {
+              return;
+            }
+            canvasRef.current = ref;
+            renderTargetRef.current = new RenderTarget({
+              width: ref.clientWidth,
+              height: ref.clientHeight,
+              resolution: resolution,
+              antialias: antialias,
+              colorTextures: [
+                {
+                  source: new CanvasSource({
+                    resource: ref,
+                    resolution: resolution,
+                    transparent: alpha,
+                    autoGarbageCollect: false,
+                  }),
+                },
+              ],
+            });
+          }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            WebkitTouchCallout: "none",
+          }}
+          {...pixiDomEvents?.bind(canvasRef, containerRef)}
+        >
+          {fallback}
+        </canvas>
+      </div>
       <tunnel.In>
         <CanvasViewContent
           key={id}
