@@ -14,7 +14,7 @@ function Unmounted() {
       sourceUrl="https://github.com/astralarium/pixi-three/blob/main/examples/routes/example/unmount-context.tsx"
     >
       <div className="flex flex-1 items-center justify-center">
-        Unmount Render Context
+        This page intentionally left blank.
       </div>
     </Frame>
   );
