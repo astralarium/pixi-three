@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { X } from "lucide-react";
 import { useState } from "react";
 
 import { Frame } from "./-frame";
@@ -36,10 +37,8 @@ function VideoPreview() {
   return (
     <Frame title="Video Preview" subtitle="Preview videos with transparency">
       <div
-        className={`relative m-4 flex flex-1 items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
-          isDragging
-            ? "border-primary bg-primary/10"
-            : "border-muted-foreground/25"
+        className={`relative m-4 flex flex-1 items-center justify-center rounded-lg border-2 border-dashed transition-colors duration-200 ${
+          isDragging ? "border-green-500" : "border-muted-foreground/25"
         }`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -48,20 +47,37 @@ function VideoPreview() {
           backgroundColor: "#3a3a3a",
           backgroundImage:
             "linear-gradient(45deg, #454545 25%, transparent 25%), linear-gradient(-45deg, #454545 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #454545 75%), linear-gradient(-45deg, transparent 75%, #454545 75%)",
-          backgroundSize: "40px 40px",
-          backgroundPosition: "0 0, 0 20px, 20px -20px, -20px 0px",
+          backgroundSize: "2rem 2rem",
+          backgroundPosition: "0 0, 0 1rem, 1rem -1rem, -1rem 0",
         }}
       >
+        <div
+          className={`pointer-events-none absolute inset-0 rounded-lg bg-green-500 transition-opacity duration-200 ${
+            isDragging ? "opacity-25" : "opacity-0"
+          }`}
+        />
         {videoUrl ? (
-          <video
-            src={videoUrl}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="max-h-full max-w-full"
-            style={{ background: "transparent" }}
-          />
+          <div className="group relative">
+            <video
+              src={videoUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              controls
+              className="max-h-full max-w-full"
+              style={{ background: "transparent" }}
+            />
+            <button
+              onClick={() => {
+                URL.revokeObjectURL(videoUrl);
+                setVideoUrl(null);
+              }}
+              className="absolute top-6 right-6 rounded-full bg-black/40 p-2 text-white opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-950/70 hover:text-red-500"
+            >
+              <X size={20} />
+            </button>
+          </div>
         ) : (
           <div className="bg-background/80 rounded-lg p-8 text-center backdrop-blur">
             <p className="text-muted-foreground text-lg">
