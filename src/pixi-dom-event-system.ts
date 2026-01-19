@@ -7,6 +7,7 @@ import {
 } from "pixi.js";
 import type { PointerEventHandler, RefObject, WheelEventHandler } from "react";
 
+import { mapClientToViewport } from "./bijections";
 import {
   type EventGuard,
   PixiSyntheticEventSystem,
@@ -84,8 +85,14 @@ export class PixiDomEventSystem extends PixiSyntheticEventSystem<
           top: 0,
         };
 
-    point.x = ((domEvent.clientX - rect.left) / rect.width) * viewRect.width;
-    point.y = ((domEvent.clientY - rect.top) / rect.height) * viewRect.height;
+    const viewport = mapClientToViewport(
+      domEvent.clientX,
+      domEvent.clientY,
+      rect,
+      viewRect,
+    );
+    point.x = viewport.x;
+    point.y = viewport.y;
   }
 
   /**

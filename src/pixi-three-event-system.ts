@@ -4,7 +4,6 @@ import {
   type ThreeEvent,
 } from "@react-three/fiber";
 import {
-  type Bounds,
   type Container,
   type EventBoundary,
   type Point,
@@ -12,8 +11,8 @@ import {
   type Renderer,
 } from "pixi.js";
 import type { RefObject } from "react";
-import { type Vector2 } from "three";
 
+import { mapUvToPoint } from "./bijections";
 import {
   type EventGuard,
   MISSED_POINT,
@@ -72,25 +71,11 @@ export class PixiThreeEventSystem extends PixiSyntheticEventSystem<
       point.copyFrom(MISSED_POINT);
       return;
     }
-    return this.mapUvToPoint(
-      point,
-      uv,
+    const bounds =
       eventBoundary.rootTarget.hitArea instanceof Rectangle
         ? eventBoundary.rootTarget.hitArea
-        : eventBoundary.rootTarget.getBounds(),
-    );
-  }
-
-  /**
-   * Maps UV coordinates to Pixi pixel coordinates.
-   *
-   * @param point - The {@link https://pixijs.download/release/docs/maths.Point.html | Point} to write the result
-   * @param uv - {@link https://threejs.org/docs/#Vector2 | Vector2} of UV coordinates (0-1 range)
-   * @param bounds - The {@link https://pixijs.download/release/docs/maths.Bounds.html | Bounds} to map within
-   */
-  public mapUvToPoint(point: Point, uv: Vector2, bounds: Rectangle | Bounds) {
-    point.x = uv.x * bounds.width + bounds.x;
-    point.y = uv.y * bounds.height + bounds.y;
+        : eventBoundary.rootTarget.getBounds();
+    mapUvToPoint(uv, point, bounds);
   }
 
   /**

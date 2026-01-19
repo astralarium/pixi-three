@@ -34,6 +34,10 @@ import { Raycaster, type RenderTargetOptions, Scene, Vector2 } from "three";
 import { type PostProcessing } from "three/webgpu";
 import tunnel from "tunnel-rat";
 
+import {
+  mapNdcToPoint as mapNdcToPointUtil,
+  mapPointToNdc as mapPointToNdcUtil,
+} from "./bijections";
 import { useViewport } from "./canvas-tree-context";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { useCanvasView } from "./canvas-view-context";
@@ -276,6 +280,14 @@ function ThreeSceneSpriteInternal({
     }
   }
 
+  function mapPointToNdc(point: Point, ndc: Vector2) {
+    mapPointToNdcUtil(point, ndc, sprite.current.getLocalBounds());
+  }
+
+  function mapNdcToPoint(ndc: Vector2, point: Point) {
+    mapNdcToPointUtil(ndc, point, sprite.current.getLocalBounds());
+  }
+
   const clientPos = new Point();
   const globalPos = new Point();
   const localPos = new Point();
@@ -304,7 +316,7 @@ function ThreeSceneSpriteInternal({
       if (!uv) {
         return false;
       }
-      pixiTextureContext.mapUvToPoint(globalPos, uv);
+      pixiTextureContext.mapUvToPoint(uv, globalPos);
       if (
         sprite.current !== pixiTextureContext.hitTest(globalPos.x, globalPos.y)
       ) {
@@ -326,14 +338,8 @@ function ThreeSceneSpriteInternal({
     }
 
     sprite.current.toLocal(globalPos, undefined, localPos);
-    const bounds = sprite.current.getLocalBounds();
-    const x = (localPos.x - bounds.x) / bounds.width;
-    const y = (localPos.y - bounds.y) / bounds.height;
-
-    state.raycaster.setFromCamera(
-      state.pointer.set(x * 2 - 1, -(y * 2 - 1)),
-      state.camera,
-    );
+    mapPointToNdc(localPos, state.pointer);
+    state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
   const sceneTunnel = tunnel();
@@ -359,7 +365,14 @@ function ThreeSceneSpriteInternal({
   return (
     <>
       <CanvasTreeContext value={{ store, invalidate }}>
-        <ThreeSceneContext value={{ containerRef, sceneTunnel }}>
+        <ThreeSceneContext
+          value={{
+            containerRef,
+            sceneTunnel,
+            mapPointToNdc,
+            mapNdcToPoint,
+          }}
+        >
           {createPortal(
             <Portal
               renderPriority={renderPriority}

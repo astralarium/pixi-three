@@ -25,6 +25,10 @@ import { texture } from "three/tsl";
 import { type Object3D, type TextureNode, type Vector2 } from "three/webgpu";
 import type tunnel from "tunnel-rat";
 
+import {
+  mapPointToUv as mapPointToUvUtil,
+  mapUvToPoint as mapUvToPointUtil,
+} from "./bijections";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { PixiTextureContext } from "./pixi-texture-context";
 import { useRenderContext } from "./render-context-hooks";
@@ -251,9 +255,14 @@ function PixiTextureInternal({
     return localEventBoundary.hitTest(x, y);
   }
 
-  function mapUvToPoint(point: Point, uv: Vector2) {
-    point.x = uv.x * width;
-    point.y = uv.y * height;
+  const bounds = { width, height };
+
+  function mapUvToPoint(uv: Vector2, point: Point) {
+    mapUvToPointUtil(uv, point, bounds);
+  }
+
+  function mapPointToUv(point: Point, uv: Vector2) {
+    mapPointToUvUtil(point, uv, bounds);
   }
 
   return (
@@ -267,6 +276,7 @@ function PixiTextureInternal({
           getAttachedObject,
           hitTest,
           mapUvToPoint,
+          mapPointToUv,
         }}
       >
         <pixiContainer

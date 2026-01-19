@@ -5,6 +5,7 @@ import {
   type DomEvent,
   type RootState,
 } from "@react-three/fiber";
+import { type Point } from "pixi.js";
 import {
   type ReactNode,
   type Ref,
@@ -19,9 +20,15 @@ import {
   type RenderTargetOptions,
   Scene,
   type Texture,
+  Vector2,
 } from "three";
 import tunnel from "tunnel-rat";
 
+import {
+  mapNdcToPoint as mapNdcToPointUtil,
+  mapPointToNdc as mapPointToNdcUtil,
+  mapUvToNdc,
+} from "./bijections";
 import { useViewport } from "./canvas-tree-context";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { useAttachedObject } from "./three-fiber";
@@ -134,6 +141,16 @@ export function ThreeRenderTexture({
 
   useImperativeHandle(ref, () => texture!, [texture]);
 
+  const bounds = { width, height };
+
+  function mapPointToNdc(point: Point, ndc: Vector2) {
+    mapPointToNdcUtil(point, ndc, bounds);
+  }
+
+  function mapNdcToPoint(ndc: Vector2, point: Point) {
+    mapNdcToPointUtil(ndc, point, bounds);
+  }
+
   function computeFn(event: DomEvent, state: RootState, previous?: RootState) {
     if (!previous) {
       return false;
@@ -158,10 +175,8 @@ export function ThreeRenderTexture({
     if (!uv) {
       return false;
     }
-    state.raycaster.setFromCamera(
-      state.pointer.set(uv.x * 2 - 1, -(uv.y * 2 - 1)),
-      state.camera,
-    );
+    mapUvToNdc(uv, state.pointer);
+    state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
   const sceneTunnel = tunnel();
@@ -173,7 +188,14 @@ export function ThreeRenderTexture({
   return (
     <>
       <CanvasTreeContext value={{ store, invalidate }}>
-        <ThreeSceneContext value={{ containerRef, sceneTunnel }}>
+        <ThreeSceneContext
+          value={{
+            containerRef,
+            sceneTunnel,
+            mapPointToNdc,
+            mapNdcToPoint,
+          }}
+        >
           {createPortal(
             <Portal
               ref={(renderTarget: RenderTarget | null) => {

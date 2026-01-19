@@ -1,5 +1,6 @@
 import "./styles.css";
 
+export * from "./bijections";
 export * from "./canvas-tree-context";
 export * from "./canvas-view";
 export * from "./canvas-view-context";
