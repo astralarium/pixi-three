@@ -21,7 +21,7 @@ function LandingPage({ children }: PropsWithChildren) {
           <span className="text-three-blue">Three</span>
         </h1>
         <p className="text-muted-foreground mx-auto mt-2 max-w-md text-lg max-sm:hidden [@media(max-height:800px)]:hidden [@media(max-width:200px)]:hidden">
-          Declarative composition of 2D and 3D in React.
+          Declarative 2D and 3D composition in React.
         </p>
       </div>
 

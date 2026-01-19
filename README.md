@@ -1,6 +1,6 @@
 # PixiThree
 
-Create declarative apps with unified composition of 2D and 3D in React.
+Declarative 2D and 3D composition in React.
 
 [Docs](https://astralarium.github.io/pixi-three/)
 | [Github](https://github.com/astralarium/pixi-three)
