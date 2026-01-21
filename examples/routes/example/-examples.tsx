@@ -26,7 +26,7 @@ export const EXAMPLES: readonly ExampleMeta[] = [
   {
     label: "Three Render Texture",
     to: "/example/three-render-texture",
-    description: "Render a Three.js scene to a texture",
+    description: "Three.js render texture with events",
   },
   {
     label: "On-Demand Rendering",

@@ -23,7 +23,7 @@ function ThreeRenderTextureExample() {
   return (
     <Frame
       title="Three Render Texture"
-      subtitle="Render a Three.js scene to a texture on a mesh"
+      subtitle="Three.js render texture with events"
       sourceUrl="https://github.com/astralarium/pixi-three/blob/main/examples/routes/example/three-render-texture.tsx"
       canvasRef={canvasRef}
     >
