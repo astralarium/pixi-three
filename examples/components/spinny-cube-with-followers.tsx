@@ -1,6 +1,15 @@
-import { useThreeSceneContext } from "@astralarium/pixi-three";
+import {
+  PixiTexture,
+  usePixiTextureEvents,
+  useThreeSceneContext,
+} from "@astralarium/pixi-three";
 import { type ThreeElements, useThree } from "@react-three/fiber";
-import { Color as PixiColor, type ColorSource, Point } from "pixi.js";
+import {
+  Color as PixiColor,
+  type ColorSource,
+  Container,
+  Point,
+} from "pixi.js";
 import { type RefObject, useRef } from "react";
 import { Color, InstancedMesh, Object3D, Vector3 } from "three";
 
@@ -70,6 +79,9 @@ export function SpinnyCubeWithFollowers({
 }: Omit<ThreeElements["mesh"], "ref"> & SpinnyCubeWithFollowersProps) {
   const instancedMeshRef = useRef<InstancedMesh>(null);
   const { mapThreeToViewport } = useThreeSceneContext();
+  const containerRef = useRef<Container>(null!);
+
+  const eventHandlers = usePixiTextureEvents(containerRef);
 
   // Initialize instance colors to trigger shader compilation
   const initializeColors = (mesh: InstancedMesh) => {
@@ -184,12 +196,20 @@ export function SpinnyCubeWithFollowers({
 
   return (
     <>
-      <SpinnyCube size={size} speed={speed} {...props}>
-        <SpinnyStar
-          speed={speed}
-          onStarTipsUpdate={handleStarTipsUpdate}
-          initialColors={initialColors}
-        />
+      <SpinnyCube size={size} speed={speed} {...props} {...eventHandlers}>
+        <PixiTexture
+          containerRef={containerRef}
+          width={256}
+          height={256}
+          attach="colorNode"
+          frameloop="always"
+        >
+          <SpinnyStar
+            speed={speed}
+            onStarTipsUpdate={handleStarTipsUpdate}
+            initialColors={initialColors}
+          />
+        </PixiTexture>
       </SpinnyCube>
       <instancedMesh
         ref={initializeColors}

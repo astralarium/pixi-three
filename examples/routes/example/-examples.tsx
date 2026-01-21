@@ -24,6 +24,11 @@ export const EXAMPLES: readonly ExampleMeta[] = [
     description: "Coordinate system mapping",
   },
   {
+    label: "Three Render Texture",
+    to: "/example/three-render-texture",
+    description: "Render a Three.js scene to a texture",
+  },
+  {
     label: "On-Demand Rendering",
     to: "/example/demand-rendering",
     description: "Save power on mobile devices",

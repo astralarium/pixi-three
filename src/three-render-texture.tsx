@@ -13,6 +13,7 @@ import {
   type RefObject,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from "react";
 import {
@@ -21,10 +22,12 @@ import {
   type RenderTarget,
   type RenderTargetOptions,
   Scene,
-  type Texture,
+  Texture,
   Vector2,
   Vector3,
 } from "three";
+import { texture } from "three/tsl";
+import type { TextureNode } from "three/webgpu";
 import tunnel from "tunnel-rat";
 
 import {
@@ -51,9 +54,9 @@ import { useRenderSchedule } from "./use-render-schedule";
  */
 export interface ThreeRenderTextureProps {
   /**
-   * Render {@link https://threejs.org/docs/#Texture | Texture} Ref
+   * Render {@link https://threejs.org/docs/#TextureNode | TextureNode} Ref
    */
-  ref?: Ref<Texture>;
+  ref?: Ref<TextureNode>;
   /**
    * RenderTarget Texture {@link https://r3f.docs.pmnd.rs/api/objects#attach | React Three Fiber attach}
    */
@@ -143,12 +146,12 @@ export function ThreeRenderTexture({
 
   const parentThreeSceneContext = useThreeSceneContext();
   const { containerRef } = parentThreeSceneContext;
-  const [texture, setTexture] = useState<Texture | null>(null);
+  const textureRef = useRef(texture(new Texture()));
   const { camera } = useThree();
 
   const getAttachedObject = useAttachedObject(objectRef);
 
-  useImperativeHandle(ref, () => texture!, [texture]);
+  useImperativeHandle(ref, () => textureRef.current);
 
   const bounds = { width, height };
 
@@ -284,7 +287,7 @@ export function ThreeRenderTexture({
             <Portal
               ref={(renderTarget: RenderTarget | null) => {
                 if (renderTarget) {
-                  setTexture(renderTarget.texture);
+                  textureRef.current.value = renderTarget.texture;
                 }
               }}
               renderPriority={renderPriority}
@@ -313,7 +316,8 @@ export function ThreeRenderTexture({
           )}
         </ThreeSceneContext>
       </CanvasTreeContext>
-      {texture && <primitive object={texture} attach={attach} />}
+      {/* eslint-disable-next-line react-hooks/refs */}
+      <primitive object={textureRef.current} attach={attach} />
     </>
   );
 }

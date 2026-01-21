@@ -1,6 +1,4 @@
-import { PixiTexture, usePixiTextureEvents } from "@astralarium/pixi-three";
 import { type ThreeElements, useFrame } from "@react-three/fiber";
-import { Container } from "pixi.js";
 import {
   type ReactNode,
   type Ref,
@@ -9,7 +7,6 @@ import {
   useState,
 } from "react";
 import { type Mesh } from "three";
-import { type TextureNode } from "three/webgpu";
 
 export interface SpinnyCubeProps {
   size?: number;
@@ -25,7 +22,7 @@ export function SpinnyCube({
   ...props
 }: ThreeElements["mesh"] & SpinnyCubeProps) {
   const meshRef = useRef<Mesh>(null!);
-  const [hovered, hover] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   useImperativeHandle(ref as Ref<Mesh>, () => meshRef.current!, []);
 
@@ -36,28 +33,15 @@ export function SpinnyCube({
     }
   });
 
-  const pixiTexture = useRef<TextureNode>(null!);
-  const containerRef = useRef<Container>(null!);
-  const eventHandlers = usePixiTextureEvents(containerRef, {
-    onPointerOver: () => hover(true),
-    onPointerOut: () => hover(false),
-  });
-
   return (
-    <mesh {...props} ref={meshRef} {...eventHandlers}>
+    <mesh
+      {...props}
+      ref={meshRef}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+    >
       <boxGeometry args={[1 * size, 1 * size, 1 * size]} />
-      <meshBasicNodeMaterial>
-        <PixiTexture
-          ref={pixiTexture}
-          containerRef={containerRef}
-          width={256}
-          height={256}
-          attach="colorNode"
-          frameloop="always"
-        >
-          {children}
-        </PixiTexture>
-      </meshBasicNodeMaterial>
+      <meshBasicNodeMaterial>{children}</meshBasicNodeMaterial>
     </mesh>
   );
 }
