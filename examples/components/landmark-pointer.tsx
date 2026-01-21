@@ -1,6 +1,6 @@
 import { useViewport } from "@astralarium/pixi-three";
 import { extend, useTick } from "@pixi/react";
-import { type ColorSource, Graphics, Point } from "pixi.js";
+import { type ColorSource, Graphics, Point, Rectangle } from "pixi.js";
 import { type ComponentProps, type RefObject, useRef } from "react";
 
 extend({ Graphics });
@@ -8,23 +8,22 @@ extend({ Graphics });
 export interface LandmarkPointerProps {
   /** Ref to target point in viewport coordinates */
   targetRef: RefObject<Point | null>;
+  /** Ref to mouse position in viewport coordinates */
+  mousePosRef: RefObject<Point | null>;
   /** Line color */
   color?: ColorSource;
   /** Line width */
   lineWidth?: number;
-  /** Callback when mouse position changes */
-  onMousePosChange?: (mousePos: Point | null) => void;
 }
 
 export function LandmarkPointer({
   targetRef,
+  mousePosRef,
   color = 0xffffff,
   lineWidth = 2,
-  onMousePosChange,
   ...props
 }: LandmarkPointerProps & Omit<ComponentProps<"pixiGraphics">, "draw">) {
   const size = useViewport();
-  const mousePosRef = useRef<Point | null>(null);
   const graphicsRef = useRef<Graphics>(null);
 
   useTick(() => {
@@ -74,12 +73,6 @@ export function LandmarkPointer({
       .stroke({ width: lineWidth, color });
   });
 
-  function handlePointerMove(e: { global: Point }) {
-    const newPos = e.global.clone();
-    mousePosRef.current = newPos;
-    onMousePosChange?.(newPos);
-  }
-
   return (
     <>
       <pixiGraphics
@@ -91,8 +84,27 @@ export function LandmarkPointer({
       />
       <pixiContainer
         eventMode="static"
-        onGlobalPointerMove={handlePointerMove}
+        onGlobalPointerMove={(e: { global: Point }) => {
+          mousePosRef.current = e.global.clone();
+        }}
       />
     </>
+  );
+}
+
+export function PointerTapHandler({
+  mousePosRef,
+}: {
+  mousePosRef: RefObject<Point | null>;
+}) {
+  const size = useViewport();
+  return (
+    <pixiContainer
+      eventMode="static"
+      hitArea={new Rectangle(0, 0, size.width, size.height)}
+      onPointerTap={(e: { global: Point }) => {
+        mousePosRef.current = e.global.clone();
+      }}
+    />
   );
 }

@@ -4,7 +4,10 @@ import { Point } from "pixi.js";
 import { useRef } from "react";
 
 import { FadeIn } from "#components/fade-in";
-import { LandmarkPointer } from "#components/landmark-pointer";
+import {
+  LandmarkPointer,
+  PointerTapHandler,
+} from "#components/landmark-pointer";
 import { SpinnyCubeWithFollowers } from "#components/spinny-cube-with-followers";
 import { PIXI_THREE_STAR } from "#components/spinny-star";
 
@@ -28,6 +31,7 @@ function Bijections() {
     >
       <RenderContext>
         <CanvasView alpha canvasRef={canvasRef}>
+          <PointerTapHandler mousePosRef={mousePosRef} />
           <FadeIn>
             <ThreeScene>
               <SpinnyCubeWithFollowers
@@ -39,12 +43,7 @@ function Bijections() {
               />
             </ThreeScene>
           </FadeIn>
-          <LandmarkPointer
-            targetRef={landmarkRef}
-            onMousePosChange={(pos) => {
-              mousePosRef.current = pos;
-            }}
-          />
+          <LandmarkPointer targetRef={landmarkRef} mousePosRef={mousePosRef} />
         </CanvasView>
       </RenderContext>
     </Frame>
