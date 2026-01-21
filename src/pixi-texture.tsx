@@ -15,6 +15,7 @@ import {
   TextureSource,
 } from "pixi.js";
 import {
+  Fragment,
   type PropsWithChildren,
   type Ref,
   type RefObject,
@@ -396,17 +397,21 @@ function PixiTextureInternal({
     }
   }
 
+  const key = useId();
+
   return (
     <>
       {/* eslint-disable react-hooks/refs -- computeFn does not access during render */}
       {events !== false && (
         <parentThreeSceneContext.sceneTunnel.In>
-          {createPortal(<group onPointerOver={() => null} />, eventScene, {
-            events: {
-              compute: computeFn,
-              priority: eventPriority ?? 0,
-            },
-          })}
+          <Fragment key={key}>
+            {createPortal(<group onPointerOver={() => null} />, eventScene, {
+              events: {
+                compute: computeFn,
+                priority: eventPriority ?? 0,
+              },
+            })}
+          </Fragment>
         </parentThreeSceneContext.sceneTunnel.In>
       )}
       <CanvasTreeContext value={{ store, invalidate }}>
