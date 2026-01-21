@@ -277,10 +277,12 @@ export function ThreeRenderTexture({
             mapNdcToPixi,
             mapThreeToParentPixiLocal,
             mapThreeToParentPixi,
-            mapThreeToParentUv,
-            mapThreeToParentThreeLocal,
-            mapThreeToParentThree,
             mapThreeToViewport,
+            parentThree: {
+              mapThreeToParentUv,
+              mapThreeToParentThreeLocal,
+              mapThreeToParentThree,
+            },
           }}
         >
           {createPortal(

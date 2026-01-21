@@ -4,7 +4,36 @@ import { type Vector2, type Vector3 } from "three";
 import type tunnel from "tunnel-rat";
 
 /**
- * Context value for ThreeScene, providing coordinate mapping utilities.
+ * Parent Three context for coordinate mapping from ThreeScene to parent Three scene.
+ * Only available inside a ThreeRenderTexture context.
+ *
+ * @category hook
+ * @expand
+ */
+export interface ThreeViewParentThreeContextValue {
+  /**
+   * Maps a Three.js world position to UV coordinates.
+   * @param vec3 - Three.js Vector3 in world coordinates
+   * @param uv - Vector2 to store the UV result
+   */
+  mapThreeToParentUv: (vec3: Vector3, uv: Vector2) => void;
+  /**
+   * Maps a Three.js world position to local coordinates on the parent Three mesh surface.
+   * @param vec3 - Three.js Vector3 in world coordinates
+   * @param out - Vector3 to store the result in local mesh coords
+   */
+  mapThreeToParentThreeLocal: (vec3: Vector3, out: Vector3) => void;
+  /**
+   * Maps a Three.js world position to world coordinates in the parent Three scene.
+   * @param vec3 - Three.js Vector3 in world coordinates
+   * @param out - Vector3 to store the result in parent world coords
+   */
+  mapThreeToParentThree: (vec3: Vector3, out: Vector3) => void;
+}
+
+/**
+ * Context value for Three view coordinate mapping.
+ * Works in ThreeScene (inside CanvasView) and ThreeRenderTexture.
  *
  * @category hook
  * @expand
@@ -39,32 +68,16 @@ export interface ThreeSceneContextValue {
    */
   mapThreeToParentPixi: (vec3: Vector3, point: Point) => void;
   /**
-   * Maps a Three.js world position to UV coordinates.
-   * Only available inside ThreeRenderTexture.
-   * @param vec3 - Three.js Vector3 in world coordinates
-   * @param uv - Vector2 to store the UV result
-   */
-  mapThreeToParentUv?: (vec3: Vector3, uv: Vector2) => void;
-  /**
-   * Maps a Three.js world position to local coordinates on the parent Three mesh surface.
-   * Only available inside ThreeRenderTexture.
-   * @param vec3 - Three.js Vector3 in world coordinates
-   * @param out - Vector3 to store the result in local mesh coords
-   */
-  mapThreeToParentThreeLocal?: (vec3: Vector3, out: Vector3) => void;
-  /**
-   * Maps a Three.js world position to world coordinates in the parent Three scene.
-   * Only available inside ThreeRenderTexture.
-   * @param vec3 - Three.js Vector3 in world coordinates
-   * @param out - Vector3 to store the result in parent world coords
-   */
-  mapThreeToParentThree?: (vec3: Vector3, out: Vector3) => void;
-  /**
    * Maps a Three.js world position to CanvasView viewport coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
    * @param point - Pixi Point to store the viewport result
    */
   mapThreeToViewport: (vec3: Vector3, point: Point) => void;
+  /**
+   * Parent Three coordinate mapping functions.
+   * Only available inside a ThreeRenderTexture context.
+   */
+  parentThree?: ThreeViewParentThreeContextValue;
 }
 
 /** @internal */
