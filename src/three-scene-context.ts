@@ -5,7 +5,9 @@ import type tunnel from "tunnel-rat";
 
 /**
  * Context value for ThreeScene, providing coordinate mapping utilities.
- * @category context
+ *
+ * @category hook
+ * @expand
  */
 export interface ThreeSceneContextValue {
   /** @internal */

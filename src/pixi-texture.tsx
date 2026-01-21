@@ -110,9 +110,16 @@ export interface PixiTextureProps extends PropsWithChildren {
   eventGuard?: PixiTextureEventGuard;
 }
 
-export type PixiTextureEventGuard = (args: {
+/**
+ * @category component
+ * @inline
+ */
+export type PixiTextureEventGuard = (args: PixiTextureEventData) => boolean;
+
+/** @category component */
+export interface PixiTextureEventData {
   intersections: Intersection[];
-}) => boolean;
+}
 
 /**
  * A {@link https://threejs.org/docs/#TextureNode | Three TextureNode}

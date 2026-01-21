@@ -40,12 +40,14 @@ interface PixiPointerEvent extends PointerEvent {
   type: string;
 }
 
+/** @internal */
 export interface PixiRootEvents {
   pointerEvent: FederatedPointerEvent;
   wheelEvent: FederatedWheelEvent;
 }
 
 /**
+ * @internal
  * A synthetic event system for Pixi
  *
  * @see {@link https://pixijs.download/release/docs/events.EventSystem.html | Pixi EventSystem}

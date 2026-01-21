@@ -85,6 +85,9 @@ export function usePixiTextureContextOptional() {
 /**
  * Parent Three context for coordinate mapping from PixiTexture to parent Three scene.
  * Only available inside a PixiTexture context.
+ *
+ * @category hook
+ * @expand
  */
 export interface PixiViewParentThreeContextValue {
   /**
@@ -110,6 +113,9 @@ export interface PixiViewParentThreeContextValue {
 /**
  * Context value for Pixi view coordinate mapping.
  * Works in PixiTexture (inside ThreeScene) and CanvasView.
+ *
+ * @category hook
+ * @expand
  */
 export interface PixiViewContextValue {
   /** Width of the Pixi container */
