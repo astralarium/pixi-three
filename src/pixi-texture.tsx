@@ -110,7 +110,9 @@ export interface PixiTextureProps extends PropsWithChildren {
   eventGuard?: PixiTextureEventGuard;
 }
 
-export type PixiTextureEventGuard = (intersections: Intersection[]) => boolean;
+export type PixiTextureEventGuard = (args: {
+  intersections: Intersection[];
+}) => boolean;
 
 /**
  * A {@link https://threejs.org/docs/#TextureNode | Three TextureNode}
@@ -266,7 +268,7 @@ function PixiTextureInternal({
     if (!object) return false;
 
     const intersections = previous.raycaster.intersectObject(object);
-    const testGuard = eventGuard?.(intersections) ?? true;
+    const testGuard = eventGuard?.({ intersections }) ?? true;
     const [intersection] = intersections;
     const uv = intersection?.uv;
     if (uv) {
