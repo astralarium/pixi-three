@@ -2,6 +2,10 @@
 
 Declarative 2D and 3D composition in React.
 
+Combine the power of React Three Fiber and React Pixi to seamlessly compose 2d and 3d.
+Render dynamic 2d textures onto 3d objects.
+Integrate 3d objects into 2d scenes.
+
 [Docs](https://astralarium.github.io/pixi-three/)
 | [Github](https://github.com/astralarium/pixi-three)
 | [NPM](https://www.npmjs.com/package/@astralarium/pixi-three)
