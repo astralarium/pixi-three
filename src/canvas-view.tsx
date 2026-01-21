@@ -1,11 +1,5 @@
 import { extend, useApplication, useTick } from "@pixi/react";
-import {
-  CanvasSource,
-  Container,
-  Matrix,
-  Rectangle,
-  RenderTarget,
-} from "pixi.js";
+import { CanvasSource, Container, Rectangle, RenderTarget } from "pixi.js";
 import {
   type PropsWithChildren,
   type ReactNode,
@@ -44,11 +38,6 @@ export interface CanvasViewProps extends PropsWithChildren {
   antialias?: boolean;
   /** Canvas resolution. Defaults to window.devicePixelRatio */
   resolution?: number;
-  /**
-   * Pixi view transform {@link https://pixijs.download/release/docs/maths.Matrix.html | Matrix}.
-   * Defaults to identity matrix
-   */
-  transform?: Matrix;
   /** Optional FPS limit */
   fpsLimit?: number;
   /** Callback invoked after each frame renders. Useful for recording integration. */
@@ -84,7 +73,6 @@ export function CanvasView({
   alpha = false,
   antialias = true,
   resolution = window.devicePixelRatio,
-  transform = new Matrix(),
   fpsLimit,
   onRender,
   canvasRef: canvasRefProp,
@@ -150,7 +138,6 @@ export function CanvasView({
           canvasRef={canvasRef}
           containerRef={containerRef}
           renderTargetRef={renderTargetRef}
-          transform={transform}
           frameloop={frameloop}
           fpsLimit={fpsLimit}
           onRender={onRender}
@@ -169,8 +156,6 @@ interface CanvasViewContentProps extends PropsWithChildren {
   containerRef: Ref<Container>;
   /** Pixi RenderTarget Ref */
   renderTargetRef: RefObject<RenderTarget>;
-  /** Pixi view transform */
-  transform?: Matrix;
   /** Render mode: "always" or "demand", default "always" */
   frameloop: "always" | "demand";
   /** Optional FPS limit */
@@ -183,7 +168,6 @@ function CanvasViewContent({
   canvasRef,
   containerRef: containerRefProp,
   renderTargetRef,
-  transform,
   frameloop,
   fpsLimit,
   onRender,
@@ -291,7 +275,6 @@ function CanvasViewContent({
     app.app.renderer.render({
       container: containerRef.current,
       target: renderTargetRef.current,
-      transform,
       label: "canvas-view",
     });
   }

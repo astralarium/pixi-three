@@ -4,7 +4,6 @@ import {
   Container,
   EventBoundary,
   type GpuTextureSystem,
-  Matrix,
   type Point,
   Rectangle,
   RenderTexture,
@@ -90,10 +89,6 @@ export interface PixiTextureProps extends PropsWithChildren {
   height: number;
   /** Optional frameloop, defaults to "demand" */
   frameloop?: "always" | "demand";
-  /**
-   * Pixi view transform {@link https://pixijs.download/release/docs/maths.Matrix.html | Matrix}. Defaults to identity matrix
-   */
-  transform?: Matrix;
   /** Optional FPS limit */
   fpsLimit?: number;
 }
@@ -133,7 +128,6 @@ export function PixiTexture({
   width,
   height,
   frameloop,
-  transform = new Matrix(),
   fpsLimit,
 }: PixiTextureProps) {
   const Bridge = useBridge();
@@ -168,7 +162,6 @@ export function PixiTexture({
             width={width}
             height={height}
             frameloop={frameloop}
-            transform={transform}
             fpsLimit={fpsLimit}
           >
             {children}
@@ -201,7 +194,6 @@ function PixiTextureInternal({
   width,
   height,
   frameloop,
-  transform,
   fpsLimit,
 }: PixiTextureInternalProps) {
   const app = useApplication();
@@ -217,7 +209,6 @@ function PixiTextureInternal({
     app.app.renderer.render({
       container: containerRef.current,
       target: pixiTextureRef.current,
-      transform,
       label: "pixi-texture",
     });
   }
