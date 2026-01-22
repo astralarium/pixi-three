@@ -11,13 +11,7 @@ import {
 import { MeshBVH } from "three-mesh-bvh";
 
 /**
- * Bijection utilities for coordinate transformations between Pixi and Three.js coordinate spaces.
- *
- * Coordinate spaces:
- * - **Client Space**:
- * - **Pixi space**: Pixel coordinates within a container/texture (0 to width/height)
- * - **UV space**: Three.js texture coordinates (0 to 1, same as normalized)
- * - **NDC (Normalized Device Coordinates)**: Three.js viewport coordinates (-1 to 1)
+ * Bijections and related utilities for coordinate transformations
  *
  * @module bijections
  */
