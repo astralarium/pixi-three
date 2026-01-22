@@ -74,6 +74,12 @@ export interface ThreeSceneContextValue {
    */
   mapThreeToViewport: (vec3: Vector3, point: Point) => void;
   /**
+   * Maps a Three.js world position to DOM client coordinates.
+   * @param vec3 - Three.js Vector3 in world coordinates
+   * @param clientPoint - Pixi Point to store the client coordinates result
+   */
+  mapThreeToClient: (vec3: Vector3, clientPoint: Point) => void;
+  /**
    * Parent Three coordinate mapping functions.
    * Only available inside a ThreeRenderTexture context.
    */

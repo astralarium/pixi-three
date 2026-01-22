@@ -51,6 +51,7 @@ import { useCanvasView } from "./canvas-view-context";
 import {
   type PixiTextureContextValue,
   usePixiTextureContextOptional,
+  usePixiViewContext,
 } from "./pixi-texture-context";
 import { useRenderContext } from "./render-context-hooks";
 import { Portal } from "./three-portal";
@@ -435,10 +436,10 @@ function ThreeSceneContextProvider({
   mapPixiToNdc,
   mapNdcToPixi,
   sprite,
-  pixiTextureContext,
   children,
 }: ThreeSceneContextProviderProps) {
   const { camera } = useThree();
+  const pixiViewContext = usePixiViewContext();
 
   const _ndc = new Vector2();
   const _localPos = new Point();
@@ -460,12 +461,12 @@ function ThreeSceneContextProvider({
 
   function mapThreeToViewport(vec3: Vector3, point: Point) {
     mapThreeToParentPixi(vec3, point);
+    pixiViewContext.mapPixiToViewport(_localPos, point);
+  }
 
-    // If inside PixiTexture, delegate to parent's mapPixiToViewport
-    if (pixiTextureContext) {
-      pixiTextureContext.mapPixiToViewport(point, point);
-    }
-    // Otherwise we're at CanvasView level - point is already in viewport coords
+  function mapThreeToClient(vec3: Vector3, clientPoint: Point) {
+    mapThreeToParentPixi(vec3, _localPos);
+    pixiViewContext.mapPixiToClient(_localPos, clientPoint);
   }
 
   return (
@@ -478,6 +479,7 @@ function ThreeSceneContextProvider({
         mapThreeToParentPixiLocal,
         mapThreeToParentPixi,
         mapThreeToViewport,
+        mapThreeToClient,
       }}
     >
       {children}

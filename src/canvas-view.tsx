@@ -19,7 +19,10 @@ import {
   useState,
 } from "react";
 
-import { mapClientToViewport } from "./bijections";
+import {
+  mapClientToViewport,
+  mapViewportToClient as mapViewportToClientUtil,
+} from "./bijections";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { CanvasViewContext as CanvasViewContentContext } from "./canvas-view-context";
 import { useRenderContext } from "./render-context-hooks";
@@ -98,6 +101,7 @@ export function CanvasView({
     canvasRef,
   });
 
+  const _viewportPoint = new Point();
   const computeEventPoint = (event: ReactPointerEvent | React.WheelEvent) => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -115,13 +119,8 @@ export function CanvasView({
           height: canvas.height,
         };
 
-    const viewport = mapClientToViewport(
-      event.clientX,
-      event.clientY,
-      rect,
-      viewRect,
-    );
-    return new Point(viewport.x, viewport.y);
+    mapClientToViewport(event, _viewportPoint, rect, viewRect);
+    return new Point(_viewportPoint.x, _viewportPoint.y);
   };
 
   const handleEvent = (event: ReactPointerEvent | React.WheelEvent) => {
@@ -358,6 +357,22 @@ function CanvasViewContent({
       value={{
         canvasRef,
         containerRef,
+        mapViewportToClient: (viewportPoint, clientPoint) => {
+          const canvas = canvasRef.current;
+          const rect = canvas?.isConnected
+            ? canvas.getBoundingClientRect()
+            : {
+                left: 0,
+                top: 0,
+                width: canvas?.width ?? 1,
+                height: canvas?.height ?? 1,
+              };
+          const viewport = (containerRef.current?.hitArea as Rectangle) ?? {
+            width: 1,
+            height: 1,
+          };
+          mapViewportToClientUtil(viewportPoint, clientPoint, viewport, rect);
+        },
       }}
     >
       <CanvasTreeContext value={{ store, invalidate }}>

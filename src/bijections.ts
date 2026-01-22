@@ -142,24 +142,46 @@ export function mapNdcToUv(ndc: Vector2, uv: Vector2): void {
  * Maps DOM client coordinates directly to Pixi pixel coordinates within a viewport.
  *
  * @category bijection
- * @param clientX - DOM clientX coordinate
- * @param clientY - DOM clientY coordinate
+ * @param client - DOM client coordinates
+ * @param viewportPoint - Pixi Point to store the result
  * @param rect - The element's bounding rect
  * @param viewport - The viewport dimensions
- * @returns Pixi coordinates as { x: number, y: number }
  */
 export function mapClientToViewport(
-  clientX: number,
-  clientY: number,
+  client: Point | { clientX: number; clientY: number },
+  viewportPoint: Point,
   rect: { left: number; top: number; width: number; height: number },
   viewport: { width: number; height: number },
-): { x: number; y: number } {
+): void {
+  const clientX = "clientX" in client ? client.clientX : client.x;
+  const clientY = "clientY" in client ? client.clientY : client.y;
   const normalizedX = (clientX - rect.left) / rect.width;
   const normalizedY = (clientY - rect.top) / rect.height;
-  return {
-    x: normalizedX * viewport.width,
-    y: normalizedY * viewport.height,
-  };
+  viewportPoint.x = normalizedX * viewport.width;
+  viewportPoint.y = normalizedY * viewport.height;
+}
+
+/**
+ * Maps Pixi pixel coordinates within a viewport to DOM client coordinates.
+ *
+ * @category bijection
+ * @param viewportPoint - Pixi Point in viewport coordinates
+ * @param clientPoint - Point to store the client coordinates
+ * @param viewport - The viewport dimensions
+ * @param rect - The element's bounding rect
+ */
+export function mapViewportToClient(
+  viewportPoint: Point | { x: number; y: number },
+  clientPoint: Point,
+  viewport: { width: number; height: number },
+  rect: { left: number; top: number; width: number; height: number },
+): void {
+  const normalizedX = viewportPoint.x / viewport.width;
+  const normalizedY = viewportPoint.y / viewport.height;
+  const resultX = normalizedX * rect.width + rect.left;
+  const resultY = normalizedY * rect.height + rect.top;
+  clientPoint.x = resultX;
+  clientPoint.y = resultY;
 }
 
 declare module "three" {

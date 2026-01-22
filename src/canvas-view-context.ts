@@ -1,10 +1,11 @@
-import { type Container } from "pixi.js";
+import { type Container, type Point } from "pixi.js";
 import { createContext, type RefObject, useContext } from "react";
 
 /** @internal */
 export interface CanvasViewContextValue {
   canvasRef: RefObject<HTMLCanvasElement>;
   containerRef: RefObject<Container>;
+  mapViewportToClient: (viewportPoint: Point, clientPoint: Point) => void;
 }
 
 /** @internal */

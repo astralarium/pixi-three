@@ -406,6 +406,14 @@ function PixiTextureInternal({
     }
   }
 
+  function mapPixiToClient(localPoint: Point, clientPoint: Point) {
+    const results = mapPixiToParentThree(localPoint);
+    if (results.length > 0) {
+      _threeParent.copy(results[0].position);
+      parentThreeSceneContext.mapThreeToClient(_threeParent, clientPoint);
+    }
+  }
+
   const key = useId();
 
   return (
@@ -437,6 +445,7 @@ function PixiTextureInternal({
             mapPixiToParentThree,
             mapPixiToParentPixi,
             mapPixiToViewport,
+            mapPixiToClient,
           }}
         >
           <pixiContainer

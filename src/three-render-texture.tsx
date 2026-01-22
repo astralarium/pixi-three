@@ -232,6 +232,11 @@ export function ThreeRenderTexture({
     parentThreeSceneContext.mapThreeToViewport(_threeParent, point);
   }
 
+  function mapThreeToClient(vec3: Vector3, clientPoint: Point) {
+    mapThreeToParentThree(vec3, _threeParent);
+    parentThreeSceneContext.mapThreeToClient(_threeParent, clientPoint);
+  }
+
   function computeFn(event: DomEvent, state: RootState, previous?: RootState) {
     if (!previous) {
       return false;
@@ -278,6 +283,7 @@ export function ThreeRenderTexture({
             mapThreeToParentPixiLocal,
             mapThreeToParentPixi,
             mapThreeToViewport,
+            mapThreeToClient,
             parentThree: {
               mapThreeToParentUv,
               mapThreeToParentThreeLocal,

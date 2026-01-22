@@ -1,4 +1,4 @@
-import { type Container, type Point } from "pixi.js";
+import { type Container, Point } from "pixi.js";
 import { createContext, type RefObject, useContext } from "react";
 import { type Object3D, type Vector2 } from "three";
 
@@ -59,6 +59,12 @@ export interface PixiTextureContextValue {
    * @param viewportPoint - Pixi Point to store the viewport result
    */
   mapPixiToViewport: (localPoint: Point, viewportPoint: Point) => void;
+  /**
+   * Maps local Pixi coordinates to DOM client coordinates.
+   * @param localPoint - Pixi Point in local texture coordinates
+   * @param clientPoint - Pixi Point to store the client coordinates result
+   */
+  mapPixiToClient: (localPoint: Point, clientPoint: Point) => void;
 }
 
 /** @internal */
@@ -141,6 +147,12 @@ export interface PixiViewContextValue {
    */
   mapPixiToViewport: (localPoint: Point, viewportPoint: Point) => void;
   /**
+   * Maps local Pixi coordinates to DOM client coordinates.
+   * @param localPoint - Pixi Point in local coordinates
+   * @param clientPoint - Pixi Point to store the client coordinates result
+   */
+  mapPixiToClient: (localPoint: Point, clientPoint: Point) => void;
+  /**
    * Parent Three coordinate mapping functions.
    * Only available inside a PixiTexture context.
    */
@@ -161,7 +173,7 @@ export interface PixiViewContextValue {
 export function usePixiViewContext(): PixiViewContextValue {
   const textureContext = useContext(PixiTextureContext);
   const viewport = useViewport();
-  const { containerRef } = useCanvasView();
+  const { containerRef, mapViewportToClient } = useCanvasView();
 
   if (textureContext) {
     return {
@@ -170,6 +182,7 @@ export function usePixiViewContext(): PixiViewContextValue {
       mapUvToPixi: textureContext.mapUvToPixi,
       mapPixiToUv: textureContext.mapPixiToParentUv,
       mapPixiToViewport: textureContext.mapPixiToViewport,
+      mapPixiToClient: textureContext.mapPixiToClient,
       parentThree: {
         mapPixiToParentThreeLocal: textureContext.mapPixiToParentThreeLocal,
         mapPixiToParentThree: textureContext.mapPixiToParentThree,
@@ -178,6 +191,7 @@ export function usePixiViewContext(): PixiViewContextValue {
     };
   }
 
+  const _viewportPoint = new Point();
   const bounds = { width: viewport.width, height: viewport.height };
   return {
     width: viewport.width,
@@ -188,5 +202,9 @@ export function usePixiViewContext(): PixiViewContextValue {
       mapPixiToUvUtil(point, uv, bounds),
     mapPixiToViewport: (localPoint: Point, viewportPoint: Point) =>
       containerRef.current.toGlobal(localPoint, viewportPoint),
+    mapPixiToClient: (localPoint: Point, clientPoint: Point) => {
+      containerRef.current.toGlobal(localPoint, _viewportPoint);
+      mapViewportToClient(_viewportPoint, clientPoint);
+    },
   };
 }
