@@ -165,11 +165,12 @@ export function SpinnyCubeWithFollowers({
       }
     }
 
-    instancedMesh.count = tips.length;
     instancedMesh.instanceMatrix.needsUpdate = true;
     if (instancedMesh.instanceColor) {
       instancedMesh.instanceColor.needsUpdate = true;
     }
+    // Update count after buffers are marked for update
+    instancedMesh.count = tips.length;
 
     // Update landmark ref
     if (landmarkRef) {
