@@ -47,21 +47,24 @@ export interface ThreeViewParentThreeContextValue {
   /**
    * Maps a Three.js world position to UV coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
-   * @param uv - Vector2 to store the UV result
+   * @param out - Optional Vector2 to store the UV result
+   * @returns The UV Vector2
    */
-  mapThreeToParentUv: (vec3: Vector3, uv: Vector2) => void;
+  mapThreeToParentUv: (vec3: Vector3, out?: Vector2) => Vector2;
   /**
    * Maps a Three.js world position to local coordinates on the parent Three mesh surface.
    * @param vec3 - Three.js Vector3 in world coordinates
-   * @param out - Vector3 to store the result in local mesh coords
+   * @param out - Optional Vector3 to store the result in local mesh coords
+   * @returns The local Vector3
    */
-  mapThreeToParentThreeLocal: (vec3: Vector3, out: Vector3) => void;
+  mapThreeToParentThreeLocal: (vec3: Vector3, out?: Vector3) => Vector3;
   /**
    * Maps a Three.js world position to world coordinates in the parent Three scene.
    * @param vec3 - Three.js Vector3 in world coordinates
-   * @param out - Vector3 to store the result in parent world coords
+   * @param out - Optional Vector3 to store the result in parent world coords
+   * @returns The world Vector3
    */
-  mapThreeToParentThree: (vec3: Vector3, out: Vector3) => void;
+  mapThreeToParentThree: (vec3: Vector3, out?: Vector3) => Vector3;
 }
 
 /**
@@ -79,54 +82,62 @@ export interface ThreeSceneContextValue {
   /**
    * Maps a Pixi Point (in local sprite coordinates) to Three.js NDC coordinates (-1 to 1).
    * @param point - Pixi Point in local coordinates
-   * @param ndc - Vector2 to store the NDC result
+   * @param out - Optional Vector2 to store the NDC result
+   * @returns The NDC Vector2
    */
-  mapPixiToNdc: (point: Point, ndc: Vector2) => void;
+  mapPixiToNdc: (point: Point, out?: Vector2) => Vector2;
   /**
    * Maps Three.js NDC coordinates (-1 to 1) to a Pixi Point (in local sprite coordinates).
    * @param ndc - Vector2 with NDC coordinates
-   * @param point - Pixi Point to store the result
+   * @param out - Optional Pixi Point to store the result
+   * @returns The Pixi Point
    */
-  mapNdcToPixi: (ndc: Vector2, point: Point) => void;
+  mapNdcToPixi: (ndc: Vector2, out?: Point) => Point;
   /**
    * Maps a Three.js world position to local Pixi sprite coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
-   * @param point - Pixi Point to store the result in local sprite coords
+   * @param out - Optional Pixi Point to store the result in local sprite coords
+   * @returns The Pixi Point
    */
-  mapThreeToParentPixiLocal: (vec3: Vector3, point: Point) => void;
+  mapThreeToParentPixiLocal: (vec3: Vector3, out?: Point) => Point;
   /**
    * Maps a Three.js world position to global Pixi parent coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
-   * @param point - Pixi Point to store the result in global Pixi coords
+   * @param out - Optional Pixi Point to store the result in global Pixi coords
+   * @returns The Pixi Point
    */
-  mapThreeToParentPixi: (vec3: Vector3, point: Point) => void;
+  mapThreeToParentPixi: (vec3: Vector3, out?: Point) => Point;
   /**
    * Maps a Three.js world position to CanvasView viewport coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
-   * @param point - Pixi Point to store the viewport result
+   * @param out - Optional Pixi Point to store the first result
+   * @returns Array of Points in viewport coords
    */
-  mapThreeToViewport: (vec3: Vector3, point: Point) => void;
+  mapThreeToViewport: (vec3: Vector3, out?: Point) => Point[];
   /**
    * Maps a Three.js world position to DOM client coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
-   * @param clientPoint - Pixi Point to store the client coordinates result
+   * @param out - Optional Pixi Point to store the first result
+   * @returns Array of Points in client coords
    */
-  mapThreeToClient: (vec3: Vector3, clientPoint: Point) => void;
+  mapThreeToClient: (vec3: Vector3, out?: Point) => Point[];
   /**
    * Maps DOM client coordinates to NDC coordinates.
    * @param client - DOM client coordinates
-   * @param ndc - Vector2 to store the NDC result
+   * @param out - Optional Vector2 to store the NDC result
+   * @returns The NDC Vector2, or null if no hit (in PixiTexture context)
    */
   mapClientToNdc: (
     client: Point | { clientX: number; clientY: number },
-    ndc: Vector2,
-  ) => void;
+    out?: Vector2,
+  ) => Vector2 | null;
   /**
    * Maps viewport coordinates to NDC coordinates.
    * @param viewport - Viewport Point coordinates
-   * @param ndc - Vector2 to store the NDC result
+   * @param out - Optional Vector2 to store the NDC result
+   * @returns The NDC Vector2, or null if no hit (in PixiTexture context)
    */
-  mapViewportToNdc: (viewport: Point, ndc: Vector2) => void;
+  mapViewportToNdc: (viewport: Point, out?: Vector2) => Vector2 | null;
   /**
    * Raycasts from NDC coordinates through the camera.
    * @param ndc - NDC coordinates (-1 to 1)

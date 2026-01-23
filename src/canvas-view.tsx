@@ -119,7 +119,7 @@ export function CanvasView({
           height: canvas.height,
         };
 
-    mapClientToViewport(event, _viewportPoint, rect, viewRect);
+    mapClientToViewport(event, rect, viewRect, _viewportPoint);
     return new Point(_viewportPoint.x, _viewportPoint.y);
   };
 
@@ -357,7 +357,7 @@ function CanvasViewContent({
       value={{
         canvasRef,
         containerRef,
-        mapViewportToClient: (viewportPoint, clientPoint) => {
+        mapViewportToClient: (viewportPoint, out?) => {
           const canvas = canvasRef.current;
           const rect = canvas?.isConnected
             ? canvas.getBoundingClientRect()
@@ -371,9 +371,9 @@ function CanvasViewContent({
             width: 1,
             height: 1,
           };
-          mapViewportToClientUtil(viewportPoint, clientPoint, viewport, rect);
+          return mapViewportToClientUtil(viewportPoint, viewport, rect, out);
         },
-        mapClientToViewport: (client, viewportPoint) => {
+        mapClientToViewport: (client, out?) => {
           const canvas = canvasRef.current;
           const rect = canvas?.isConnected
             ? canvas.getBoundingClientRect()
@@ -387,7 +387,7 @@ function CanvasViewContent({
             width: 1,
             height: 1,
           };
-          mapClientToViewport(client, viewportPoint, rect, viewport);
+          return mapClientToViewport(client, rect, viewport, out);
         },
       }}
     >

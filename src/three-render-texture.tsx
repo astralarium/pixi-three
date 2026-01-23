@@ -161,12 +161,12 @@ export function ThreeRenderTexture({
 
   const bounds = { width, height };
 
-  function mapPixiToNdc(point: Point, ndc: Vector2) {
-    mapPixiToNdcUtil(point, ndc, bounds);
+  function mapPixiToNdc(point: Point, out?: Vector2) {
+    return mapPixiToNdcUtil(point, bounds, out);
   }
 
-  function mapNdcToPixi(ndc: Vector2, point: Point) {
-    mapNdcToPixiUtil(ndc, point, bounds);
+  function mapNdcToPixi(ndc: Vector2, out?: Point) {
+    return mapNdcToPixiUtil(ndc, bounds, out);
   }
 
   const _ndc = new Vector2();
@@ -174,79 +174,83 @@ export function ThreeRenderTexture({
   const _threeParent = new Vector3();
   const raycaster = new Raycaster();
 
-  function mapThreeToParentUv(vec3: Vector3, uv: Vector2) {
+  function mapThreeToParentUv(vec3: Vector3, out?: Vector2) {
     // Project world vec3 through camera to NDC
-    mapThreeToNdc(vec3, _ndc, camera);
+    mapThreeToNdc(vec3, camera, _ndc);
 
     // Map NDC to UV
-    mapNdcToUv(_ndc, uv);
+    return mapNdcToUv(_ndc, out);
   }
 
-  function mapThreeToParentThreeLocal(vec3: Vector3, out: Vector3) {
+  function mapThreeToParentThreeLocal(vec3: Vector3, out?: Vector3) {
+    const result = out ?? new Vector3();
     mapThreeToParentUv(vec3, _uv);
 
     // Get attached mesh and convert UV to local position on mesh surface
     const object = getAttachedObject();
     if (!object || !(object instanceof Mesh)) {
       // Fallback: can't map without mesh
-      out.copy(vec3);
-      return;
+      result.copy(vec3);
+      return result;
     }
 
     const results = mapUvToThreeLocal(_uv, object);
     if (results.length === 0) {
       // UV not on mesh surface, fallback
-      out.copy(vec3);
-      return;
+      result.copy(vec3);
+      return result;
     }
 
-    out.copy(results[0].position);
+    result.copy(results[0].position);
+    return result;
   }
 
-  function mapThreeToParentThree(vec3: Vector3, out: Vector3) {
+  function mapThreeToParentThree(vec3: Vector3, out?: Vector3) {
+    const result = out ?? new Vector3();
     mapThreeToParentUv(vec3, _uv);
 
     // Get attached mesh and convert UV to world position
     const object = getAttachedObject();
     if (!object || !(object instanceof Mesh)) {
       // Fallback: can't map without mesh
-      out.copy(vec3);
-      return;
+      result.copy(vec3);
+      return result;
     }
 
     const results = mapUvToThree(_uv, object);
     if (results.length === 0) {
       // UV not on mesh surface, fallback
-      out.copy(vec3);
-      return;
+      result.copy(vec3);
+      return result;
     }
 
-    out.copy(results[0].position);
+    result.copy(results[0].position);
+    return result;
   }
 
-  function mapThreeToParentPixiLocal(vec3: Vector3, point: Point) {
+  function mapThreeToParentPixiLocal(vec3: Vector3, out?: Point) {
     mapThreeToParentThree(vec3, _threeParent);
-    parentThreeSceneContext.mapThreeToParentPixiLocal(_threeParent, point);
+    return parentThreeSceneContext.mapThreeToParentPixiLocal(_threeParent, out);
   }
 
-  function mapThreeToParentPixi(vec3: Vector3, point: Point) {
+  function mapThreeToParentPixi(vec3: Vector3, out?: Point) {
     mapThreeToParentThree(vec3, _threeParent);
-    parentThreeSceneContext.mapThreeToParentPixi(_threeParent, point);
+    return parentThreeSceneContext.mapThreeToParentPixi(_threeParent, out);
   }
 
-  function mapThreeToViewport(vec3: Vector3, point: Point) {
+  function mapThreeToViewport(vec3: Vector3, out?: Point) {
     mapThreeToParentThree(vec3, _threeParent);
-    parentThreeSceneContext.mapThreeToViewport(_threeParent, point);
+    return parentThreeSceneContext.mapThreeToViewport(_threeParent, out);
   }
 
-  function mapThreeToClient(vec3: Vector3, clientPoint: Point) {
+  function mapThreeToClient(vec3: Vector3, out?: Point) {
     mapThreeToParentThree(vec3, _threeParent);
-    parentThreeSceneContext.mapThreeToClient(_threeParent, clientPoint);
+    return parentThreeSceneContext.mapThreeToClient(_threeParent, out);
   }
 
   function mapClientToNdc(
     client: Point | { clientX: number; clientY: number },
-    ndc: Vector2,
+    out?: Vector2,
   ) {
     const intersections = parentThreeSceneContext.raycastClient(
       client,
@@ -254,19 +258,21 @@ export function ThreeRenderTexture({
     );
     const uv = intersections[0]?.uv;
     if (uv) {
-      mapUvToNdc(uv, ndc);
+      return mapUvToNdc(uv, out);
     }
+    return null;
   }
 
-  function mapViewportToNdc(viewport: Point, ndc: Vector2) {
+  function mapViewportToNdc(viewport: Point, out?: Vector2) {
     const intersections = parentThreeSceneContext.raycastViewport(
       viewport,
       getAttachedObject(),
     );
     const uv = intersections[0]?.uv;
     if (uv) {
-      mapUvToNdc(uv, ndc);
+      return mapUvToNdc(uv, out);
     }
+    return null;
   }
 
   function raycastNdc<T extends Object3D | Plane | Object3D[] = Object3D>(

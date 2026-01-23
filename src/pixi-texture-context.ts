@@ -26,15 +26,17 @@ export interface PixiTextureContextValue {
   /**
    * Maps Three.js UV coordinates (0-1) to Pixi texture coordinates.
    * @param uv - Three.js UV Vector2 (0-1 range)
-   * @param point - Pixi Point to store the result
+   * @param out - Optional Pixi Point to store the result
+   * @returns The Pixi Point
    */
-  mapUvToPixi: (uv: Vector2, point: Point) => void;
+  mapUvToPixi: (uv: Vector2, out?: Point) => Point;
   /**
    * Maps Pixi texture coordinates to Three.js UV coordinates (0-1).
    * @param point - Pixi Point in texture space
-   * @param uv - Three.js UV Vector2 to store the result
+   * @param out - Optional Three.js UV Vector2 to store the result
+   * @returns The UV Vector2
    */
-  mapPixiToParentUv: (point: Point, uv: Vector2) => void;
+  mapPixiToParentUv: (point: Point, out?: Vector2) => Vector2;
   /**
    * Maps Pixi texture coordinates to local coordinates on the parent Three mesh surface.
    * @param point - Pixi Point in texture space
@@ -74,20 +76,20 @@ export interface PixiTextureContextValue {
   /**
    * Maps DOM client coordinates to local Pixi texture coordinates.
    * @param client - DOM client coordinates
-   * @param out - Point to store the result
+   * @param out - Optional Point to store the result
    * @returns The point if hit, null otherwise
    */
   mapClientToPixi: (
     client: Point | { clientX: number; clientY: number },
-    out: Point,
+    out?: Point,
   ) => Point | null;
   /**
    * Maps viewport coordinates to local Pixi texture coordinates.
    * @param viewport - Viewport Point coordinates
-   * @param out - Point to store the result
+   * @param out - Optional Point to store the result
    * @returns The point if hit, null otherwise
    */
-  mapViewportToPixi: (viewport: Point, out: Point) => Point | null;
+  mapViewportToPixi: (viewport: Point, out?: Point) => Point | null;
 }
 
 /** @internal */
@@ -156,15 +158,17 @@ export interface PixiViewContextValue {
   /**
    * Maps Three.js UV coordinates (0-1) to Pixi coordinates.
    * @param uv - Three.js UV Vector2 (0-1 range)
-   * @param point - Pixi Point to store the result
+   * @param out - Optional Pixi Point to store the result
+   * @returns The Pixi Point
    */
-  mapUvToPixi: (uv: Vector2, point: Point) => void;
+  mapUvToPixi: (uv: Vector2, out?: Point) => Point;
   /**
    * Maps Pixi coordinates to Three.js UV coordinates (0-1).
    * @param point - Pixi Point in local coordinates
-   * @param uv - Three.js UV Vector2 to store the result
+   * @param out - Optional Three.js UV Vector2 to store the result
+   * @returns The UV Vector2
    */
-  mapPixiToUv: (point: Point, uv: Vector2) => void;
+  mapPixiToUv: (point: Point, out?: Vector2) => Vector2;
   /**
    * Maps local Pixi coordinates to CanvasView viewport coordinates.
    * When inside PixiTexture, returns array of Points (UV can map to multiple positions).
@@ -186,20 +190,20 @@ export interface PixiViewContextValue {
   /**
    * Maps DOM client coordinates to local Pixi coordinates.
    * @param client - DOM client coordinates
-   * @param out - Point to store the result
+   * @param out - Optional Point to store the result
    * @returns The point if hit, null otherwise
    */
   mapClientToPixi: (
     client: Point | { clientX: number; clientY: number },
-    out: Point,
+    out?: Point,
   ) => Point | null;
   /**
    * Maps viewport coordinates to local Pixi coordinates.
    * @param viewport - Viewport Point coordinates
-   * @param out - Point to store the result
+   * @param out - Optional Point to store the result
    * @returns The point if hit, null otherwise
    */
-  mapViewportToPixi: (viewport: Point, out: Point) => Point | null;
+  mapViewportToPixi: (viewport: Point, out?: Point) => Point | null;
   /**
    * Parent Three coordinate mapping functions.
    * Only available inside a PixiTexture context.
@@ -247,10 +251,9 @@ export function usePixiViewContext(): PixiViewContextValue {
   return {
     width: viewport.width,
     height: viewport.height,
-    mapUvToPixi: (uv: Vector2, point: Point) =>
-      mapUvToPixiUtil(uv, point, bounds),
-    mapPixiToUv: (point: Point, uv: Vector2) =>
-      mapPixiToUvUtil(point, uv, bounds),
+    mapUvToPixi: (uv: Vector2, out?: Point) => mapUvToPixiUtil(uv, bounds, out),
+    mapPixiToUv: (point: Point, out?: Vector2) =>
+      mapPixiToUvUtil(point, bounds, out),
     mapPixiToViewport: (localPoint: Point, out?: Point) => {
       const result = out ?? new Point();
       containerRef.current.toGlobal(localPoint, result);
@@ -258,21 +261,21 @@ export function usePixiViewContext(): PixiViewContextValue {
     },
     mapPixiToClient: (localPoint: Point, out?: Point) => {
       containerRef.current.toGlobal(localPoint, _viewportPoint);
-      const result = out ?? new Point();
-      mapViewportToClient(_viewportPoint, result);
-      return [result];
+      return [mapViewportToClient(_viewportPoint, out)];
     },
     mapClientToPixi: (
       client: Point | { clientX: number; clientY: number },
-      out: Point,
+      out?: Point,
     ) => {
       mapClientToViewport(client, _viewportPoint);
-      containerRef.current.toLocal(_viewportPoint, undefined, out);
-      return out;
+      const result = out ?? new Point();
+      containerRef.current.toLocal(_viewportPoint, undefined, result);
+      return result;
     },
-    mapViewportToPixi: (viewportPoint: Point, out: Point) => {
-      containerRef.current.toLocal(viewportPoint, undefined, out);
-      return out;
+    mapViewportToPixi: (viewportPoint: Point, out?: Point) => {
+      const result = out ?? new Point();
+      containerRef.current.toLocal(viewportPoint, undefined, result);
+      return result;
     },
   };
 }

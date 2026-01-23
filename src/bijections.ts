@@ -1,4 +1,4 @@
-import { type Bounds, type Point, type Rectangle } from "pixi.js";
+import { type Bounds, Point, type Rectangle } from "pixi.js";
 import {
   BufferGeometry,
   type Camera,
@@ -21,21 +21,24 @@ import { MeshBVH } from "three-mesh-bvh";
  *
  * @category bijection
  * @param uv - Three.js UV Vector2 (0-1 range)
- * @param point - The Pixi Point to store the result
  * @param bounds - The bounds to map within (width/height and optional x/y offset)
+ * @param out - Optional Pixi Point to store the result
+ * @returns The Pixi Point
  */
 export function mapUvToPixi(
   uv: Vector2,
-  point: Point,
   bounds:
     | Rectangle
     | Bounds
     | { width: number; height: number; x?: number; y?: number },
-): void {
+  out?: Point,
+): Point {
+  const result = out ?? new Point();
   const bx = bounds.x ?? 0;
   const by = bounds.y ?? 0;
-  point.x = uv.x * bounds.width + bx;
-  point.y = uv.y * bounds.height + by;
+  result.x = uv.x * bounds.width + bx;
+  result.y = uv.y * bounds.height + by;
+  return result;
 }
 
 /**
@@ -43,21 +46,24 @@ export function mapUvToPixi(
  *
  * @category bijection
  * @param point - The Pixi Point in local coordinates
- * @param uv - Three.js UV Vector2 to store the result
  * @param bounds - The bounds to map within
+ * @param out - Optional Three.js UV Vector2 to store the result
+ * @returns The UV Vector2
  */
 export function mapPixiToUv(
   point: Point,
-  uv: Vector2,
   bounds:
     | Rectangle
     | Bounds
     | { width: number; height: number; x?: number; y?: number },
-): void {
+  out?: Vector2,
+): Vector2 {
+  const result = out ?? new Vector2();
   const bx = bounds.x ?? 0;
   const by = bounds.y ?? 0;
-  uv.x = (point.x - bx) / bounds.width;
-  uv.y = (point.y - by) / bounds.height;
+  result.x = (point.x - bx) / bounds.width;
+  result.y = (point.y - by) / bounds.height;
+  return result;
 }
 
 /**
@@ -65,23 +71,26 @@ export function mapPixiToUv(
  *
  * @category bijection
  * @param point - The Pixi Point in local coordinates
- * @param ndc - Vector2 to store the NDC result
  * @param bounds - The bounds to normalize within
+ * @param out - Optional Vector2 to store the NDC result
+ * @returns The NDC Vector2
  */
 export function mapPixiToNdc(
   point: Point,
-  ndc: Vector2,
   bounds:
     | Rectangle
     | Bounds
     | { width: number; height: number; x?: number; y?: number },
-): void {
+  out?: Vector2,
+): Vector2 {
+  const result = out ?? new Vector2();
   const bx = bounds.x ?? 0;
   const by = bounds.y ?? 0;
   const normalizedX = (point.x - bx) / bounds.width;
   const normalizedY = (point.y - by) / bounds.height;
-  ndc.x = normalizedX * 2 - 1;
-  ndc.y = -(normalizedY * 2 - 1);
+  result.x = normalizedX * 2 - 1;
+  result.y = -(normalizedY * 2 - 1);
+  return result;
 }
 
 /**
@@ -89,23 +98,26 @@ export function mapPixiToNdc(
  *
  * @category bijection
  * @param ndc - Vector2 with NDC coordinates (-1 to 1)
- * @param point - The Pixi Point to store the result
  * @param bounds - The bounds to map within
+ * @param out - Optional Pixi Point to store the result
+ * @returns The Pixi Point
  */
 export function mapNdcToPixi(
   ndc: Vector2,
-  point: Point,
   bounds:
     | Rectangle
     | Bounds
     | { width: number; height: number; x?: number; y?: number },
-): void {
+  out?: Point,
+): Point {
+  const result = out ?? new Point();
   const bx = bounds.x ?? 0;
   const by = bounds.y ?? 0;
   const normalizedX = (ndc.x + 1) / 2;
   const normalizedY = (-ndc.y + 1) / 2;
-  point.x = normalizedX * bounds.width + bx;
-  point.y = normalizedY * bounds.height + by;
+  result.x = normalizedX * bounds.width + bx;
+  result.y = normalizedY * bounds.height + by;
+  return result;
 }
 
 /**
@@ -113,11 +125,14 @@ export function mapNdcToPixi(
  *
  * @category bijection
  * @param uv - Vector2 with UV coordinates (0-1)
- * @param ndc - Vector2 to store the NDC result
+ * @param out - Optional Vector2 to store the NDC result
+ * @returns The NDC Vector2
  */
-export function mapUvToNdc(uv: Vector2, ndc: Vector2): void {
-  ndc.x = uv.x * 2 - 1;
-  ndc.y = -(uv.y * 2 - 1);
+export function mapUvToNdc(uv: Vector2, out?: Vector2): Vector2 {
+  const result = out ?? new Vector2();
+  result.x = uv.x * 2 - 1;
+  result.y = -(uv.y * 2 - 1);
+  return result;
 }
 
 /**
@@ -125,11 +140,14 @@ export function mapUvToNdc(uv: Vector2, ndc: Vector2): void {
  *
  * @category bijection
  * @param ndc - Vector2 with NDC coordinates (-1 to 1)
- * @param uv - Vector2 to store the UV result
+ * @param out - Optional Vector2 to store the UV result
+ * @returns The UV Vector2
  */
-export function mapNdcToUv(ndc: Vector2, uv: Vector2): void {
-  uv.x = (ndc.x + 1) / 2;
-  uv.y = (-ndc.y + 1) / 2;
+export function mapNdcToUv(ndc: Vector2, out?: Vector2): Vector2 {
+  const result = out ?? new Vector2();
+  result.x = (ndc.x + 1) / 2;
+  result.y = (-ndc.y + 1) / 2;
+  return result;
 }
 
 /**
@@ -137,22 +155,25 @@ export function mapNdcToUv(ndc: Vector2, uv: Vector2): void {
  *
  * @category bijection
  * @param client - DOM client coordinates
- * @param viewportPoint - Pixi Point to store the result
  * @param rect - The element's bounding rect
  * @param viewport - The viewport dimensions
+ * @param out - Optional Pixi Point to store the result
+ * @returns The viewport Point
  */
 export function mapClientToViewport(
   client: Point | { clientX: number; clientY: number },
-  viewportPoint: Point,
   rect: { left: number; top: number; width: number; height: number },
   viewport: { width: number; height: number },
-): void {
+  out?: Point,
+): Point {
+  const result = out ?? new Point();
   const clientX = "clientX" in client ? client.clientX : client.x;
   const clientY = "clientY" in client ? client.clientY : client.y;
   const normalizedX = (clientX - rect.left) / rect.width;
   const normalizedY = (clientY - rect.top) / rect.height;
-  viewportPoint.x = normalizedX * viewport.width;
-  viewportPoint.y = normalizedY * viewport.height;
+  result.x = normalizedX * viewport.width;
+  result.y = normalizedY * viewport.height;
+  return result;
 }
 
 /**
@@ -160,22 +181,23 @@ export function mapClientToViewport(
  *
  * @category bijection
  * @param viewportPoint - Pixi Point in viewport coordinates
- * @param clientPoint - Point to store the client coordinates
  * @param viewport - The viewport dimensions
  * @param rect - The element's bounding rect
+ * @param out - Optional Point to store the client coordinates
+ * @returns The client Point
  */
 export function mapViewportToClient(
   viewportPoint: Point | { x: number; y: number },
-  clientPoint: Point,
   viewport: { width: number; height: number },
   rect: { left: number; top: number; width: number; height: number },
-): void {
+  out?: Point,
+): Point {
+  const result = out ?? new Point();
   const normalizedX = viewportPoint.x / viewport.width;
   const normalizedY = viewportPoint.y / viewport.height;
-  const resultX = normalizedX * rect.width + rect.left;
-  const resultY = normalizedY * rect.height + rect.top;
-  clientPoint.x = resultX;
-  clientPoint.y = resultY;
+  result.x = normalizedX * rect.width + rect.left;
+  result.y = normalizedY * rect.height + rect.top;
+  return result;
 }
 
 declare module "three" {
@@ -391,16 +413,19 @@ const _ndc = new Vector3();
  *
  * @category bijection
  * @param vec3 - The world position
- * @param ndc - Vector2 to store the NDC result (-1 to 1)
  * @param camera - The camera to project through
+ * @param out - Optional Vector2 to store the NDC result (-1 to 1)
+ * @returns The NDC Vector2
  */
 export function mapThreeToNdc(
   vec3: Vector3,
-  ndc: Vector2,
   camera: Camera,
-): void {
+  out?: Vector2,
+): Vector2 {
+  const result = out ?? new Vector2();
   _ndc.copy(vec3);
   _ndc.project(camera);
-  ndc.x = _ndc.x;
-  ndc.y = _ndc.y;
+  result.x = _ndc.x;
+  result.y = _ndc.y;
+  return result;
 }

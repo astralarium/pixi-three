@@ -295,12 +295,12 @@ function ThreeSceneSpriteInternal({
     }
   }
 
-  function mapPixiToNdc(point: Point, ndc: Vector2) {
-    mapPixiToNdcUtil(point, ndc, sprite.current.getLocalBounds());
+  function mapPixiToNdc(point: Point, out?: Vector2) {
+    return mapPixiToNdcUtil(point, sprite.current.getLocalBounds(), out);
   }
 
-  function mapNdcToPixi(ndc: Vector2, point: Point) {
-    mapNdcToPixiUtil(ndc, point, sprite.current.getLocalBounds());
+  function mapNdcToPixi(ndc: Vector2, out?: Point) {
+    return mapNdcToPixiUtil(ndc, sprite.current.getLocalBounds(), out);
   }
 
   const clientPos = new Point();
@@ -426,8 +426,8 @@ function ThreeSceneSpriteInternal({
 interface ThreeSceneContextProviderProps {
   containerRef: RefObject<Container>;
   sceneTunnel: ReturnType<typeof tunnel>;
-  mapPixiToNdc: (point: Point, ndc: Vector2) => void;
-  mapNdcToPixi: (ndc: Vector2, point: Point) => void;
+  mapPixiToNdc: (point: Point, out?: Vector2) => Vector2;
+  mapNdcToPixi: (ndc: Vector2, out?: Point) => Point;
   sprite: RefObject<Sprite>;
   pixiTextureContext: PixiTextureContextValue | null;
   children: ReactNode;
@@ -448,45 +448,49 @@ function ThreeSceneContextProvider({
   const _ndc = new Vector2();
   const _localPos = new Point();
 
-  function mapThreeToParentPixiLocal(vec3: Vector3, point: Point) {
+  function mapThreeToParentPixiLocal(vec3: Vector3, out?: Point) {
     // Project world vec3 through camera to NDC
-    mapThreeToNdc(vec3, _ndc, camera);
+    mapThreeToNdc(vec3, camera, _ndc);
 
     // Map NDC to local sprite coords
-    mapNdcToPixi(_ndc, point);
+    return mapNdcToPixi(_ndc, out);
   }
 
-  function mapThreeToParentPixi(vec3: Vector3, point: Point) {
+  function mapThreeToParentPixi(vec3: Vector3, out?: Point) {
+    const result = out ?? new Point();
     mapThreeToParentPixiLocal(vec3, _localPos);
 
     // Transform to global Pixi coords
-    sprite.current.toGlobal(_localPos, point);
+    sprite.current.toGlobal(_localPos, result);
+    return result;
   }
 
-  function mapThreeToViewport(vec3: Vector3, point: Point) {
-    mapThreeToParentPixi(vec3, point);
-    pixiViewContext.mapPixiToViewport(_localPos, point);
-  }
-
-  function mapThreeToClient(vec3: Vector3, clientPoint: Point) {
+  function mapThreeToViewport(vec3: Vector3, out?: Point) {
     mapThreeToParentPixi(vec3, _localPos);
-    pixiViewContext.mapPixiToClient(_localPos, clientPoint);
+    return pixiViewContext.mapPixiToViewport(_localPos, out);
+  }
+
+  function mapThreeToClient(vec3: Vector3, out?: Point) {
+    mapThreeToParentPixi(vec3, _localPos);
+    return pixiViewContext.mapPixiToClient(_localPos, out);
   }
 
   // Inverse mapping: client/viewport → NDC
   function mapClientToNdc(
     client: Point | { clientX: number; clientY: number },
-    ndc: Vector2,
+    out?: Vector2,
   ) {
-    pixiViewContext.mapClientToPixi(client, _localPos);
+    const pixiResult = pixiViewContext.mapClientToPixi(client, _localPos);
+    if (!pixiResult) return null;
     sprite.current.toLocal(_localPos, undefined, _localPos);
-    mapPixiToNdc(_localPos, ndc);
+    return mapPixiToNdc(_localPos, out);
   }
 
-  function mapViewportToNdc(viewport: Point, ndc: Vector2) {
-    pixiViewContext.mapViewportToPixi(viewport, _localPos);
+  function mapViewportToNdc(viewport: Point, out?: Vector2) {
+    const pixiResult = pixiViewContext.mapViewportToPixi(viewport, _localPos);
+    if (!pixiResult) return null;
     sprite.current.toLocal(_localPos, undefined, _localPos);
-    mapPixiToNdc(_localPos, ndc);
+    return mapPixiToNdc(_localPos, out);
   }
 
   function raycastNdc<T extends Object3D | Plane | Object3D[] = Object3D>(

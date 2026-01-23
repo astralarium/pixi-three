@@ -5,11 +5,11 @@ import { createContext, type RefObject, useContext } from "react";
 export interface CanvasViewContextValue {
   canvasRef: RefObject<HTMLCanvasElement>;
   containerRef: RefObject<Container>;
-  mapViewportToClient: (viewportPoint: Point, clientPoint: Point) => void;
+  mapViewportToClient: (viewportPoint: Point, out?: Point) => Point;
   mapClientToViewport: (
     client: Point | { clientX: number; clientY: number },
-    viewportPoint: Point,
-  ) => void;
+    out?: Point,
+  ) => Point;
 }
 
 /** @internal */
