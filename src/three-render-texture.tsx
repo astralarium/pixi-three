@@ -19,6 +19,8 @@ import {
 import {
   Mesh,
   Object3D,
+  type Plane,
+  Raycaster,
   type RenderTarget,
   type RenderTargetOptions,
   Scene,
@@ -43,7 +45,11 @@ import { useViewport } from "./canvas-tree-context";
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { useAttachedObject } from "./three-fiber";
 import { Portal } from "./three-portal";
-import { ThreeSceneContext, useThreeSceneContext } from "./three-scene-context";
+import {
+  type RaycastResult,
+  ThreeSceneContext,
+  useThreeSceneContext,
+} from "./three-scene-context";
 import { useRenderSchedule } from "./use-render-schedule";
 
 /**
@@ -166,6 +172,7 @@ export function ThreeRenderTexture({
   const _ndc = new Vector2();
   const _uv = new Vector2();
   const _threeParent = new Vector3();
+  const raycaster = new Raycaster();
 
   function mapThreeToParentUv(vec3: Vector3, uv: Vector2) {
     // Project world vec3 through camera to NDC
@@ -237,6 +244,87 @@ export function ThreeRenderTexture({
     parentThreeSceneContext.mapThreeToClient(_threeParent, clientPoint);
   }
 
+  function mapClientToNdc(
+    client: Point | { clientX: number; clientY: number },
+    ndc: Vector2,
+  ) {
+    const intersections = parentThreeSceneContext.raycastClient(
+      client,
+      getAttachedObject(),
+    );
+    const uv = intersections[0]?.uv;
+    if (uv) {
+      mapUvToNdc(uv, ndc);
+    }
+  }
+
+  function mapViewportToNdc(viewport: Point, ndc: Vector2) {
+    const intersections = parentThreeSceneContext.raycastViewport(
+      viewport,
+      getAttachedObject(),
+    );
+    const uv = intersections[0]?.uv;
+    if (uv) {
+      mapUvToNdc(uv, ndc);
+    }
+  }
+
+  function raycastNdc<T extends Object3D | Plane | Object3D[] = Object3D>(
+    ndc: Vector2,
+    target?: T,
+    recursive?: boolean,
+  ): RaycastResult<T>[] {
+    raycaster.setFromCamera(ndc, camera);
+    if (target) {
+      if (Array.isArray(target)) {
+        return raycaster.intersectObjects(
+          target,
+          recursive,
+        ) as RaycastResult<T>[];
+      } else if ("isPlane" in target) {
+        const point = new Vector3();
+        const hit = raycaster.ray.intersectPlane(target as Plane, point);
+        if (hit) {
+          return [
+            {
+              distance: raycaster.ray.origin.distanceTo(point),
+              point,
+              object: target,
+            } as RaycastResult<T>,
+          ];
+        }
+        return [];
+      } else {
+        return raycaster.intersectObject(
+          target,
+          recursive,
+        ) as RaycastResult<T>[];
+      }
+    }
+    return raycaster.intersectObjects(
+      scene.children,
+      recursive,
+    ) as RaycastResult<T>[];
+  }
+
+  function raycastClient<T extends Object3D | Plane | Object3D[] = Object3D>(
+    client: Point | { clientX: number; clientY: number },
+    target?: T,
+    recursive?: boolean,
+  ): RaycastResult<T>[] {
+    mapClientToNdc(client, _ndc);
+    return raycastNdc(_ndc, target, recursive);
+  }
+
+  function raycastViewport<T extends Object3D | Plane | Object3D[] = Object3D>(
+    viewport: Point,
+    target?: T,
+    recursive?: boolean,
+  ): RaycastResult<T>[] {
+    mapViewportToNdc(viewport, _ndc);
+    return raycastNdc(_ndc, target, recursive);
+  }
+
   function computeFn(event: DomEvent, state: RootState, previous?: RootState) {
     if (!previous) {
       return false;
@@ -284,6 +372,11 @@ export function ThreeRenderTexture({
             mapThreeToParentPixi,
             mapThreeToViewport,
             mapThreeToClient,
+            mapClientToNdc,
+            mapViewportToNdc,
+            raycastNdc,
+            raycastClient,
+            raycastViewport,
             parentThree: {
               mapThreeToParentUv,
               mapThreeToParentThreeLocal,

@@ -6,6 +6,10 @@ export interface CanvasViewContextValue {
   canvasRef: RefObject<HTMLCanvasElement>;
   containerRef: RefObject<Container>;
   mapViewportToClient: (viewportPoint: Point, clientPoint: Point) => void;
+  mapClientToViewport: (
+    client: Point | { clientX: number; clientY: number },
+    viewportPoint: Point,
+  ) => void;
 }
 
 /** @internal */

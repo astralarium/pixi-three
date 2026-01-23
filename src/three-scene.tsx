@@ -31,11 +31,13 @@ import {
   useState,
 } from "react";
 import {
+  type Object3D,
+  type Plane,
   Raycaster,
   type RenderTargetOptions,
   Scene,
   Vector2,
-  type Vector3,
+  Vector3,
 } from "three";
 import { type PostProcessing } from "three/webgpu";
 import tunnel from "tunnel-rat";
@@ -56,6 +58,7 @@ import {
 import { useRenderContext } from "./render-context-hooks";
 import { Portal } from "./three-portal";
 import {
+  type RaycastResult,
   ThreeSceneContext,
   useThreeSceneContextOptional,
 } from "./three-scene-context";
@@ -438,8 +441,9 @@ function ThreeSceneContextProvider({
   sprite,
   children,
 }: ThreeSceneContextProviderProps) {
-  const { camera } = useThree();
+  const { camera, scene } = useThree();
   const pixiViewContext = usePixiViewContext();
+  const [raycaster] = useState(new Raycaster());
 
   const _ndc = new Vector2();
   const _localPos = new Point();
@@ -469,6 +473,78 @@ function ThreeSceneContextProvider({
     pixiViewContext.mapPixiToClient(_localPos, clientPoint);
   }
 
+  // Inverse mapping: client/viewport → NDC
+  function mapClientToNdc(
+    client: Point | { clientX: number; clientY: number },
+    ndc: Vector2,
+  ) {
+    pixiViewContext.mapClientToPixi(client, _localPos);
+    sprite.current.toLocal(_localPos, undefined, _localPos);
+    mapPixiToNdc(_localPos, ndc);
+  }
+
+  function mapViewportToNdc(viewport: Point, ndc: Vector2) {
+    pixiViewContext.mapViewportToPixi(viewport, _localPos);
+    sprite.current.toLocal(_localPos, undefined, _localPos);
+    mapPixiToNdc(_localPos, ndc);
+  }
+
+  function raycastNdc<T extends Object3D | Plane | Object3D[] = Object3D>(
+    ndc: Vector2,
+    target?: T,
+    recursive?: boolean,
+  ): RaycastResult<T>[] {
+    raycaster.setFromCamera(ndc, camera);
+    if (target) {
+      if (Array.isArray(target)) {
+        return raycaster.intersectObjects(
+          target,
+          recursive,
+        ) as RaycastResult<T>[];
+      } else if ("isPlane" in target) {
+        const point = new Vector3();
+        const hit = raycaster.ray.intersectPlane(target as Plane, point);
+        if (hit) {
+          return [
+            {
+              distance: raycaster.ray.origin.distanceTo(point),
+              point,
+              object: target,
+            } as RaycastResult<T>,
+          ];
+        }
+        return [];
+      } else {
+        return raycaster.intersectObject(
+          target,
+          recursive,
+        ) as RaycastResult<T>[];
+      }
+    }
+    return raycaster.intersectObjects(
+      scene.children,
+      recursive,
+    ) as RaycastResult<T>[];
+  }
+
+  function raycastClient<T extends Object3D | Plane | Object3D[] = Object3D>(
+    client: Point | { clientX: number; clientY: number },
+    target?: T,
+    recursive?: boolean,
+  ): RaycastResult<T>[] {
+    mapClientToNdc(client, _ndc);
+    return raycastNdc(_ndc, target, recursive);
+  }
+
+  function raycastViewport<T extends Object3D | Plane | Object3D[] = Object3D>(
+    viewport: Point,
+    target?: T,
+    recursive?: boolean,
+  ): RaycastResult<T>[] {
+    mapViewportToNdc(viewport, _ndc);
+    return raycastNdc(_ndc, target, recursive);
+  }
+
   return (
     <ThreeSceneContext
       value={{
@@ -480,6 +556,11 @@ function ThreeSceneContextProvider({
         mapThreeToParentPixi,
         mapThreeToViewport,
         mapThreeToClient,
+        mapClientToNdc,
+        mapViewportToNdc,
+        raycastNdc,
+        raycastClient,
+        raycastViewport,
       }}
     >
       {children}

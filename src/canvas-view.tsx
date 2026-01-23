@@ -373,6 +373,22 @@ function CanvasViewContent({
           };
           mapViewportToClientUtil(viewportPoint, clientPoint, viewport, rect);
         },
+        mapClientToViewport: (client, viewportPoint) => {
+          const canvas = canvasRef.current;
+          const rect = canvas?.isConnected
+            ? canvas.getBoundingClientRect()
+            : {
+                left: 0,
+                top: 0,
+                width: canvas?.width ?? 1,
+                height: canvas?.height ?? 1,
+              };
+          const viewport = (containerRef.current?.hitArea as Rectangle) ?? {
+            width: 1,
+            height: 1,
+          };
+          mapClientToViewport(client, viewportPoint, rect, viewport);
+        },
       }}
     >
       <CanvasTreeContext value={{ store, invalidate }}>

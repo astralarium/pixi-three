@@ -413,6 +413,37 @@ function PixiTextureInternal({
     }
   }
 
+  function mapClientToPixi(
+    client: Point | { clientX: number; clientY: number },
+    pixiLocal: Point,
+  ) {
+    const intersections = parentThreeSceneContext.raycastClient(
+      client,
+      getAttachedObject(),
+    );
+    const uv = intersections[0]?.uv;
+    if (uv) {
+      mapUvToPixi(uv, pixiLocal);
+      return pixiLocal;
+    } else {
+      return null;
+    }
+  }
+
+  function mapViewportToPixi(viewport: Point, pixiLocal: Point) {
+    const intersections = parentThreeSceneContext.raycastViewport(
+      viewport,
+      getAttachedObject(),
+    );
+    const uv = intersections[0]?.uv;
+    if (uv) {
+      mapUvToPixi(uv, pixiLocal);
+      return pixiLocal;
+    } else {
+      return null;
+    }
+  }
+
   const key = useId();
 
   return (
@@ -445,6 +476,8 @@ function PixiTextureInternal({
             mapPixiToParentPixi,
             mapPixiToViewport,
             mapPixiToClient,
+            mapClientToPixi,
+            mapViewportToPixi,
           }}
         >
           <pixiContainer
