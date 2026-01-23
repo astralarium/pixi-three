@@ -49,37 +49,45 @@ export interface PixiTextureContextValue {
   mapPixiToParentThree: (point: Point) => UvToThreeResult[];
   /**
    * Maps Pixi texture coordinates to global Pixi parent coordinates.
+   * Returns array of Points since UV can map to multiple mesh positions.
    * @param point - Pixi Point in texture space
-   * @param out - Pixi Point to store the result in global Pixi coords
+   * @param out - Optional Point to store the first result
+   * @returns Array of Points in global Pixi parent coords
    */
-  mapPixiToParentPixi: (point: Point, out: Point) => void;
+  mapPixiToParentPixi: (point: Point, out?: Point) => Point[];
   /**
    * Maps local Pixi coordinates to CanvasView viewport coordinates.
+   * Returns array of Points since UV can map to multiple mesh positions.
    * @param localPoint - Pixi Point in local texture coordinates
-   * @param viewportPoint - Pixi Point to store the viewport result
+   * @param out - Optional Point to store the first result
+   * @returns Array of Points in viewport coords
    */
-  mapPixiToViewport: (localPoint: Point, viewportPoint: Point) => void;
+  mapPixiToViewport: (localPoint: Point, out?: Point) => Point[];
   /**
    * Maps local Pixi coordinates to DOM client coordinates.
+   * Returns array of Points since UV can map to multiple mesh positions.
    * @param localPoint - Pixi Point in local texture coordinates
-   * @param clientPoint - Pixi Point to store the client coordinates result
+   * @param out - Optional Point to store the first result
+   * @returns Array of Points in client coords
    */
-  mapPixiToClient: (localPoint: Point, clientPoint: Point) => void;
+  mapPixiToClient: (localPoint: Point, out?: Point) => Point[];
   /**
    * Maps DOM client coordinates to local Pixi texture coordinates.
    * @param client - DOM client coordinates
-   * @param pixiLocal - Pixi Point to store the local coordinates result
+   * @param out - Point to store the result
+   * @returns The point if hit, null otherwise
    */
   mapClientToPixi: (
     client: Point | { clientX: number; clientY: number },
-    pixiLocal: Point,
-  ) => void;
+    out: Point,
+  ) => Point | null;
   /**
    * Maps viewport coordinates to local Pixi texture coordinates.
    * @param viewport - Viewport Point coordinates
-   * @param pixiLocal - Pixi Point to store the local coordinates result
+   * @param out - Point to store the result
+   * @returns The point if hit, null otherwise
    */
-  mapViewportToPixi: (viewport: Point, pixiLocal: Point) => void;
+  mapViewportToPixi: (viewport: Point, out: Point) => Point | null;
 }
 
 /** @internal */
@@ -125,10 +133,12 @@ export interface PixiViewParentThreeContextValue {
   mapPixiToParentThree: (point: Point) => UvToThreeResult[];
   /**
    * Maps Pixi texture coordinates to global Pixi parent coordinates.
+   * Returns array of Points since UV can map to multiple mesh positions.
    * @param point - Pixi Point in texture space
-   * @param out - Pixi Point to store the result in global Pixi coords
+   * @param out - Optional Point to store the first result
+   * @returns Array of Points in global Pixi parent coords
    */
-  mapPixiToParentPixi: (point: Point, out: Point) => void;
+  mapPixiToParentPixi: (point: Point, out?: Point) => Point[];
 }
 
 /**
@@ -157,31 +167,39 @@ export interface PixiViewContextValue {
   mapPixiToUv: (point: Point, uv: Vector2) => void;
   /**
    * Maps local Pixi coordinates to CanvasView viewport coordinates.
+   * When inside PixiTexture, returns array of Points (UV can map to multiple positions).
+   * When inside CanvasView directly, returns single-element array (direct mapping).
    * @param localPoint - Pixi Point in local coordinates
-   * @param viewportPoint - Pixi Point to store the viewport result
+   * @param out - Optional Point to store the first result
+   * @returns Array of Points in viewport coords
    */
-  mapPixiToViewport: (localPoint: Point, viewportPoint: Point) => void;
+  mapPixiToViewport: (localPoint: Point, out?: Point) => Point[];
   /**
    * Maps local Pixi coordinates to DOM client coordinates.
+   * When inside PixiTexture, returns array of Points (UV can map to multiple positions).
+   * When inside CanvasView directly, returns single-element array (direct mapping).
    * @param localPoint - Pixi Point in local coordinates
-   * @param clientPoint - Pixi Point to store the client coordinates result
+   * @param out - Optional Point to store the first result
+   * @returns Array of Points in client coords
    */
-  mapPixiToClient: (localPoint: Point, clientPoint: Point) => void;
+  mapPixiToClient: (localPoint: Point, out?: Point) => Point[];
   /**
    * Maps DOM client coordinates to local Pixi coordinates.
    * @param client - DOM client coordinates
-   * @param pixiLocal - Pixi Point to store the local coordinates result
+   * @param out - Point to store the result
+   * @returns The point if hit, null otherwise
    */
   mapClientToPixi: (
     client: Point | { clientX: number; clientY: number },
-    pixiLocal: Point,
-  ) => void;
+    out: Point,
+  ) => Point | null;
   /**
    * Maps viewport coordinates to local Pixi coordinates.
    * @param viewport - Viewport Point coordinates
-   * @param pixiLocal - Pixi Point to store the local coordinates result
+   * @param out - Point to store the result
+   * @returns The point if hit, null otherwise
    */
-  mapViewportToPixi: (viewport: Point, pixiLocal: Point) => void;
+  mapViewportToPixi: (viewport: Point, out: Point) => Point | null;
   /**
    * Parent Three coordinate mapping functions.
    * Only available inside a PixiTexture context.
@@ -233,21 +251,28 @@ export function usePixiViewContext(): PixiViewContextValue {
       mapUvToPixiUtil(uv, point, bounds),
     mapPixiToUv: (point: Point, uv: Vector2) =>
       mapPixiToUvUtil(point, uv, bounds),
-    mapPixiToViewport: (localPoint: Point, viewportPoint: Point) =>
-      containerRef.current.toGlobal(localPoint, viewportPoint),
-    mapPixiToClient: (localPoint: Point, clientPoint: Point) => {
+    mapPixiToViewport: (localPoint: Point, out?: Point) => {
+      const result = out ?? new Point();
+      containerRef.current.toGlobal(localPoint, result);
+      return [result];
+    },
+    mapPixiToClient: (localPoint: Point, out?: Point) => {
       containerRef.current.toGlobal(localPoint, _viewportPoint);
-      mapViewportToClient(_viewportPoint, clientPoint);
+      const result = out ?? new Point();
+      mapViewportToClient(_viewportPoint, result);
+      return [result];
     },
     mapClientToPixi: (
       client: Point | { clientX: number; clientY: number },
-      pixiLocal: Point,
+      out: Point,
     ) => {
       mapClientToViewport(client, _viewportPoint);
-      containerRef.current.toLocal(_viewportPoint, undefined, pixiLocal);
+      containerRef.current.toLocal(_viewportPoint, undefined, out);
+      return out;
     },
-    mapViewportToPixi: (viewportPoint: Point, pixiLocal: Point) => {
-      containerRef.current.toLocal(viewportPoint, undefined, pixiLocal);
+    mapViewportToPixi: (viewportPoint: Point, out: Point) => {
+      containerRef.current.toLocal(viewportPoint, undefined, out);
+      return out;
     },
   };
 }

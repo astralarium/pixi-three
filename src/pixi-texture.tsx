@@ -389,33 +389,39 @@ function PixiTextureInternal({
 
   const _threeParent = new Vector3();
 
-  function mapPixiToParentPixi(point: Point, out: Point) {
+  function mapPixiToParentPixi(point: Point, out?: Point) {
     const results = mapPixiToParentThree(point);
-    if (results.length > 0) {
-      _threeParent.copy(results[0].position);
-      parentThreeSceneContext.mapThreeToParentPixi(_threeParent, out);
-    }
+    return results.map((result, i) => {
+      const target = i === 0 && out ? out : new Point();
+      _threeParent.copy(result.position);
+      parentThreeSceneContext.mapThreeToParentPixi(_threeParent, target);
+      return target;
+    });
   }
 
-  function mapPixiToViewport(localPoint: Point, viewportPoint: Point) {
+  function mapPixiToViewport(localPoint: Point, out?: Point) {
     const results = mapPixiToParentThree(localPoint);
-    if (results.length > 0) {
-      _threeParent.copy(results[0].position);
-      parentThreeSceneContext.mapThreeToViewport(_threeParent, viewportPoint);
-    }
+    return results.map((result, i) => {
+      const target = i === 0 && out ? out : new Point();
+      _threeParent.copy(result.position);
+      parentThreeSceneContext.mapThreeToViewport(_threeParent, target);
+      return target;
+    });
   }
 
-  function mapPixiToClient(localPoint: Point, clientPoint: Point) {
+  function mapPixiToClient(localPoint: Point, out?: Point) {
     const results = mapPixiToParentThree(localPoint);
-    if (results.length > 0) {
-      _threeParent.copy(results[0].position);
-      parentThreeSceneContext.mapThreeToClient(_threeParent, clientPoint);
-    }
+    return results.map((result, i) => {
+      const target = i === 0 && out ? out : new Point();
+      _threeParent.copy(result.position);
+      parentThreeSceneContext.mapThreeToClient(_threeParent, target);
+      return target;
+    });
   }
 
   function mapClientToPixi(
     client: Point | { clientX: number; clientY: number },
-    pixiLocal: Point,
+    out: Point,
   ) {
     const intersections = parentThreeSceneContext.raycastClient(
       client,
@@ -423,25 +429,23 @@ function PixiTextureInternal({
     );
     const uv = intersections[0]?.uv;
     if (uv) {
-      mapUvToPixi(uv, pixiLocal);
-      return pixiLocal;
-    } else {
-      return null;
+      mapUvToPixi(uv, out);
+      return out;
     }
+    return null;
   }
 
-  function mapViewportToPixi(viewport: Point, pixiLocal: Point) {
+  function mapViewportToPixi(viewport: Point, out: Point) {
     const intersections = parentThreeSceneContext.raycastViewport(
       viewport,
       getAttachedObject(),
     );
     const uv = intersections[0]?.uv;
     if (uv) {
-      mapUvToPixi(uv, pixiLocal);
-      return pixiLocal;
-    } else {
-      return null;
+      mapUvToPixi(uv, out);
+      return out;
     }
+    return null;
   }
 
   const key = useId();
