@@ -7,11 +7,9 @@ import {
   FederatedPointerEvent,
   FederatedWheelEvent,
   type PixiTouch,
-  Point,
+  type Point,
   type Renderer,
 } from "pixi.js";
-
-const MISSED_POINT = new Point(-Infinity, -Infinity);
 
 const MOUSE_POINTER_ID = 1;
 
@@ -81,12 +79,21 @@ export class PixiSyntheticEventSystem extends EventSystem {
     domElement: HTMLElement,
   ): void {
     this.domElement = domElement;
-
-    const eventPoint = point ?? MISSED_POINT;
-
     eventBoundary.rootTarget = container;
 
     const type = event.type;
+
+    if (point === null) {
+      if (
+        type === "pointermove" ||
+        type === "mousemove" ||
+        type === "touchmove"
+      ) {
+        this.handlePointerOut(event, eventBoundary, rootEvents.pointerEvent);
+      }
+      return;
+    }
+
     if (
       type === "pointerdown" ||
       type === "mousedown" ||
@@ -96,7 +103,7 @@ export class PixiSyntheticEventSystem extends EventSystem {
         event,
         eventBoundary,
         rootEvents.pointerEvent,
-        eventPoint,
+        point,
       );
     } else if (
       type === "pointermove" ||
@@ -107,7 +114,7 @@ export class PixiSyntheticEventSystem extends EventSystem {
         event,
         eventBoundary,
         rootEvents.pointerEvent,
-        eventPoint,
+        point,
       );
     } else if (
       type === "pointerup" ||
@@ -118,7 +125,7 @@ export class PixiSyntheticEventSystem extends EventSystem {
         event,
         eventBoundary,
         rootEvents.pointerEvent,
-        eventPoint,
+        point,
       );
     } else if (
       type === "pointerover" ||
@@ -130,10 +137,10 @@ export class PixiSyntheticEventSystem extends EventSystem {
         event,
         eventBoundary,
         rootEvents.pointerEvent,
-        eventPoint,
+        point,
       );
     } else if (type === "wheel") {
-      this.handleWheel(event, eventBoundary, rootEvents.wheelEvent, eventPoint);
+      this.handleWheel(event, eventBoundary, rootEvents.wheelEvent, point);
     }
   }
 
@@ -380,6 +387,32 @@ export class PixiSyntheticEventSystem extends EventSystem {
     }
 
     this.setCursor(eventBoundary.cursor);
+  }
+
+  /**
+   * Handles pointer out events when the pointer leaves (point is null).
+   * Dispatches a pointerout event to trigger EventBoundary.mapPointerOut, which
+   * uses stored tracking data rather than hit testing.
+   * @param sourceEvent - The source pointer/mouse/touch event
+   * @param eventBoundary - The event boundary to map events through
+   * @param rootEvent - The root federated pointer event
+   */
+  protected handlePointerOut<T = TouchEvent | MouseEvent | PointerEvent>(
+    sourceEvent: T,
+    eventBoundary: EventBoundary,
+    rootEvent: FederatedPointerEvent,
+  ): void {
+    const normalizedEvents = this.normalizeToPointerData(
+      sourceEvent as TouchEvent | MouseEvent | PointerEvent,
+    );
+
+    for (let i = 0, j = normalizedEvents.length; i < j; i++) {
+      this.transferMouseData(rootEvent, normalizedEvents[i]);
+      rootEvent.type = "pointerout";
+      eventBoundary.mapEvent(rootEvent);
+    }
+
+    this.setCursor("default");
   }
 
   /**
