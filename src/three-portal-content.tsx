@@ -55,7 +55,7 @@ export function PortalContent({
 }: PortalContentProps) {
   const state = useThree();
   const backendData = (
-    (state.gl as unknown as WebGPURenderer).backend as WebGPUBackend & {
+    (state.renderer as unknown as WebGPURenderer).backend as WebGPUBackend & {
       data: WeakMap<Texture, { texture: GPUTexture }>;
     }
   ).data;
@@ -118,29 +118,29 @@ export function PortalContent({
   const postProcessor = postProcessing ? postProcessing(state) : null;
   useFrame(() => {
     if (frameloop === "always" || isFrameRequested?.()) {
-      const gl = state.gl as unknown as WebGPURenderer;
-      const oldAutoClear = gl.autoClear;
-      const oldXrEnabled = gl.xr.enabled;
-      const oldIsPresenting = gl.xr.isPresenting;
-      const oldRenderTarget = gl.getRenderTarget();
+      const renderer = state.renderer as unknown as WebGPURenderer;
+      const oldAutoClear = renderer.autoClear;
+      const oldXrEnabled = renderer.xr.enabled;
+      const oldIsPresenting = renderer.xr.isPresenting;
+      const oldRenderTarget = renderer.getRenderTarget();
       // eslint-disable-next-line react-hooks/immutability
-      gl.autoClear = true;
-      gl.xr.enabled = false;
-      gl.xr.isPresenting = false;
-      gl.setRenderTarget(renderTarget.current);
+      renderer.autoClear = true;
+      renderer.xr.enabled = false;
+      renderer.xr.isPresenting = false;
+      renderer.setRenderTarget(renderTarget.current);
       if (postProcessor) {
         postProcessor.render();
       } else {
-        gl.render(state.scene, state.camera);
+        renderer.render(state.scene, state.camera);
       }
       if (onTextureUpdate) {
         const textureData = backendData.get(renderTarget.current.texture)!;
         onTextureUpdate(textureData.texture);
       }
-      gl.setRenderTarget(oldRenderTarget);
-      gl.autoClear = oldAutoClear;
-      gl.xr.enabled = oldXrEnabled;
-      gl.xr.isPresenting = oldIsPresenting;
+      renderer.setRenderTarget(oldRenderTarget);
+      renderer.autoClear = oldAutoClear;
+      renderer.xr.enabled = oldXrEnabled;
+      renderer.xr.isPresenting = oldIsPresenting;
       signalFrame?.();
     }
   }, renderPriority);

@@ -96,7 +96,7 @@ export function ThreeRoot({
       const threeState: RootState = await new Promise((resolve) => {
         void threeRoot.configure({
           frameloop: "never",
-          gl: renderer,
+          renderer,
           onCreated: (state) => {
             resolve(state);
             onCreated?.(state);
@@ -117,7 +117,7 @@ export function ThreeRoot({
       }
 
       function render() {
-        threeState.advance(pixi.app.ticker.lastTime * 0.001);
+        threeState.advance(pixi.app.ticker.lastTime);
       }
 
       const { prerender } = pixi.app.renderer.runners;
