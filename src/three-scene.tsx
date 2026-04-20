@@ -102,8 +102,6 @@ export interface ThreeSceneBaseProps {
    * Optional {@link https://threejs.org/docs/#WebGLRenderTarget | RenderTarget} options
    */
   renderTargetOptions?: RenderTargetOptions;
-  /** Optional render priority, defaults to 0 */
-  renderPriority?: number;
   /** Optional event priority, defaults to 0 */
   eventPriority?: number;
   /** Optional frameloop, defaults to "always" */
@@ -151,7 +149,6 @@ export function ThreeScene({
   height,
   resolution,
   renderTargetOptions,
-  renderPriority,
   eventPriority,
   frameloop,
   eventCompute,
@@ -178,7 +175,6 @@ export function ThreeScene({
         height={height}
         resolution={resolution}
         renderTargetOptions={renderTargetOptions}
-        renderPriority={renderPriority}
         eventPriority={eventPriority}
         frameloop={frameloop}
         eventCompute={eventCompute}
@@ -242,7 +238,6 @@ function ThreeSceneSpriteInternal({
   height: heightProp,
   resolution: resolutionProp,
   renderTargetOptions,
-  renderPriority = 0,
   eventPriority = 0,
   frameloop = "always",
   eventCompute,
@@ -397,7 +392,6 @@ function ThreeSceneSpriteInternal({
       <CanvasTreeContext value={{ store, invalidate }}>
         {createPortal(
           <PortalContent
-            renderPriority={renderPriority}
             width={width}
             height={height}
             resolution={resolution}

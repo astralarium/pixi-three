@@ -22,7 +22,6 @@ import { type PostProcessing, type WebGPURenderer } from "three/webgpu";
 /** @internal */
 export interface PortalContentProps {
   ref?: Ref<RenderTarget>;
-  renderPriority: number;
   width: number;
   height: number;
   resolution: number;
@@ -41,7 +40,6 @@ export interface PortalContentProps {
 /** @internal */
 export function PortalContent({
   ref,
-  renderPriority,
   width,
   height,
   resolution,
@@ -116,33 +114,36 @@ export function PortalContent({
   }, [width, height, resolution]);
 
   const postProcessor = postProcessing ? postProcessing(state) : null;
-  useFrame(() => {
-    if (frameloop === "always" || isFrameRequested?.()) {
-      const renderer = state.renderer as unknown as WebGPURenderer;
-      const oldAutoClear = renderer.autoClear;
-      const oldXrEnabled = renderer.xr.enabled;
-      const oldIsPresenting = renderer.xr.isPresenting;
-      const oldRenderTarget = renderer.getRenderTarget();
-      // eslint-disable-next-line react-hooks/immutability
-      renderer.autoClear = true;
-      renderer.xr.enabled = false;
-      renderer.xr.isPresenting = false;
-      renderer.setRenderTarget(renderTarget.current);
-      if (postProcessor) {
-        postProcessor.render();
-      } else {
-        renderer.render(state.scene, state.camera);
+  useFrame(
+    () => {
+      if (frameloop === "always" || isFrameRequested?.()) {
+        const renderer = state.renderer as unknown as WebGPURenderer;
+        const oldAutoClear = renderer.autoClear;
+        const oldXrEnabled = renderer.xr.enabled;
+        const oldIsPresenting = renderer.xr.isPresenting;
+        const oldRenderTarget = renderer.getRenderTarget();
+        // eslint-disable-next-line react-hooks/immutability
+        renderer.autoClear = true;
+        renderer.xr.enabled = false;
+        renderer.xr.isPresenting = false;
+        renderer.setRenderTarget(renderTarget.current);
+        if (postProcessor) {
+          postProcessor.render();
+        } else {
+          renderer.render(state.scene, state.camera);
+        }
+        if (onTextureUpdate) {
+          const textureData = backendData.get(renderTarget.current.texture)!;
+          onTextureUpdate(textureData.texture);
+        }
+        renderer.setRenderTarget(oldRenderTarget);
+        renderer.autoClear = oldAutoClear;
+        renderer.xr.enabled = oldXrEnabled;
+        renderer.xr.isPresenting = oldIsPresenting;
+        signalFrame?.();
       }
-      if (onTextureUpdate) {
-        const textureData = backendData.get(renderTarget.current.texture)!;
-        onTextureUpdate(textureData.texture);
-      }
-      renderer.setRenderTarget(oldRenderTarget);
-      renderer.autoClear = oldAutoClear;
-      renderer.xr.enabled = oldXrEnabled;
-      renderer.xr.isPresenting = oldIsPresenting;
-      signalFrame?.();
-    }
-  }, renderPriority);
+    },
+    { phase: "render" },
+  );
   return <>{children}</>;
 }

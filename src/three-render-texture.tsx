@@ -81,8 +81,6 @@ export interface ThreeRenderTextureProps {
    * Optional {@link https://threejs.org/docs/#RenderTarget | RenderTarget} options
    */
   options?: RenderTargetOptions;
-  /** Optional render priority, defaults to 0 */
-  renderPriority?: number;
   /** Optional event priority, defaults to 0 */
   eventPriority?: number;
   /** Optional frameloop, defaults to "always" */
@@ -131,7 +129,6 @@ export function ThreeRenderTexture({
   height: heightProp,
   resolution: resolutionProp,
   options,
-  renderPriority = 0,
   eventPriority = 0,
   frameloop = "always",
   compute,
@@ -397,7 +394,6 @@ export function ThreeRenderTexture({
                   textureRef.current.value = renderTarget.texture;
                 }
               }}
-              renderPriority={renderPriority}
               width={width}
               height={height}
               resolution={resolution}
