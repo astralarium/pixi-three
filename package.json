@@ -1,6 +1,6 @@
 {
   "name": "@astralarium/pixi-three",
-  "version": "0.3.0-alpha.0",
+  "version": "0.3.0-alpha.1",
   "type": "module",
   "description": "Write declarative apps seamlessly blending 2d and 3d components in React",
   "license": "MIT",
