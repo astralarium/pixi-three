@@ -26,6 +26,7 @@ import {
 import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
 import { CanvasViewContext as CanvasViewContentContext } from "./canvas-view-context";
 import { useRenderContext } from "./render-context-hooks";
+import { useBridge } from "./use-bridge";
 import { usePixiEventDispatch } from "./use-pixi-event-dispatch";
 import { useRenderSchedule } from "./use-render-schedule";
 
@@ -91,6 +92,7 @@ export function CanvasView({
 }: CanvasViewProps) {
   const id = useId();
   const { tunnel } = useRenderContext();
+  const Bridge = useBridge();
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   useImperativeHandle(canvasRefProp, () => canvasRef.current);
   const containerRef = useRef<Container>(null!);
@@ -184,17 +186,19 @@ export function CanvasView({
         </canvas>
       </div>
       <tunnel.In>
-        <CanvasViewContent
-          key={id}
-          canvasRef={canvasRef}
-          containerRef={containerRef}
-          renderTargetRef={renderTargetRef}
-          frameloop={frameloop}
-          fpsLimit={fpsLimit}
-          onRender={onRender}
-        >
-          {children}
-        </CanvasViewContent>
+        {/* eslint-disable-next-line react-hooks/static-components */}
+        <Bridge key={id}>
+          <CanvasViewContent
+            canvasRef={canvasRef}
+            containerRef={containerRef}
+            renderTargetRef={renderTargetRef}
+            frameloop={frameloop}
+            fpsLimit={fpsLimit}
+            onRender={onRender}
+          >
+            {children}
+          </CanvasViewContent>
+        </Bridge>
       </tunnel.In>
     </>
   );

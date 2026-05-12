@@ -5,10 +5,23 @@ import {
   FederatedWheelEvent,
   Point,
 } from "pixi.js";
-import { type RefObject, useState } from "react";
+import { createContext, type RefObject, useContext, useState } from "react";
 
-import { type PixiRootEvents } from "./pixi-synthetic-event-system";
+import {
+  type PixiRootEvents,
+  type PixiSyntheticEventSystem,
+} from "./pixi-synthetic-event-system";
 import { useRenderContext } from "./render-context-hooks";
+
+/**
+ * Context to pass fresh pixiEvents to PixiTextureInternal, bypassing Bridge's stale capture.
+ * Bridge captures context values at render time, but pixiEvents is set asynchronously
+ * after Application initializes. This context is unknown to Bridge so it won't be overridden.
+ * @internal
+ */
+export const PixiEventsContext = createContext<PixiSyntheticEventSystem | null>(
+  null,
+);
 
 /** @internal */
 export interface UsePixiEventDispatchOptions {
@@ -35,7 +48,10 @@ export function usePixiEventDispatch({
   containerRef,
   canvasRef,
 }: UsePixiEventDispatchOptions): UsePixiEventDispatchResult {
-  const { pixiEvents } = useRenderContext();
+  // Try PixiEventsContext first (for PixiTexture), fall back to RenderContext (for CanvasView)
+  const pixiEventsFromContext = useContext(PixiEventsContext);
+  const { pixiEvents: pixiEventsFromRenderContext } = useRenderContext();
+  const pixiEvents = pixiEventsFromContext ?? pixiEventsFromRenderContext;
 
   const [eventBoundary] = useState(() => new EventBoundary());
   const [rootEvents] = useState<PixiRootEvents>(() => ({

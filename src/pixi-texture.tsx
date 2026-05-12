@@ -54,7 +54,10 @@ import {
   useThreeSceneContext,
 } from "./three-scene-context";
 import { useBridge } from "./use-bridge";
-import { usePixiEventDispatch } from "./use-pixi-event-dispatch";
+import {
+  PixiEventsContext,
+  usePixiEventDispatch,
+} from "./use-pixi-event-dispatch";
 import { useRenderSchedule } from "./use-render-schedule";
 
 extend({ Container });
@@ -63,10 +66,12 @@ extend({ Container });
  * @internal
  */
 export function PixiTextureRenderer() {
-  const { pixiTextureTunnel } = useRenderContext();
+  const { pixiTextureTunnel, pixiEvents } = useRenderContext();
   return (
     <pixiContainer renderable={false}>
-      <pixiTextureTunnel.Out />
+      <PixiEventsContext value={pixiEvents}>
+        <pixiTextureTunnel.Out />
+      </PixiEventsContext>
     </pixiContainer>
   );
 }
@@ -454,10 +459,10 @@ function PixiTextureInternal({
 
   return (
     <>
-      {/* eslint-disable react-hooks/refs -- computeFn does not access during render */}
       {events !== false && (
         <parentThreeSceneContext.sceneTunnel.In>
           <Fragment key={key}>
+            {/* eslint-disable-next-line react-hooks/refs -- computeFn accesses refs only when called during event handling */}
             {createPortal(<group onPointerOver={() => null} />, eventScene, {
               events: {
                 compute: computeFn,

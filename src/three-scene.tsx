@@ -367,7 +367,7 @@ function ThreeSceneSpriteInternal({
     state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
-  const sceneTunnel = tunnel();
+  const [sceneTunnel] = useState(tunnel);
 
   function setHitArea(
     hitArea: { contains(x: number, y: number): boolean } | null,

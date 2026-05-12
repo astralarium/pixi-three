@@ -1,4 +1,5 @@
 import { Application } from "@pixi/react";
+import { FiberProvider } from "its-fine";
 import type { Application as ApplicationType } from "pixi.js";
 import { type ReactNode, useRef, useState } from "react";
 import tunnel from "tunnel-rat";
@@ -68,41 +69,43 @@ export function RenderContext({
   const [pixiTextureTunnel] = useState(tunnel());
 
   return (
-    <div ref={eventContainer} className="contents">
-      <RenderContextValue
-        value={{
-          tunnel: canvasViewTunnel,
-          eventContainer,
-          pixiEvents,
-          threeSceneTunnel,
-          pixiTextureTunnel,
-        }}
-      >
-        <Application
-          className="hidden"
-          width={1}
-          height={1}
-          preference="webgpu"
-          resolution={2}
-          onInit={(app) => {
-            setPixiApplication(app);
+    <FiberProvider>
+      <div ref={eventContainer} className="contents">
+        <RenderContextValue
+          value={{
+            tunnel: canvasViewTunnel,
+            eventContainer,
+            pixiEvents,
+            threeSceneTunnel,
+            pixiTextureTunnel,
           }}
         >
-          <pixiContainer renderable={false}>
-            <canvasViewTunnel.Out />
-          </pixiContainer>
-          <ThreeRoot
-            eventSource={eventSource ?? eventContainer}
-            threeRendererParameters={threeRendererParameters}
-            onCreated={onCreated}
-            onPointerMissed={onPointerMissed}
+          <Application
+            className="hidden"
+            width={1}
+            height={1}
+            preference="webgpu"
+            resolution={2}
+            onInit={(app) => {
+              setPixiApplication(app);
+            }}
           >
-            <ThreeSceneRenderer />
-          </ThreeRoot>
-          <PixiTextureRenderer />
-        </Application>
-        {children}
-      </RenderContextValue>
-    </div>
+            <pixiContainer renderable={false}>
+              <canvasViewTunnel.Out />
+            </pixiContainer>
+            <ThreeRoot
+              eventSource={eventSource ?? eventContainer}
+              threeRendererParameters={threeRendererParameters}
+              onCreated={onCreated}
+              onPointerMissed={onPointerMissed}
+            >
+              <ThreeSceneRenderer />
+            </ThreeRoot>
+            <PixiTextureRenderer />
+          </Application>
+          {children}
+        </RenderContextValue>
+      </div>
+    </FiberProvider>
   );
 }
