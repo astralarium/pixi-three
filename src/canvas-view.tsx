@@ -57,6 +57,10 @@ export interface CanvasViewProps extends PropsWithChildren {
   onRender?: () => void;
   /** Optional ref to the canvas element. Useful for recording with useCanvasRecorder. */
   canvasRef?: RefObject<HTMLCanvasElement | null>;
+  /**
+   * {@link https://r3f.docs.pmnd.rs/api/events | React Three Fiber}-style handler for pointer clicks that miss all interactive Pixi children
+   */
+  onPointerMissed?: (event: PointerEvent) => void;
 }
 
 /**
@@ -89,6 +93,7 @@ export function CanvasView({
   fpsLimit,
   onRender,
   canvasRef: canvasRefProp,
+  onPointerMissed,
 }: CanvasViewProps) {
   const id = useId();
   const { tunnel } = useRenderContext();
@@ -127,7 +132,7 @@ export function CanvasView({
 
   const handleEvent = (event: ReactPointerEvent | React.WheelEvent) => {
     const point = computeEventPoint(event);
-    dispatchEvent(event.nativeEvent, point);
+    dispatchEvent(event.nativeEvent, point, onPointerMissed);
   };
 
   useEffect(

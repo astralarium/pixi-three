@@ -116,6 +116,10 @@ export interface ThreeSceneBaseProps {
   postProcessing?: (x: RootState) => PostProcessing;
   /** Optional FPS limit */
   fpsLimit?: number;
+  /**
+   * {@link https://r3f.docs.pmnd.rs/api/events | React Three Fiber}-style handler for pointer clicks that miss all Three.js objects in this scene
+   */
+  onPointerMissed?: (event: MouseEvent) => void;
   /** Children will be rendered into a portal */
   children: ReactNode;
 }
@@ -154,6 +158,7 @@ export function ThreeScene({
   eventCompute,
   postProcessing,
   fpsLimit,
+  onPointerMissed,
   children,
   ...props
 }: ThreeSceneProps) {
@@ -180,6 +185,7 @@ export function ThreeScene({
         eventCompute={eventCompute}
         postProcessing={postProcessing}
         fpsLimit={fpsLimit}
+        onPointerMissed={onPointerMissed}
       >
         {children}
       </ThreeSceneSprite>
@@ -243,6 +249,7 @@ function ThreeSceneSpriteInternal({
   eventCompute,
   postProcessing,
   fpsLimit,
+  onPointerMissed,
   children,
 }: ThreeSceneSpriteInternalProps) {
   const { canvasRef, containerRef: canvasContainerRef } = useCanvasView();
@@ -425,6 +432,7 @@ function ThreeSceneSpriteInternal({
               connected: canvasRef.current,
             },
             size: { top: 0, left: 0, width, height },
+            onPointerMissed,
           },
         )}
       </CanvasTreeContext>

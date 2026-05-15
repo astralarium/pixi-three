@@ -9,6 +9,8 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { Toaster } from "#components/ui/sonner";
+
 import { Navigation } from "./-navigation";
 
 export const Route = createRootRoute({
@@ -43,6 +45,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <body>
         <Navigation />
         {children}
+        <Toaster />
         <Scripts />
       </body>
     </html>

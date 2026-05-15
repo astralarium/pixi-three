@@ -91,6 +91,10 @@ export interface ThreeRenderTextureProps {
   compute?: ComputeFunction;
   /** Optional FPS limit */
   fpsLimit?: number;
+  /**
+   * {@link https://r3f.docs.pmnd.rs/api/events | React Three Fiber}-style handler for pointer clicks that miss all Three.js objects in this render texture
+   */
+  onPointerMissed?: (event: MouseEvent) => void;
   /** Children will be rendered into a portal */
   children: ReactNode;
 }
@@ -133,6 +137,7 @@ export function ThreeRenderTexture({
   frameloop = "always",
   compute,
   fpsLimit,
+  onPointerMissed,
   children,
 }: ThreeRenderTextureProps) {
   const size = useViewport();
@@ -408,13 +413,13 @@ export function ThreeRenderTexture({
               <group onPointerOver={() => null} />
             </PortalContent>,
             scene,
-
             {
               events: {
                 compute: compute ?? computeFn,
                 priority: eventPriority,
               },
               size: { top: 0, left: 0, width, height },
+              onPointerMissed,
             },
           )}
         </ThreeSceneContext>

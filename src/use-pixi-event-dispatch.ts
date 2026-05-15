@@ -33,6 +33,7 @@ export interface UsePixiEventDispatchOptions {
 export type UsePixiEventDispatchResult = (
   event: Event,
   point: Point | null,
+  onPointerMissed?: (event: PointerEvent) => void,
 ) => void;
 
 /**
@@ -59,7 +60,11 @@ export function usePixiEventDispatch({
     wheelEvent: new FederatedWheelEvent(eventBoundary),
   }));
 
-  function dispatchEvent(event: Event, point: Point | null) {
+  function dispatchEvent(
+    event: Event,
+    point: Point | null,
+    onPointerMissed?: (event: PointerEvent) => void,
+  ) {
     if (!pixiEvents || !containerRef.current || !canvasRef.current) return;
     pixiEvents.dispatch(
       event,
@@ -68,6 +73,7 @@ export function usePixiEventDispatch({
       eventBoundary,
       rootEvents,
       canvasRef.current as HTMLElement,
+      onPointerMissed,
     );
   }
 

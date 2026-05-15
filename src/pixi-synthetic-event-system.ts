@@ -69,6 +69,7 @@ export class PixiSyntheticEventSystem extends EventSystem {
    * @param eventBoundary - The event boundary for the container
    * @param rootEvents - Root federated events for pointer and wheel
    * @param domElement - The DOM element for coordinate mapping
+   * @param onPointerMissed - Optional callback when pointer up misses all interactive children
    */
   public dispatch(
     event: Event,
@@ -77,6 +78,7 @@ export class PixiSyntheticEventSystem extends EventSystem {
     eventBoundary: EventBoundary,
     rootEvents: PixiRootEvents,
     domElement: HTMLElement,
+    onPointerMissed?: (event: PointerEvent) => void,
   ): void {
     this.domElement = domElement;
     eventBoundary.rootTarget = container;
@@ -126,6 +128,7 @@ export class PixiSyntheticEventSystem extends EventSystem {
         eventBoundary,
         rootEvents.pointerEvent,
         point,
+        onPointerMissed,
       );
     } else if (
       type === "pointerover" ||
@@ -363,12 +366,14 @@ export class PixiSyntheticEventSystem extends EventSystem {
    * @param eventBoundary - The event boundary to map events through
    * @param rootEvent - The root federated pointer event
    * @param eventPoint - The point in container coordinates
+   * @param onPointerMissed - Optional callback when pointer up misses all interactive children
    */
   protected handlePointerUp<T = TouchEvent | MouseEvent | PointerEvent>(
     sourceEvent: T,
     eventBoundary: EventBoundary,
     rootEvent: FederatedPointerEvent,
     eventPoint: Point,
+    onPointerMissed?: (event: PointerEvent) => void,
   ): void {
     if (!this.features.click) return;
 
@@ -387,6 +392,14 @@ export class PixiSyntheticEventSystem extends EventSystem {
     }
 
     this.setCursor(eventBoundary.cursor);
+
+    // Check if any interactive child was hit
+    if (onPointerMissed) {
+      const hitTarget = eventBoundary.hitTest(eventPoint.x, eventPoint.y);
+      if (!hitTarget || hitTarget === eventBoundary.rootTarget) {
+        onPointerMissed(sourceEvent as PointerEvent);
+      }
+    }
   }
 
   /**

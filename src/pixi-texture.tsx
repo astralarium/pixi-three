@@ -113,6 +113,10 @@ export interface PixiTextureProps extends PropsWithChildren {
   eventPriority?: number;
   /** Optional guard to filter events */
   eventGuard?: PixiTextureEventGuard;
+  /**
+   * {@link https://r3f.docs.pmnd.rs/api/events | React Three Fiber}-style handler for pointer clicks that miss all interactive Pixi children
+   */
+  onPointerMissed?: (event: PointerEvent) => void;
 }
 
 /**
@@ -165,6 +169,7 @@ export function PixiTexture({
   events,
   eventPriority,
   eventGuard,
+  onPointerMissed,
 }: PixiTextureProps) {
   const Bridge = useBridge();
   const { pixiTextureTunnel } = useRenderContext();
@@ -202,6 +207,7 @@ export function PixiTexture({
             events={events}
             eventPriority={eventPriority}
             eventGuard={eventGuard}
+            onPointerMissed={onPointerMissed}
           >
             {children}
           </PixiTextureInternal>
@@ -238,6 +244,7 @@ function PixiTextureInternal({
   events,
   eventPriority,
   eventGuard,
+  onPointerMissed,
 }: PixiTextureInternalProps) {
   const app = useApplication();
   const { canvasRef } = useCanvasView();
@@ -293,7 +300,7 @@ function PixiTextureInternal({
     // Dispatch to Pixi if we have a point OR if we were previously over
     // (to send null for proper pointer out/leave handling)
     if (isOver || wasOverRef.current) {
-      dispatchEvent(event, point);
+      dispatchEvent(event, point, onPointerMissed);
     }
 
     wasOverRef.current = isOver;
