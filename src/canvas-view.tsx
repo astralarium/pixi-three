@@ -38,7 +38,13 @@ extend({ Container });
  * @category component
  * @expand
  */
-export interface CanvasViewProps extends PropsWithChildren {
+export interface CanvasViewProps
+  extends
+    PropsWithChildren,
+    Omit<
+      React.CanvasHTMLAttributes<HTMLCanvasElement>,
+      "className" | "style" | "ref" | "children"
+    > {
   /** Class name for the canvas element, default "h-full w-full" */
   className?: string;
   /** Canvas fallback content */
@@ -94,6 +100,17 @@ export function CanvasView({
   onRender,
   canvasRef: canvasRefProp,
   onPointerMissed,
+  // Extract pointer/wheel events we need to merge with internal handlers
+  onPointerDown,
+  onPointerUp,
+  onPointerMove,
+  onPointerOver,
+  onPointerOut,
+  onPointerLeave,
+  onPointerCancel,
+  onWheel,
+  // Spread remaining canvas props
+  ...canvasProps
 }: CanvasViewProps) {
   const id = useId();
   const { tunnel } = useRenderContext();
@@ -135,6 +152,15 @@ export function CanvasView({
     dispatchEvent(event.nativeEvent, point, onPointerMissed);
   };
 
+  const mergeHandler =
+    <E extends ReactPointerEvent | React.WheelEvent>(
+      userHandler: React.EventHandler<E> | undefined,
+    ) =>
+    (event: E) => {
+      userHandler?.(event);
+      handleEvent(event);
+    };
+
   useEffect(
     () => () => {
       renderTargetRef.current.colorTextures[0].destroy();
@@ -169,6 +195,7 @@ export function CanvasView({
               ],
             });
           }}
+          {...canvasProps}
           style={{
             position: "absolute",
             inset: 0,
@@ -178,14 +205,14 @@ export function CanvasView({
             WebkitUserSelect: "none",
             WebkitTouchCallout: "none",
           }}
-          onPointerDown={handleEvent}
-          onPointerUp={handleEvent}
-          onPointerMove={handleEvent}
-          onPointerOver={handleEvent}
-          onPointerOut={handleEvent}
-          onPointerLeave={handleEvent}
-          onPointerCancel={handleEvent}
-          onWheel={handleEvent}
+          onPointerDown={mergeHandler(onPointerDown)}
+          onPointerUp={mergeHandler(onPointerUp)}
+          onPointerMove={mergeHandler(onPointerMove)}
+          onPointerOver={mergeHandler(onPointerOver)}
+          onPointerOut={mergeHandler(onPointerOut)}
+          onPointerLeave={mergeHandler(onPointerLeave)}
+          onPointerCancel={mergeHandler(onPointerCancel)}
+          onWheel={mergeHandler(onWheel)}
         >
           {fallback}
         </canvas>
