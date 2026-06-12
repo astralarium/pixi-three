@@ -1,6 +1,18 @@
 ## git
 
-Do not stage, unstage, or commit files. Leave that to the user.
+Do not stage, unstage, or commit changes. Leave those actions to the user.
+
+## Comments
+
+Keep comments clean and concise.
+Document API interfaces and expectations.
+Minimal section markers are okay.
+
+State invariants abstractly — just the rule as simple as possible.
+Prefer referencing categories and high level concepts over implementation details.
+
+Only add extra comments if the code is not self-explanatory.
+DO NOT mention historical cruft or change logs
 
 ## live-cmd
 
@@ -14,7 +26,7 @@ Stop a running session:
 live stop <SELECTOR>
 
 List sessions:
-live ls [-a] [--json] [<SELECTOR>]
+live ps [-a] [--json] [<SELECTOR>]
 
 <SELECTOR>: UUID prefix or NAME (newest match)
 
