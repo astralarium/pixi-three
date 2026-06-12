@@ -2,9 +2,10 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import react from "@vitejs/plugin-react";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 import dts from "vite-plugin-dts";
 import tsConfigPaths from "vite-tsconfig-paths";
@@ -35,11 +36,8 @@ export const pagesConfig = defineConfig({
         filter: ({ path }) => !["/docs", "/pixi-three/docs/"].includes(path),
       },
     }),
-    react({
-      babel: {
-        plugins: [["babel-plugin-react-compiler"]],
-      },
-    }),
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
   ],
   server: {
@@ -90,11 +88,8 @@ export const pagesPreviewConfig = defineConfig({
 export default defineConfig({
   plugins: [
     tsConfigPaths(),
-    react({
-      babel: {
-        plugins: [["babel-plugin-react-compiler"]],
-      },
-    }),
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
     dts({ tsconfigPath: "./tsconfig.app.json", exclude: ["examples"] }),
   ],
@@ -111,6 +106,7 @@ export default defineConfig({
           "react",
           "react-dom",
           "react/jsx-runtime",
+          "react/compiler-runtime",
           "three",
           "pixi.js",
           "@pixi/react",
