@@ -2,9 +2,10 @@ import {
   createContext,
   useContext,
   useEffect,
-  useRef,
   useSyncExternalStore,
 } from "react";
+
+import { useLazyRef } from "./use-lazy-ref";
 
 /**
  * @category hook
@@ -36,34 +37,37 @@ export const CanvasTreeContext = createContext<CanvasTreeContextValue | null>(
 
 /** @internal */
 export function useCanvasTreeStore(): CanvasTreeStore {
-  const subscribers = useRef(new Set<(size: CanvasViewSize) => void>());
-  const sizeSnapshot = useRef<CanvasViewSize>({
-    width: 1,
-    height: 1,
-    resolution: window.devicePixelRatio,
+  const storeRef = useLazyRef((): CanvasTreeStore => {
+    const subscribers = new Set<(size: CanvasViewSize) => void>();
+    let snapshot: CanvasViewSize = {
+      width: 1,
+      height: 1,
+      resolution: window.devicePixelRatio,
+    };
+    return {
+      subscribe(callback) {
+        subscribers.add(callback);
+        return () => {
+          subscribers.delete(callback);
+        };
+      },
+      getSnapshot() {
+        return snapshot;
+      },
+      updateSnapshot(update) {
+        snapshot = { ...snapshot, ...update };
+      },
+      notifySubscribers() {
+        subscribers.forEach((callback) => {
+          callback(snapshot);
+        });
+      },
+    };
   });
 
-  const storeRef = {
-    subscribe(callback: (size: CanvasViewSize) => void) {
-      subscribers.current.add(callback);
-      return () => {
-        subscribers.current.delete(callback);
-      };
-    },
-    getSnapshot() {
-      return sizeSnapshot.current;
-    },
-    updateSnapshot(update: Partial<CanvasViewSize>) {
-      sizeSnapshot.current = { ...sizeSnapshot.current, ...update };
-    },
-    notifySubscribers() {
-      subscribers.current.forEach((callback) => {
-        callback(sizeSnapshot.current);
-      });
-    },
-  };
-
-  return storeRef;
+  // Lazily-created singleton; stable for the component's lifetime
+  // eslint-disable-next-line react-hooks/refs
+  return storeRef.current;
 }
 
 /**

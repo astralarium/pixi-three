@@ -125,7 +125,6 @@ export function CanvasView({
     canvasRef,
   });
 
-  const _viewportPoint = new Point();
   const computeEventPoint = (event: ReactPointerEvent | React.WheelEvent) => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -143,8 +142,7 @@ export function CanvasView({
           height: canvas.height,
         };
 
-    mapClientToViewport(event, rect, viewRect, _viewportPoint);
-    return new Point(_viewportPoint.x, _viewportPoint.y);
+    return mapClientToViewport(event, rect, viewRect, new Point());
   };
 
   const handleEvent = (event: ReactPointerEvent | React.WheelEvent) => {

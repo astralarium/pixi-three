@@ -22,11 +22,11 @@ import {
 } from "pixi.js";
 import {
   type ReactNode,
-  type Ref,
   type RefObject,
   useEffect,
   useId,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -68,6 +68,24 @@ import { useBridge } from "./use-bridge";
 import { useRenderSchedule } from "./use-render-schedule";
 
 extend({ Container, Sprite });
+
+function createSprite(renderer: Renderer) {
+  const sprite = new Sprite({ eventMode: "static" });
+  sprite.texture = new Texture({
+    dynamic: true,
+    source: new ExternalSource({
+      renderer,
+      label: "three-scene",
+    }),
+  });
+  return sprite;
+}
+
+/** The sprite, or null when unmounted/destroyed (e.g. mid-teardown) */
+function liveSprite(spriteRef: RefObject<Sprite | null>) {
+  const sprite = spriteRef.current;
+  return sprite && !sprite.destroyed ? sprite : null;
+}
 
 /**
  * @internal
@@ -169,12 +187,6 @@ export function ThreeScene({
   return (
     <pixiContainer {...props} ref={containerRef}>
       <ThreeSceneSprite
-        spriteRef={(sprite) => {
-          if (!sprite || !containerRef.current) {
-            return;
-          }
-          containerRef.current.addChild(sprite);
-        }}
         containerRef={containerRef}
         width={width}
         height={height}
@@ -194,8 +206,6 @@ export function ThreeScene({
 }
 
 interface ThreeSceneSpriteProps extends ThreeSceneBaseProps {
-  /** Three View Sprite Ref */
-  spriteRef: Ref<Sprite>;
   /** Pixi Container ref*/
   containerRef: RefObject<Container>;
 }
@@ -236,7 +246,6 @@ interface ThreeSceneSpriteInternalProps extends ThreeSceneSpriteProps {
 }
 
 function ThreeSceneSpriteInternal({
-  spriteRef,
   containerRef,
   app,
   pixiTextureContext,
@@ -254,7 +263,7 @@ function ThreeSceneSpriteInternal({
 }: ThreeSceneSpriteInternalProps) {
   const { canvasRef, containerRef: canvasContainerRef } = useCanvasView();
   const size = useViewport();
-  const [scene] = useState(new Scene());
+  const [scene] = useState(() => new Scene());
 
   const width = widthProp ?? size.width;
   const height = heightProp ?? size.height;
@@ -265,46 +274,69 @@ function ThreeSceneSpriteInternal({
     store.notifySubscribers();
   }, [store, width, height, resolution]);
 
-  const sprite = useRef(
-    (() => {
-      const x = new Sprite({
-        width,
-        height,
-        eventMode: "static",
-      });
-      x.texture = new Texture({
-        dynamic: true,
-        source: new ExternalSource({
-          renderer: app.renderer,
-          label: "three-scene",
-        }),
-      });
-      return x;
-    })(),
-  );
+  const hitAreaRef = useRef<IHitArea | null>(null);
+  const spriteRef = useRef<Sprite | null>(null);
 
-  useImperativeHandle(spriteRef, () => sprite.current, []);
+  const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
+    fpsLimit,
+  });
 
-  const changedSize = useRef(true);
+  // Single owner: create on mount / renderer change, destroy + null the ref
+  // on cleanup. StrictMode/Activity effects-remounts destroy and recreate
+  // within the same commit, so consumers never observe a destroyed sprite.
+  useLayoutEffect(() => {
+    const sprite = createSprite(app.renderer);
+    sprite.setSize(width, height);
+    sprite.hitArea = hitAreaRef.current;
+    spriteRef.current = sprite;
+    // Request a frame to populate the ExternalSource: it starts at 1x1, and
+    // under frameloop="demand" nothing else schedules one after a remount
+    invalidate();
+    return () => {
+      spriteRef.current = null;
+      if (!sprite.destroyed) {
+        sprite.destroy({ texture: true, textureSource: true });
+      }
+    };
+    // Size is re-applied on every texture update, so width/height changes
+    // must not recreate the sprite
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [app.renderer]);
 
-  useEffect(() => {
-    changedSize.current = true;
-  }, [height, width]);
+  // Adopt the sprite into the (possibly remounted) container on every commit
+  useLayoutEffect(() => {
+    const sprite = spriteRef.current;
+    const container = containerRef.current;
+    if (sprite && container && sprite.parent !== container) {
+      container.addChild(sprite);
+    }
+  });
 
   function onTextureUpdate(texture: GPUTexture) {
-    (sprite.current.texture.source as ExternalSource).updateGPUTexture(texture);
-    if (changedSize.current) {
-      sprite.current.setSize(width, height);
-      changedSize.current = false;
+    const sprite = liveSprite(spriteRef);
+    if (!sprite) {
+      return;
     }
+    (sprite.texture.source as ExternalSource).updateGPUTexture(texture);
+    // Re-sync the scale: texture.orig tracks the render target's pixel size
+    // (width/height/resolution), and setSize no-ops when nothing changed
+    sprite.setSize(width, height);
   }
 
   function mapPixiToNdc(point: Point, out?: Vector2) {
-    return mapPixiToNdcUtil(point, sprite.current.getLocalBounds(), out);
+    const sprite = liveSprite(spriteRef);
+    if (!sprite) {
+      return null;
+    }
+    return mapPixiToNdcUtil(point, sprite.getLocalBounds(), out);
   }
 
   function mapNdcToPixi(ndc: Vector2, out?: Point) {
-    return mapNdcToPixiUtil(ndc, sprite.current.getLocalBounds(), out);
+    const sprite = liveSprite(spriteRef);
+    if (!sprite) {
+      return null;
+    }
+    return mapNdcToPixiUtil(ndc, sprite.getLocalBounds(), out);
   }
 
   const clientPos = new Point();
@@ -312,6 +344,10 @@ function ThreeSceneSpriteInternal({
   const localPos = new Point();
 
   function computeFn(event: DomEvent, state: RootState, previous?: RootState) {
+    const sprite = liveSprite(spriteRef);
+    if (!sprite) {
+      return false;
+    }
     const pointerId = (event as PointerEvent).pointerId;
     const isCaptured =
       pointerId !== undefined && state.internal.capturedMap.has(pointerId);
@@ -332,7 +368,7 @@ function ThreeSceneSpriteInternal({
       if (!parent) {
         return false;
       }
-      const [intersection] = previous?.raycaster.intersectObject(parent) ?? [];
+      const [intersection] = previous.raycaster.intersectObject(parent);
       if (intersection?.uv) {
         pixiTextureContext.mapUvToPixi(intersection.uv, globalPos);
       } else if (isCaptured && parent instanceof Mesh) {
@@ -349,7 +385,7 @@ function ThreeSceneSpriteInternal({
       }
       if (
         !isCaptured &&
-        sprite.current !== pixiTextureContext.hitTest(globalPos.x, globalPos.y)
+        sprite !== pixiTextureContext.hitTest(globalPos.x, globalPos.y)
       ) {
         return false;
       }
@@ -357,19 +393,18 @@ function ThreeSceneSpriteInternal({
       const rect = canvasRef.current.getBoundingClientRect();
       clientPos.x = event.clientX - rect.left;
       clientPos.y = event.clientY - rect.top;
-      // eslint-disable-next-line react-hooks/immutability
       app.renderer.events.rootBoundary.rootTarget = canvasContainerRef.current;
       canvasContainerRef.current.toGlobal(clientPos, globalPos);
       if (
         !isCaptured &&
-        sprite.current !==
+        sprite !==
           app.renderer.events.rootBoundary.hitTest(globalPos.x, globalPos.y)
       ) {
         return false;
       }
     }
 
-    sprite.current.toLocal(globalPos, undefined, localPos);
+    sprite.toLocal(globalPos, undefined, localPos);
     mapPixiToNdc(localPos, state.pointer);
     state.raycaster.setFromCamera(state.pointer, state.camera);
   }
@@ -379,74 +414,71 @@ function ThreeSceneSpriteInternal({
   function setHitArea(
     hitArea: { contains(x: number, y: number): boolean } | null,
   ) {
-    const currentSprite = sprite.current;
-    currentSprite.hitArea = hitArea && {
+    // Keep the hit area in a ref so a recreated sprite can restore it
+    hitAreaRef.current = hitArea && {
       contains(x: number, y: number): boolean {
+        // Local coords span the texture's pixel size (width * resolution)
         return hitArea.contains(
-          x / width / size.resolution,
-          y / height / size.resolution,
+          x / width / resolution,
+          y / height / resolution,
         );
       },
     };
+    const sprite = liveSprite(spriteRef);
+    if (sprite) {
+      sprite.hitArea = hitAreaRef.current;
+    }
   }
 
-  const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
-    fpsLimit,
-  });
-
   return (
-    <>
-      <CanvasTreeContext value={{ store, invalidate }}>
-        {createPortal(
-          <PortalContent
-            width={width}
-            height={height}
-            resolution={resolution}
-            renderTargetOptions={renderTargetOptions}
-            onTextureUpdate={onTextureUpdate}
-            postProcessing={postProcessing}
-            frameloop={frameloop}
-            isFrameRequested={isFrameRequested}
-            signalFrame={signalFrame}
+    <CanvasTreeContext value={{ store, invalidate }}>
+      {createPortal(
+        <PortalContent
+          width={width}
+          height={height}
+          resolution={resolution}
+          renderTargetOptions={renderTargetOptions}
+          onTextureUpdate={onTextureUpdate}
+          postProcessing={postProcessing}
+          frameloop={frameloop}
+          isFrameRequested={isFrameRequested}
+          signalFrame={signalFrame}
+        >
+          <ThreeSceneContextProvider
+            containerRef={containerRef}
+            sceneTunnel={sceneTunnel}
+            mapPixiToNdc={mapPixiToNdc}
+            mapNdcToPixi={mapNdcToPixi}
+            spriteRef={spriteRef}
           >
-            <ThreeSceneContextProvider
-              containerRef={containerRef}
-              sceneTunnel={sceneTunnel}
-              mapPixiToNdc={mapPixiToNdc}
-              mapNdcToPixi={mapNdcToPixi}
-              sprite={sprite}
-              pixiTextureContext={pixiTextureContext}
-            >
-              <HitAreaSetup setHitArea={setHitArea} />
-              {children}
-              <sceneTunnel.Out />
-            </ThreeSceneContextProvider>
-            {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
-            <group onPointerOver={() => null} />
-          </PortalContent>,
-          scene,
-          {
-            events: {
-              compute: eventCompute ?? computeFn,
-              priority: eventPriority,
-              connected: canvasRef.current,
-            },
-            size: { top: 0, left: 0, width, height },
-            onPointerMissed,
+            <HitAreaSetup setHitArea={setHitArea} />
+            {children}
+            <sceneTunnel.Out />
+          </ThreeSceneContextProvider>
+          {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
+          <group onPointerOver={() => null} />
+        </PortalContent>,
+        scene,
+        {
+          events: {
+            compute: eventCompute ?? computeFn,
+            priority: eventPriority,
+            connected: canvasRef.current,
           },
-        )}
-      </CanvasTreeContext>
-    </>
+          size: { top: 0, left: 0, width, height },
+          onPointerMissed,
+        },
+      )}
+    </CanvasTreeContext>
   );
 }
 
 interface ThreeSceneContextProviderProps {
   containerRef: RefObject<Container>;
   sceneTunnel: ReturnType<typeof tunnel>;
-  mapPixiToNdc: (point: Point, out?: Vector2) => Vector2;
-  mapNdcToPixi: (ndc: Vector2, out?: Point) => Point;
-  sprite: RefObject<Sprite>;
-  pixiTextureContext: PixiTextureContextValue | null;
+  mapPixiToNdc: (point: Point, out?: Vector2) => Vector2 | null;
+  mapNdcToPixi: (ndc: Vector2, out?: Point) => Point | null;
+  spriteRef: RefObject<Sprite | null>;
   children: ReactNode;
 }
 
@@ -455,12 +487,12 @@ function ThreeSceneContextProvider({
   sceneTunnel,
   mapPixiToNdc,
   mapNdcToPixi,
-  sprite,
+  spriteRef,
   children,
 }: ThreeSceneContextProviderProps) {
   const { camera, scene } = useThree();
   const pixiViewContext = usePixiViewContext();
-  const [raycaster] = useState(new Raycaster());
+  const [raycaster] = useState(() => new Raycaster());
 
   const _ndc = new Vector2();
   const _localPos = new Point();
@@ -474,21 +506,26 @@ function ThreeSceneContextProvider({
   }
 
   function mapThreeToParentPixi(vec3: Vector3, out?: Point) {
+    const sprite = liveSprite(spriteRef);
+    if (!sprite || !mapThreeToParentPixiLocal(vec3, _localPos)) {
+      return null;
+    }
     const result = out ?? new Point();
-    mapThreeToParentPixiLocal(vec3, _localPos);
-
-    // Transform to global Pixi coords
-    sprite.current.toGlobal(_localPos, result);
+    sprite.toGlobal(_localPos, result);
     return result;
   }
 
   function mapThreeToViewport(vec3: Vector3, out?: Point) {
-    mapThreeToParentPixi(vec3, _localPos);
+    if (!mapThreeToParentPixi(vec3, _localPos)) {
+      return [];
+    }
     return pixiViewContext.mapPixiToViewport(_localPos, out);
   }
 
   function mapThreeToClient(vec3: Vector3, out?: Point) {
-    mapThreeToParentPixi(vec3, _localPos);
+    if (!mapThreeToParentPixi(vec3, _localPos)) {
+      return [];
+    }
     return pixiViewContext.mapPixiToClient(_localPos, out);
   }
 
@@ -498,15 +535,17 @@ function ThreeSceneContextProvider({
     out?: Vector2,
   ) {
     const pixiResult = pixiViewContext.mapClientToPixi(client, _localPos);
-    if (!pixiResult) return null;
-    sprite.current.toLocal(_localPos, undefined, _localPos);
+    const sprite = liveSprite(spriteRef);
+    if (!pixiResult || !sprite) return null;
+    sprite.toLocal(_localPos, undefined, _localPos);
     return mapPixiToNdc(_localPos, out);
   }
 
   function mapViewportToNdc(viewport: Point, out?: Vector2) {
     const pixiResult = pixiViewContext.mapViewportToPixi(viewport, _localPos);
-    if (!pixiResult) return null;
-    sprite.current.toLocal(_localPos, undefined, _localPos);
+    const sprite = liveSprite(spriteRef);
+    if (!pixiResult || !sprite) return null;
+    sprite.toLocal(_localPos, undefined, _localPos);
     return mapPixiToNdc(_localPos, out);
   }
 
@@ -553,7 +592,9 @@ function ThreeSceneContextProvider({
     target?: T,
     recursive?: boolean,
   ): RaycastResult<T>[] {
-    mapClientToNdc(client, _ndc);
+    if (!mapClientToNdc(client, _ndc)) {
+      return [];
+    }
     return raycastNdc(_ndc, target, recursive);
   }
 
@@ -562,7 +603,9 @@ function ThreeSceneContextProvider({
     target?: T,
     recursive?: boolean,
   ): RaycastResult<T>[] {
-    mapViewportToNdc(viewport, _ndc);
+    if (!mapViewportToNdc(viewport, _ndc)) {
+      return [];
+    }
     return raycastNdc(_ndc, target, recursive);
   }
 
@@ -595,8 +638,8 @@ interface HitAreaSetupProps {
 
 function HitAreaSetup({ setHitArea }: HitAreaSetupProps) {
   const { camera, scene } = useThree();
-  const [raycaster] = useState(new Raycaster());
-  const [pointer] = useState(new Vector2());
+  const [raycaster] = useState(() => new Raycaster());
+  const [pointer] = useState(() => new Vector2());
 
   useEffect(() => {
     setHitArea({

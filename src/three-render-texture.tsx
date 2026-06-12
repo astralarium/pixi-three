@@ -13,7 +13,6 @@ import {
   type RefObject,
   useEffect,
   useImperativeHandle,
-  useRef,
   useState,
 } from "react";
 import {
@@ -50,6 +49,7 @@ import {
   ThreeSceneContext,
   useThreeSceneContext,
 } from "./three-scene-context";
+import { useLazyRef } from "./use-lazy-ref";
 import { useRenderSchedule } from "./use-render-schedule";
 
 /**
@@ -141,7 +141,7 @@ export function ThreeRenderTexture({
   children,
 }: ThreeRenderTextureProps) {
   const size = useViewport();
-  const [scene] = useState(new Scene());
+  const [scene] = useState(() => new Scene());
 
   const width = widthProp ?? size.width;
   const height = heightProp ?? size.height;
@@ -154,12 +154,19 @@ export function ThreeRenderTexture({
 
   const parentThreeSceneContext = useThreeSceneContext();
   const { containerRef } = parentThreeSceneContext;
-  const textureRef = useRef(texture(new Texture()));
+  const textureRef = useLazyRef(() => texture(new Texture()));
   const { camera } = useThree();
 
   const getAttachedObject = useAttachedObject(objectRef);
 
   useImperativeHandle(ref, () => textureRef.current);
+
+  useEffect(
+    () => () => {
+      textureRef.current.dispose();
+    },
+    [textureRef],
+  );
 
   const bounds = { width, height };
 
@@ -174,7 +181,7 @@ export function ThreeRenderTexture({
   const _ndc = new Vector2();
   const _uv = new Vector2();
   const _threeParent = new Vector3();
-  const raycaster = new Raycaster();
+  const [raycaster] = useState(() => new Raycaster());
 
   function mapThreeToParentUv(vec3: Vector3, out?: Vector2) {
     // Project world vec3 through camera to NDC
@@ -320,7 +327,9 @@ export function ThreeRenderTexture({
     target?: T,
     recursive?: boolean,
   ): RaycastResult<T>[] {
-    mapClientToNdc(client, _ndc);
+    if (!mapClientToNdc(client, _ndc)) {
+      return [];
+    }
     return raycastNdc(_ndc, target, recursive);
   }
 
@@ -329,7 +338,9 @@ export function ThreeRenderTexture({
     target?: T,
     recursive?: boolean,
   ): RaycastResult<T>[] {
-    mapViewportToNdc(viewport, _ndc);
+    if (!mapViewportToNdc(viewport, _ndc)) {
+      return [];
+    }
     return raycastNdc(_ndc, target, recursive);
   }
 
@@ -361,7 +372,7 @@ export function ThreeRenderTexture({
     state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
-  const sceneTunnel = tunnel();
+  const [sceneTunnel] = useState(tunnel);
 
   const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
     fpsLimit,

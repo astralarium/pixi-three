@@ -5,19 +5,17 @@ import {
   useEffect,
   useEffectEvent,
   useImperativeHandle,
-  useLayoutEffect,
-  useRef,
 } from "react";
 import {
-  DepthTexture,
-  FloatType,
   type PerspectiveCamera,
-  RenderTarget,
+  type RenderTarget,
   type RenderTargetOptions,
   type Texture,
 } from "three";
 import type WebGPUBackend from "three/src/renderers/webgpu/WebGPUBackend.js";
 import { type PostProcessing, type WebGPURenderer } from "three/webgpu";
+
+import { useRenderTargetSized } from "./use-three-render-target";
 
 /** @internal */
 export interface PortalContentProps {
@@ -59,45 +57,15 @@ export function PortalContent({
   ).data;
   const { camera, setSize, setDpr } = state;
 
-  const renderTarget = useRef(
-    (() => {
-      const val = new RenderTarget(
-        width * resolution,
-        height * resolution,
-        renderTargetOptions,
-      );
-      if (renderTargetOptions?.depthBuffer) {
-        val.depthTexture = new DepthTexture(
-          width * resolution,
-          height * resolution,
-          FloatType,
-        );
-      }
-      return val;
-    })(),
+  // Pass explicit pixel dimensions: the setDpr(resolution) sync below runs
+  // in a later effect, so the r3f store's dpr lags the prop by one render
+  const renderTargetRef = useRenderTargetSized(
+    width * resolution,
+    height * resolution,
+    renderTargetOptions,
   );
 
-  useImperativeHandle(ref, () => renderTarget.current, []);
-
-  useEffect(() => {
-    const val = renderTarget.current;
-    return () => val.dispose();
-  }, []);
-
-  useLayoutEffect(() => {
-    renderTarget.current.setSize(width * resolution, height * resolution);
-    if (renderTarget.current.depthTexture) {
-      renderTarget.current.depthTexture.dispose();
-      renderTarget.current.depthTexture = new DepthTexture(
-        width * resolution,
-        height * resolution,
-        FloatType,
-      );
-    }
-    if (renderTargetOptions?.samples) {
-      renderTarget.current.samples = renderTargetOptions.samples;
-    }
-  }, [width, height, resolution, renderTargetOptions?.samples]);
+  useImperativeHandle(ref, () => renderTargetRef.current, [renderTargetRef]);
 
   const onResize = useEffectEvent(
     (width: number, height: number, resolution: number) => {
@@ -126,14 +94,14 @@ export function PortalContent({
         renderer.autoClear = true;
         renderer.xr.enabled = false;
         renderer.xr.isPresenting = false;
-        renderer.setRenderTarget(renderTarget.current);
+        renderer.setRenderTarget(renderTargetRef.current);
         if (postProcessor) {
           postProcessor.render();
         } else {
           renderer.render(state.scene, state.camera);
         }
         if (onTextureUpdate) {
-          const textureData = backendData.get(renderTarget.current.texture)!;
+          const textureData = backendData.get(renderTargetRef.current.texture)!;
           onTextureUpdate(textureData.texture);
         }
         renderer.setRenderTarget(oldRenderTarget);

@@ -64,9 +64,9 @@ export function RenderContext({
     }
   }
 
-  const [canvasViewTunnel] = useState(tunnel());
-  const [threeSceneTunnel] = useState(tunnel());
-  const [pixiTextureTunnel] = useState(tunnel());
+  const [canvasViewTunnel] = useState(tunnel);
+  const [threeSceneTunnel] = useState(tunnel);
+  const [pixiTextureTunnel] = useState(tunnel);
 
   return (
     <FiberProvider>

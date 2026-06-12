@@ -7,7 +7,7 @@ import {
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { type ReactNode, StrictMode } from "react";
 
 import { Toaster } from "#components/ui/sonner";
 
@@ -31,7 +31,9 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <RootDocument>
-      <Outlet />
+      <StrictMode>
+        <Outlet />
+      </StrictMode>
     </RootDocument>
   );
 }

@@ -22,7 +22,7 @@ export interface PixiTextureContextValue {
    * @param y - Y coordinate in Pixi texture space
    * @returns The Container that was hit, or null if no hit
    */
-  hitTest: (x: number, y: number) => Container;
+  hitTest: (x: number, y: number) => Container | null;
   /**
    * Maps Three.js UV coordinates (0-1) to Pixi texture coordinates.
    * @param uv - Three.js UV Vector2 (0-1 range)

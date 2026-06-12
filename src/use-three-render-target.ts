@@ -1,5 +1,4 @@
-import { useThree } from "@react-three/fiber";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import {
   DepthTexture,
   FloatType,
@@ -7,59 +6,59 @@ import {
   type RenderTargetOptions,
 } from "three";
 
+import { useLazyRef } from "./use-lazy-ref";
+
 /**
  * @internal
  *
- * Hook for creating and managing a {@link https://threejs.org/docs/#RenderTarget | Three.js RenderTarget}.
+ * Hook for creating and managing a {@link https://threejs.org/docs/#RenderTarget | Three.js RenderTarget}
+ * with explicit pixel dimensions.
  *
- * @param width - Optional target width, defaults to canvas size
- * @param height - Optional target height, defaults to canvas size
+ * @param pixelWidth - Target width in physical pixels
+ * @param pixelHeight - Target height in physical pixels
  * @param options - Optional {@link https://threejs.org/docs/#RenderTarget | RenderTarget} options
  * @returns Ref to the RenderTarget
  * @category hook
  */
-export function useRenderTarget(
-  width?: number,
-  height?: number,
+export function useRenderTargetSized(
+  pixelWidth: number,
+  pixelHeight: number,
   options?: RenderTargetOptions,
 ) {
-  const { size, viewport } = useThree(({ size, viewport, camera }) => ({
-    size,
-    viewport,
-    camera,
-  }));
-  const _width = (width ?? size.width) * viewport.dpr;
-  const _height = (height ?? size.height) * viewport.dpr;
-
-  const renderTarget = useRef(
-    (() => {
-      const val = new RenderTarget(_width, _height, options);
-      if (options?.depthBuffer) {
-        val.depthTexture = new DepthTexture(_width, _height, FloatType);
-      }
-      return val;
-    })(),
-  );
+  const renderTargetRef = useLazyRef(() => {
+    const val = new RenderTarget(pixelWidth, pixelHeight, options);
+    if (options?.depthBuffer) {
+      val.depthTexture = new DepthTexture(pixelWidth, pixelHeight, FloatType);
+    }
+    return val;
+  });
 
   useLayoutEffect(() => {
-    renderTarget.current.setSize(_width, _height);
-    if (renderTarget.current.depthTexture) {
-      renderTarget.current.depthTexture.dispose();
-      renderTarget.current.depthTexture = new DepthTexture(
-        _width,
-        _height,
+    renderTargetRef.current.setSize(pixelWidth, pixelHeight);
+    // setSize does not resize the depth texture; recreate it, but only on a
+    // real dimension change so mount and samples-only updates don't churn it
+    const depthTexture = renderTargetRef.current.depthTexture;
+    if (
+      depthTexture &&
+      (depthTexture.image.width !== pixelWidth ||
+        depthTexture.image.height !== pixelHeight)
+    ) {
+      depthTexture.dispose();
+      renderTargetRef.current.depthTexture = new DepthTexture(
+        pixelWidth,
+        pixelHeight,
         FloatType,
       );
     }
-    if (options?.samples) {
-      renderTarget.current.samples = options.samples;
+    if (options?.samples !== undefined) {
+      renderTargetRef.current.samples = options.samples;
     }
-  }, [_width, _height, options?.samples, renderTarget]);
+  }, [pixelWidth, pixelHeight, options?.samples, renderTargetRef]);
 
   useEffect(() => {
-    const val = renderTarget.current;
+    const val = renderTargetRef.current;
     return () => val.dispose();
-  });
+  }, [renderTargetRef]);
 
-  return renderTarget;
+  return renderTargetRef;
 }

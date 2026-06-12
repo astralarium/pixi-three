@@ -54,6 +54,7 @@ import {
   useThreeSceneContext,
 } from "./three-scene-context";
 import { useBridge } from "./use-bridge";
+import { useLazyRef } from "./use-lazy-ref";
 import {
   PixiEventsContext,
   usePixiEventDispatch,
@@ -178,13 +179,13 @@ export function PixiTexture({
 
   const getAttachedObject = useAttachedObject(objectRef);
 
-  const textureRef = useRef(texture(new Texture()));
+  const textureRef = useLazyRef(() => texture(new Texture()));
 
   useEffect(
     () => () => {
       textureRef.current.dispose();
     },
-    [],
+    [textureRef],
   );
 
   useImperativeHandle(ref, () => {
@@ -250,7 +251,7 @@ function PixiTextureInternal({
   const { canvasRef } = useCanvasView();
 
   const containerRef = useRef<Container>(null!);
-  const pixiTextureRef = useRef(new RenderTexture());
+  const pixiTextureRef = useLazyRef(() => new RenderTexture());
 
   const [eventScene] = useState(() => new Scene());
   const dispatchEvent = usePixiEventDispatch({
@@ -342,7 +343,7 @@ function PixiTextureInternal({
       pixiTextureRef.current.source.destroy();
       pixiTextureRef.current.destroy();
     },
-    [],
+    [pixiTextureRef],
   );
 
   useLayoutEffect(() => {
@@ -355,12 +356,13 @@ function PixiTextureInternal({
     ).getGpuSource(pixiTextureRef.current._source);
     textureRef.current.value.dispose();
     textureRef.current.value = new ExternalTexture(gpuTexture);
-  }, [app.app.renderer.texture, height, textureRef, width]);
+  }, [app.app.renderer.texture, height, pixiTextureRef, textureRef, width]);
 
-  const localEventBoundary = new EventBoundary();
+  const localEventBoundaryRef = useLazyRef(() => new EventBoundary());
   function hitTest(x: number, y: number) {
-    localEventBoundary.rootTarget = containerRef.current;
-    return localEventBoundary.hitTest(x, y);
+    const boundary = localEventBoundaryRef.current;
+    boundary.rootTarget = containerRef.current;
+    return boundary.hitTest(x, y);
   }
 
   const bounds = { width, height };
@@ -401,34 +403,49 @@ function PixiTextureInternal({
 
   const _threeParent = new Vector3();
 
-  function mapPixiToParentPixi(point: Point, out?: Point) {
-    const results = tracePixiToParentThree(point);
-    return results.map((result, i) => {
-      const target = i === 0 && out ? out : new Point();
+  function projectTrace(
+    point: Point,
+    out: Point | undefined,
+    project: (vec: Vector3, target: Point) => boolean,
+  ) {
+    const points: Point[] = [];
+    for (const result of tracePixiToParentThree(point)) {
+      // Bind `out` to the first successful projection so a non-empty return
+      // always means `out` holds the first result
+      const target = points.length === 0 && out ? out : new Point();
       _threeParent.copy(result.position);
-      parentThreeSceneContext.mapThreeToParentPixi(_threeParent, target);
-      return target;
-    });
+      if (project(_threeParent, target)) {
+        points.push(target);
+      }
+    }
+    return points;
+  }
+
+  function mapPixiToParentPixi(point: Point, out?: Point) {
+    return projectTrace(
+      point,
+      out,
+      (vec, target) =>
+        parentThreeSceneContext.mapThreeToParentPixi(vec, target) !== null,
+    );
   }
 
   function mapPixiToViewport(localPoint: Point, out?: Point) {
-    const results = tracePixiToParentThree(localPoint);
-    return results.map((result, i) => {
-      const target = i === 0 && out ? out : new Point();
-      _threeParent.copy(result.position);
-      parentThreeSceneContext.mapThreeToViewport(_threeParent, target);
-      return target;
-    });
+    return projectTrace(
+      localPoint,
+      out,
+      (vec, target) =>
+        parentThreeSceneContext.mapThreeToViewport(vec, target).length > 0,
+    );
   }
 
   function mapPixiToClient(localPoint: Point, out?: Point) {
-    const results = tracePixiToParentThree(localPoint);
-    return results.map((result, i) => {
-      const target = i === 0 && out ? out : new Point();
-      _threeParent.copy(result.position);
-      parentThreeSceneContext.mapThreeToClient(_threeParent, target);
-      return target;
-    });
+    return projectTrace(
+      localPoint,
+      out,
+      (vec, target) =>
+        parentThreeSceneContext.mapThreeToClient(vec, target).length > 0,
+    );
   }
 
   function mapClientToPixi(

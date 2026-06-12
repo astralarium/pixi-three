@@ -83,42 +83,42 @@ export interface ThreeSceneContextValue {
    * Maps a Pixi Point (in local sprite coordinates) to Three.js NDC coordinates (-1 to 1).
    * @param point - Pixi Point in local coordinates
    * @param out - Optional Vector2 to store the NDC result
-   * @returns The NDC Vector2
+   * @returns The NDC Vector2, or null if the scene sprite is destroyed (during teardown)
    */
-  mapPixiToNdc: (point: Point, out?: Vector2) => Vector2;
+  mapPixiToNdc: (point: Point, out?: Vector2) => Vector2 | null;
   /**
    * Maps Three.js NDC coordinates (-1 to 1) to a Pixi Point (in local sprite coordinates).
    * @param ndc - Vector2 with NDC coordinates
    * @param out - Optional Pixi Point to store the result
-   * @returns The Pixi Point
+   * @returns The Pixi Point, or null if the scene sprite is destroyed (during teardown)
    */
-  mapNdcToPixi: (ndc: Vector2, out?: Point) => Point;
+  mapNdcToPixi: (ndc: Vector2, out?: Point) => Point | null;
   /**
    * Maps a Three.js world position to local Pixi sprite coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
    * @param out - Optional Pixi Point to store the result in local sprite coords
-   * @returns The Pixi Point
+   * @returns The Pixi Point, or null if the scene sprite is destroyed (during teardown)
    */
-  mapThreeToParentPixiLocal: (vec3: Vector3, out?: Point) => Point;
+  mapThreeToParentPixiLocal: (vec3: Vector3, out?: Point) => Point | null;
   /**
    * Maps a Three.js world position to global Pixi parent coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
    * @param out - Optional Pixi Point to store the result in global Pixi coords
-   * @returns The Pixi Point
+   * @returns The Pixi Point, or null if the scene sprite is destroyed (during teardown)
    */
-  mapThreeToParentPixi: (vec3: Vector3, out?: Point) => Point;
+  mapThreeToParentPixi: (vec3: Vector3, out?: Point) => Point | null;
   /**
    * Maps a Three.js world position to CanvasView viewport coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
    * @param out - Optional Pixi Point to store the first result
-   * @returns Array of Points in viewport coords
+   * @returns Array of Points in viewport coords, empty if the scene sprite is destroyed
    */
   mapThreeToViewport: (vec3: Vector3, out?: Point) => Point[];
   /**
    * Maps a Three.js world position to DOM client coordinates.
    * @param vec3 - Three.js Vector3 in world coordinates
    * @param out - Optional Pixi Point to store the first result
-   * @returns Array of Points in client coords
+   * @returns Array of Points in client coords, empty if the scene sprite is destroyed
    */
   mapThreeToClient: (vec3: Vector3, out?: Point) => Point[];
   /**

@@ -414,7 +414,7 @@ function traceTriangle(
   _uvTri.getBarycoord(_uvPoint, _bary);
 
   if (normAttr) {
-    _normal.set(normAttr.getX(i0), normAttr.getY(i0), normAttr.getZ(i0));
+    Triangle.getInterpolatedAttribute(normAttr, i0, i1, i2, _bary, _normal);
   } else {
     _posTri.setFromAttributeAndIndices(posAttr, i0, i1, i2);
     _posTri.getNormal(_normal);
@@ -424,11 +424,6 @@ function traceTriangle(
   Triangle.getInterpolatedAttribute(posAttr, i0, i1, i2, _bary, _position);
   const position = _position.clone();
   const barycentric = _bary.clone();
-
-  if (normAttr) {
-    Triangle.getInterpolatedAttribute(normAttr, i0, i1, i2, _bary, _normal);
-    normal.copy(_normal);
-  }
 
   return {
     position,
@@ -473,7 +468,6 @@ const _triPlaneIntersection = new Vector3();
 const _projBary = new Vector3();
 const _projUv = new Vector2();
 const _projWorldPoint = new Vector3();
-const _projUvResult = new Vector2();
 
 /**
  * Project a ray onto a mesh plane and return an Intersection object.
@@ -570,8 +564,6 @@ export function projectRayToMeshPlaneIntersection(
     _projBary,
     _projUv,
   );
-  _projUvResult.set(_projUv.x, _projUv.y);
-
   // Convert triangle plane intersection to world coordinates
   _projWorldPoint.copy(_triPlaneIntersection);
   mesh.localToWorld(_projWorldPoint);
@@ -584,6 +576,6 @@ export function projectRayToMeshPlaneIntersection(
     point: _projWorldPoint.clone(),
     object: mesh,
     faceIndex,
-    uv: _projUvResult.clone(),
+    uv: _projUv.clone(),
   };
 }

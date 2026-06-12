@@ -379,7 +379,6 @@ export class PixiSyntheticEventSystem extends EventSystem {
 
     const target = (sourceEvent as Event).target;
 
-    // TODO implement this
     const outside = target !== this.domElement ? "outside" : "";
     const normalizedEvents = this.normalizeToPointerData(
       sourceEvent as TouchEvent | MouseEvent | PointerEvent,

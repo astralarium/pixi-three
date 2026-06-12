@@ -154,13 +154,14 @@ export function SpinnyCubeWithFollowers({
         edgeScale >= maxVisibleEdgeScale - 0.1
       ) {
         // Use the ball position (offset from surface) for landmark
-        mapThreeToViewport(_object.position, _viewportPoint);
-        const dist = Math.hypot(
-          _viewportPoint.x - mousePos.x,
-          _viewportPoint.y - mousePos.y,
-        );
-        if (!closestTip || dist < closestTip.dist) {
-          closestTip = { position: _object.position.clone(), dist };
+        if (mapThreeToViewport(_object.position, _viewportPoint).length) {
+          const dist = Math.hypot(
+            _viewportPoint.x - mousePos.x,
+            _viewportPoint.y - mousePos.y,
+          );
+          if (!closestTip || dist < closestTip.dist) {
+            closestTip = { position: _object.position.clone(), dist };
+          }
         }
       }
     }
@@ -174,8 +175,10 @@ export function SpinnyCubeWithFollowers({
 
     // Update landmark ref
     if (landmarkRef) {
-      if (closestTip) {
-        mapThreeToViewport(closestTip.position, _viewportPoint);
+      if (
+        closestTip &&
+        mapThreeToViewport(closestTip.position, _viewportPoint).length
+      ) {
         landmarkRef.current = _viewportPoint.clone();
       } else {
         landmarkRef.current = null;
