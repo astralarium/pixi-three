@@ -1,5 +1,5 @@
+import type { FiberTunnel } from "fiber-tunnel";
 import { createContext, type RefObject, useContext } from "react";
-import type tunnel from "tunnel-rat";
 
 import { type PixiSyntheticEventSystem } from "./pixi-synthetic-event-system";
 
@@ -7,11 +7,11 @@ import { type PixiSyntheticEventSystem } from "./pixi-synthetic-event-system";
  * @internal
  */
 export interface RenderContextValue {
-  tunnel: ReturnType<typeof tunnel>;
+  tunnel: FiberTunnel;
   eventContainer: RefObject<HTMLDivElement>;
   pixiEvents: PixiSyntheticEventSystem | null;
-  threeSceneTunnel: ReturnType<typeof tunnel>;
-  pixiTextureTunnel: ReturnType<typeof tunnel>;
+  threeSceneTunnel: FiberTunnel;
+  pixiTextureTunnel: FiberTunnel;
 }
 
 /**

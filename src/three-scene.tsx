@@ -10,6 +10,7 @@ import {
   type RootState,
   useThree,
 } from "@react-three/fiber";
+import { FiberAnchor, type FiberTunnel, fiberTunnel } from "fiber-tunnel";
 import {
   type Application,
   Container,
@@ -41,7 +42,6 @@ import {
   Vector3,
 } from "three";
 import { type PostProcessing } from "three/webgpu";
-import tunnel from "tunnel-rat";
 
 import {
   mapNdcToPixi as mapNdcToPixiUtil,
@@ -186,21 +186,23 @@ export function ThreeScene({
 
   return (
     <pixiContainer {...props} ref={containerRef}>
-      <ThreeSceneSprite
-        containerRef={containerRef}
-        width={width}
-        height={height}
-        resolution={resolution}
-        renderTargetOptions={renderTargetOptions}
-        eventPriority={eventPriority}
-        frameloop={frameloop}
-        eventCompute={eventCompute}
-        postProcessing={postProcessing}
-        fpsLimit={fpsLimit}
-        onPointerMissed={onPointerMissed}
-      >
-        {children}
-      </ThreeSceneSprite>
+      <FiberAnchor>
+        <ThreeSceneSprite
+          containerRef={containerRef}
+          width={width}
+          height={height}
+          resolution={resolution}
+          renderTargetOptions={renderTargetOptions}
+          eventPriority={eventPriority}
+          frameloop={frameloop}
+          eventCompute={eventCompute}
+          postProcessing={postProcessing}
+          fpsLimit={fpsLimit}
+          onPointerMissed={onPointerMissed}
+        >
+          {children}
+        </ThreeSceneSprite>
+      </FiberAnchor>
     </pixiContainer>
   );
 }
@@ -409,7 +411,7 @@ function ThreeSceneSpriteInternal({
     state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
-  const [sceneTunnel] = useState(tunnel);
+  const [sceneTunnel] = useState(fiberTunnel);
 
   function setHitArea(
     hitArea: { contains(x: number, y: number): boolean } | null,
@@ -475,7 +477,7 @@ function ThreeSceneSpriteInternal({
 
 interface ThreeSceneContextProviderProps {
   containerRef: RefObject<Container>;
-  sceneTunnel: ReturnType<typeof tunnel>;
+  sceneTunnel: FiberTunnel;
   mapPixiToNdc: (point: Point, out?: Vector2) => Vector2 | null;
   mapNdcToPixi: (ndc: Vector2, out?: Point) => Point | null;
   spriteRef: RefObject<Sprite | null>;

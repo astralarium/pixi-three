@@ -1,8 +1,8 @@
 import { Application } from "@pixi/react";
+import { fiberTunnel } from "fiber-tunnel";
 import { FiberProvider } from "its-fine";
 import type { Application as ApplicationType } from "pixi.js";
 import { type ReactNode, useRef, useState } from "react";
-import tunnel from "tunnel-rat";
 
 import { PixiSyntheticEventSystem } from "./pixi-synthetic-event-system";
 import { PixiTextureRenderer } from "./pixi-texture";
@@ -64,9 +64,9 @@ export function RenderContext({
     }
   }
 
-  const [canvasViewTunnel] = useState(tunnel);
-  const [threeSceneTunnel] = useState(tunnel);
-  const [pixiTextureTunnel] = useState(tunnel);
+  const [canvasViewTunnel] = useState(fiberTunnel);
+  const [threeSceneTunnel] = useState(fiberTunnel);
+  const [pixiTextureTunnel] = useState(fiberTunnel);
 
   return (
     <FiberProvider>

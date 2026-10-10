@@ -6,6 +6,7 @@ import {
   type RootState,
   useThree,
 } from "@react-three/fiber";
+import { fiberTunnel } from "fiber-tunnel";
 import { Point } from "pixi.js";
 import {
   type ReactNode,
@@ -29,7 +30,6 @@ import {
 } from "three";
 import { texture } from "three/tsl";
 import type { TextureNode } from "three/webgpu";
-import tunnel from "tunnel-rat";
 
 import {
   mapNdcToPixi as mapNdcToPixiUtil,
@@ -372,7 +372,7 @@ export function ThreeRenderTexture({
     state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
-  const [sceneTunnel] = useState(tunnel);
+  const [sceneTunnel] = useState(fiberTunnel);
 
   const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
     fpsLimit,

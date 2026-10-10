@@ -112,7 +112,7 @@ export default defineConfig({
           "@pixi/react",
           "@react-three/fiber",
           "its-fine",
-          "tunnel-rat",
+          "fiber-tunnel",
         ].includes(id) || id.startsWith("three/"),
     },
   },

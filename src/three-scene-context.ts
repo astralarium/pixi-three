@@ -1,3 +1,4 @@
+import type { FiberTunnel } from "fiber-tunnel";
 import { type Container, type Point } from "pixi.js";
 import { createContext, type RefObject, useContext } from "react";
 import {
@@ -7,7 +8,6 @@ import {
   type Vector2,
   type Vector3,
 } from "three";
-import type tunnel from "tunnel-rat";
 
 /**
  * Intersection result for Plane raycasts.
@@ -78,7 +78,7 @@ export interface ThreeSceneContextValue {
   /** @internal */
   containerRef: RefObject<Container>;
   /** @internal */
-  sceneTunnel: ReturnType<typeof tunnel>;
+  sceneTunnel: FiberTunnel;
   /**
    * Maps a Pixi Point (in local sprite coordinates) to Three.js NDC coordinates (-1 to 1).
    * @param point - Pixi Point in local coordinates
