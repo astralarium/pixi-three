@@ -12,6 +12,7 @@ import {
 import { type WebGPURenderer as PixiWebGPURenderer } from "pixi.js";
 import {
   type PropsWithChildren,
+  type ReactNode,
   type RefObject,
   useEffect,
   useRef,
@@ -21,6 +22,7 @@ import { type WebGPURendererParameters } from "three/src/renderers/webgpu/WebGPU
 import * as THREE from "three/webgpu";
 import { WebGPURenderer } from "three/webgpu";
 
+import { Bridge } from "./bridge";
 import { useBridge } from "./use-bridge";
 
 extend(THREE as unknown as ConstructorRepresentation);
@@ -62,10 +64,17 @@ export function ThreeRoot({
   onCreated,
   onPointerMissed,
 }: ThreeRootProps) {
-  const Bridge = useBridge();
+  const bridge = useBridge();
   const pixi = useApplication();
   const threeRootRef = useRef<ReconcilerRoot<HTMLCanvasElement>>(null);
   const [cleanupFn, setCleanupFn] = useState<(() => void) | null>(null);
+
+  // Latest bridged tree; read by the async init below
+  const rootElementRef = useRef<ReactNode>(null);
+  useEffect(() => {
+    rootElementRef.current = <Bridge {...bridge}>{children}</Bridge>;
+    threeRootRef.current?.render(rootElementRef.current);
+  }, [bridge, children]);
 
   useEffect(() => {
     if (!pixi.isInitialised) {
@@ -110,7 +119,7 @@ export function ThreeRoot({
             left: 0,
           },
         });
-        threeRoot.render(<Bridge>{children}</Bridge>);
+        threeRoot.render(rootElementRef.current);
       });
       if (eventSource?.current) {
         threeState.events.connect?.(eventSource.current);
@@ -138,8 +147,6 @@ export function ThreeRoot({
 
     void initThree();
   }, [
-    Bridge,
-    children,
     eventSource,
     threeRendererParameters,
     onCreated,
@@ -154,10 +161,6 @@ export function ThreeRoot({
     }
     return cleanupFn;
   }, [cleanupFn]);
-
-  useEffect(() => {
-    threeRootRef.current?.render(<Bridge>{children}</Bridge>);
-  }, [Bridge, children]);
 
   return null;
 }

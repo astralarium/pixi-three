@@ -15,6 +15,7 @@ import { Route as ExampleRouteImport } from './routes/example'
 import { Route as ExampleIndexRouteImport } from './routes/example/index'
 import { Route as ExampleBasicSceneRouteImport } from './routes/example/basic-scene'
 import { Route as ExampleBijectionsRouteImport } from './routes/example/bijections'
+import { Route as ExampleContextBridgeRouteImport } from './routes/example/context-bridge'
 import { Route as ExampleDemandRenderingRouteImport } from './routes/example/demand-rendering'
 import { Route as ExampleThreePointerCaptureRouteImport } from './routes/example/three-pointer-capture'
 import { Route as ExampleThreeRenderTextureRouteImport } from './routes/example/three-render-texture'
@@ -51,6 +52,11 @@ const ExampleBijectionsRoute = ExampleBijectionsRouteImport.update({
   path: '/bijections',
   getParentRoute: () => ExampleRoute,
 } as any)
+const ExampleContextBridgeRoute = ExampleContextBridgeRouteImport.update({
+  id: '/context-bridge',
+  path: '/context-bridge',
+  getParentRoute: () => ExampleRoute,
+} as any)
 const ExampleDemandRenderingRoute = ExampleDemandRenderingRouteImport.update({
   id: '/demand-rendering',
   path: '/demand-rendering',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/example': typeof ExampleRouteWithChildren
   '/example/basic-scene': typeof ExampleBasicSceneRoute
   '/example/bijections': typeof ExampleBijectionsRoute
+  '/example/context-bridge': typeof ExampleContextBridgeRoute
   '/example/demand-rendering': typeof ExampleDemandRenderingRoute
   '/example/three-pointer-capture': typeof ExampleThreePointerCaptureRoute
   '/example/three-render-texture': typeof ExampleThreeRenderTextureRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/docs': typeof DocsRoute
   '/example/basic-scene': typeof ExampleBasicSceneRoute
   '/example/bijections': typeof ExampleBijectionsRoute
+  '/example/context-bridge': typeof ExampleContextBridgeRoute
   '/example/demand-rendering': typeof ExampleDemandRenderingRoute
   '/example/three-pointer-capture': typeof ExampleThreePointerCaptureRoute
   '/example/three-render-texture': typeof ExampleThreeRenderTextureRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/example': typeof ExampleRouteWithChildren
   '/example/basic-scene': typeof ExampleBasicSceneRoute
   '/example/bijections': typeof ExampleBijectionsRoute
+  '/example/context-bridge': typeof ExampleContextBridgeRoute
   '/example/demand-rendering': typeof ExampleDemandRenderingRoute
   '/example/three-pointer-capture': typeof ExampleThreePointerCaptureRoute
   '/example/three-render-texture': typeof ExampleThreeRenderTextureRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/example'
     | '/example/basic-scene'
     | '/example/bijections'
+    | '/example/context-bridge'
     | '/example/demand-rendering'
     | '/example/three-pointer-capture'
     | '/example/three-render-texture'
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/example/basic-scene'
     | '/example/bijections'
+    | '/example/context-bridge'
     | '/example/demand-rendering'
     | '/example/three-pointer-capture'
     | '/example/three-render-texture'
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/example'
     | '/example/basic-scene'
     | '/example/bijections'
+    | '/example/context-bridge'
     | '/example/demand-rendering'
     | '/example/three-pointer-capture'
     | '/example/three-render-texture'
@@ -209,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExampleBijectionsRouteImport
       parentRoute: typeof ExampleRoute
     }
+    '/example/context-bridge': {
+      id: '/example/context-bridge'
+      path: '/context-bridge'
+      fullPath: '/example/context-bridge'
+      preLoaderRoute: typeof ExampleContextBridgeRouteImport
+      parentRoute: typeof ExampleRoute
+    }
     '/example/demand-rendering': {
       id: '/example/demand-rendering'
       path: '/demand-rendering'
@@ -250,6 +269,7 @@ declare module '@tanstack/react-router' {
 interface ExampleRouteChildren {
   ExampleBasicSceneRoute: typeof ExampleBasicSceneRoute
   ExampleBijectionsRoute: typeof ExampleBijectionsRoute
+  ExampleContextBridgeRoute: typeof ExampleContextBridgeRoute
   ExampleDemandRenderingRoute: typeof ExampleDemandRenderingRoute
   ExampleThreePointerCaptureRoute: typeof ExampleThreePointerCaptureRoute
   ExampleThreeRenderTextureRoute: typeof ExampleThreeRenderTextureRoute
@@ -261,6 +281,7 @@ interface ExampleRouteChildren {
 const ExampleRouteChildren: ExampleRouteChildren = {
   ExampleBasicSceneRoute: ExampleBasicSceneRoute,
   ExampleBijectionsRoute: ExampleBijectionsRoute,
+  ExampleContextBridgeRoute: ExampleContextBridgeRoute,
   ExampleDemandRenderingRoute: ExampleDemandRenderingRoute,
   ExampleThreePointerCaptureRoute: ExampleThreePointerCaptureRoute,
   ExampleThreeRenderTextureRoute: ExampleThreeRenderTextureRoute,

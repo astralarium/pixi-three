@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useSyncExternalStore,
 } from "react";
 
@@ -35,8 +36,31 @@ export const CanvasTreeContext = createContext<CanvasTreeContextValue | null>(
   null,
 );
 
-/** @internal */
-export function useCanvasTreeStore(): CanvasTreeStore {
+/**
+ * Context value for a canvas tree node, stable while `invalidate` is.
+ * @internal
+ */
+export function useCanvasTree(invalidate: () => void): CanvasTreeContextValue {
+  const store = useCanvasTreeStore();
+  return useMemo(() => ({ store, invalidate }), [store, invalidate]);
+}
+
+/**
+ * Publishes a canvas tree node's size and requests a frame on change.
+ * @internal
+ */
+export function useCanvasTreeSize(
+  { store, invalidate }: CanvasTreeContextValue,
+  { width, height, resolution }: CanvasViewSize,
+) {
+  useEffect(() => {
+    store.updateSnapshot({ width, height, resolution });
+    store.notifySubscribers();
+    invalidate();
+  }, [store, invalidate, width, height, resolution]);
+}
+
+function useCanvasTreeStore(): CanvasTreeStore {
   const storeRef = useLazyRef((): CanvasTreeStore => {
     const subscribers = new Set<(size: CanvasViewSize) => void>();
     let snapshot: CanvasViewSize = {

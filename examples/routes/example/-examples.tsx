@@ -39,6 +39,11 @@ export const EXAMPLES: readonly ExampleMeta[] = [
     description: "Save power on mobile devices",
   },
   {
+    label: "Context Bridge",
+    to: "/example/context-bridge",
+    description: "Textures redraw only for contexts they read",
+  },
+  {
     label: "Unmount Context",
     to: "/example/unmount-context",
     description: "Unmount the <RenderContext>",

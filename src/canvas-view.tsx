@@ -24,7 +24,8 @@ import {
   mapClientToViewport,
   mapViewportToClient as mapViewportToClientUtil,
 } from "./bijections";
-import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
+import { Bridge } from "./bridge";
+import { CanvasTreeContext, useCanvasTree } from "./canvas-tree-context";
 import { CanvasViewContext as CanvasViewContentContext } from "./canvas-view-context";
 import { useRenderContext } from "./render-context-hooks";
 import { useBridge } from "./use-bridge";
@@ -123,7 +124,7 @@ function CanvasViewBridged({
 }: CanvasViewProps) {
   const id = useId();
   const { tunnel } = useRenderContext();
-  const Bridge = useBridge();
+  const bridge = useBridge();
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   useImperativeHandle(canvasRefProp, () => canvasRef.current);
@@ -221,8 +222,7 @@ function CanvasViewBridged({
         </canvas>
       </div>
       <tunnel.In>
-        {/* eslint-disable-next-line react-hooks/static-components */}
-        <Bridge key={id}>
+        <Bridge key={id} {...bridge}>
           <CanvasViewContent
             canvasRef={canvasRef}
             canvas={canvas}
@@ -277,8 +277,8 @@ function CanvasViewContent({
     fpsLimit,
   });
 
-  const store = useCanvasTreeStore();
-  const { subscribe, updateSnapshot, notifySubscribers } = store;
+  const canvasTree = useCanvasTree(invalidate);
+  const { subscribe, updateSnapshot, notifySubscribers } = canvasTree.store;
 
   const pendingSizeRef = useRef<{ width: number; height: number }>({
     width: 1,
@@ -315,8 +315,9 @@ function CanvasViewContent({
           size.height,
           size.resolution,
         );
+        invalidate();
       }),
-    [subscribe, renderTargetRef],
+    [subscribe, renderTargetRef, invalidate],
   );
 
   useEffect(() => {
@@ -444,7 +445,7 @@ function CanvasViewContent({
         },
       }}
     >
-      <CanvasTreeContext value={{ store, invalidate }}>
+      <CanvasTreeContext value={canvasTree}>
         <pixiContainer
           ref={(ref) => {
             if (!ref) {

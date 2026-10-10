@@ -49,8 +49,13 @@ import {
   mapThreeToNdc,
   projectRayToMeshPlaneIntersection,
 } from "./bijections";
+import { Bridge } from "./bridge";
 import { useViewport } from "./canvas-tree-context";
-import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
+import {
+  CanvasTreeContext,
+  useCanvasTree,
+  useCanvasTreeSize,
+} from "./canvas-tree-context";
 import { useCanvasView } from "./canvas-view-context";
 import {
   type PixiTextureContextValue,
@@ -213,7 +218,7 @@ interface ThreeSceneSpriteProps extends ThreeSceneBaseProps {
 }
 
 function ThreeSceneSprite(props: ThreeSceneSpriteProps) {
-  const Bridge = useBridge();
+  const bridge = useBridge();
   const { app } = useApplication();
   const { threeSceneTunnel } = useRenderContext();
   const pixiTextureContext = usePixiTextureContextOptional();
@@ -222,8 +227,7 @@ function ThreeSceneSprite(props: ThreeSceneSpriteProps) {
   const key = useId();
 
   const sprite = (
-    // eslint-disable-next-line react-hooks/static-components
-    <Bridge key={key}>
+    <Bridge key={key} {...bridge}>
       <ThreeSceneSpriteInternal
         app={app}
         pixiTextureContext={pixiTextureContext}
@@ -274,18 +278,14 @@ function ThreeSceneSpriteInternal({
   const width = widthProp ?? size.width;
   const height = heightProp ?? size.height;
   const resolution = resolutionProp ?? size.resolution;
-  const store = useCanvasTreeStore();
-  useEffect(() => {
-    store.updateSnapshot({ width, height, resolution });
-    store.notifySubscribers();
-  }, [store, width, height, resolution]);
-
-  const hitAreaRef = useRef<IHitArea | null>(null);
-  const spriteRef = useRef<Sprite | null>(null);
-
   const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
     fpsLimit,
   });
+  const canvasTree = useCanvasTree(invalidate);
+  useCanvasTreeSize(canvasTree, { width, height, resolution });
+
+  const hitAreaRef = useRef<IHitArea | null>(null);
+  const spriteRef = useRef<Sprite | null>(null);
 
   // Single owner: create on mount / renderer change, destroy + null the ref
   // on cleanup. StrictMode/Activity effects-remounts destroy and recreate
@@ -438,7 +438,7 @@ function ThreeSceneSpriteInternal({
   }
 
   return (
-    <CanvasTreeContext value={{ store, invalidate }}>
+    <CanvasTreeContext value={canvasTree}>
       {createPortal(
         <PortalContent
           width={width}

@@ -17,6 +17,7 @@ import {
 } from "pixi.js";
 import {
   Fragment,
+  memo,
   type PropsWithChildren,
   type Ref,
   type RefObject,
@@ -45,7 +46,12 @@ import {
   traceUvToThree,
   traceUvToThreeLocal,
 } from "./bijections";
-import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
+import { Bridge } from "./bridge";
+import {
+  CanvasTreeContext,
+  useCanvasTree,
+  useCanvasTreeSize,
+} from "./canvas-tree-context";
 import { useCanvasView } from "./canvas-view-context";
 import { PixiTextureContext } from "./pixi-texture-context";
 import { useRenderContext } from "./render-context-hooks";
@@ -181,7 +187,7 @@ function PixiTextureBridged({
   eventGuard,
   onPointerMissed,
 }: PixiTextureProps) {
-  const Bridge = useBridge();
+  const bridge = useBridge();
   const { pixiTextureTunnel } = useRenderContext();
   const parentThreeSceneContext = useThreeSceneContext();
   const key = useId();
@@ -204,8 +210,7 @@ function PixiTextureBridged({
   return (
     <>
       <pixiTextureTunnel.In>
-        {/* eslint-disable-next-line react-hooks/static-components */}
-        <Bridge key={key}>
+        <Bridge key={key} {...bridge}>
           <PixiTextureInternal
             parentThreeSceneContext={parentThreeSceneContext}
             getAttachedObject={getAttachedObject}
@@ -242,7 +247,8 @@ interface PixiTextureInternalProps extends Omit<
   textureRef: RefObject<TextureNode>;
 }
 
-function PixiTextureInternal({
+/** Memoized so bridge updates reach only consumers of changed contexts */
+const PixiTextureInternal = memo(function PixiTextureInternal({
   parentThreeSceneContext,
   getAttachedObject,
   containerRef: containerRefProp,
@@ -340,11 +346,8 @@ function PixiTextureInternal({
     },
   });
 
-  const store = useCanvasTreeStore();
-  useEffect(() => {
-    store.updateSnapshot({ width, height, resolution: 1 });
-    store.notifySubscribers();
-  }, [store, width, height]);
+  const canvasTree = useCanvasTree(invalidate);
+  useCanvasTreeSize(canvasTree, { width, height, resolution: 1 });
 
   useImperativeHandle(containerRefProp, () => containerRef.current);
 
@@ -506,7 +509,7 @@ function PixiTextureInternal({
           </Fragment>
         </parentThreeSceneContext.sceneTunnel.In>
       )}
-      <CanvasTreeContext value={{ store, invalidate }}>
+      <CanvasTreeContext value={canvasTree}>
         <PixiTextureContext
           value={{
             width,
@@ -537,4 +540,4 @@ function PixiTextureInternal({
       </CanvasTreeContext>
     </>
   );
-}
+});

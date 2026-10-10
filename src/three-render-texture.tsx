@@ -41,7 +41,11 @@ import {
   traceUvToThreeLocal,
 } from "./bijections";
 import { useViewport } from "./canvas-tree-context";
-import { CanvasTreeContext, useCanvasTreeStore } from "./canvas-tree-context";
+import {
+  CanvasTreeContext,
+  useCanvasTree,
+  useCanvasTreeSize,
+} from "./canvas-tree-context";
 import { useAttachedObject } from "./three-fiber";
 import { PortalContent } from "./three-portal-content";
 import {
@@ -146,11 +150,11 @@ export function ThreeRenderTexture({
   const width = widthProp ?? size.width;
   const height = heightProp ?? size.height;
   const resolution = resolutionProp ?? size.resolution;
-  const store = useCanvasTreeStore();
-  useEffect(() => {
-    store.updateSnapshot({ width, height, resolution });
-    store.notifySubscribers();
-  }, [store, width, height, resolution]);
+  const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
+    fpsLimit,
+  });
+  const canvasTree = useCanvasTree(invalidate);
+  useCanvasTreeSize(canvasTree, { width, height, resolution });
 
   const parentThreeSceneContext = useThreeSceneContext();
   const { containerRef } = parentThreeSceneContext;
@@ -374,13 +378,9 @@ export function ThreeRenderTexture({
 
   const [sceneTunnel] = useState(fiberTunnel);
 
-  const { isFrameRequested, invalidate, signalFrame } = useRenderSchedule({
-    fpsLimit,
-  });
-
   return (
     <>
-      <CanvasTreeContext value={{ store, invalidate }}>
+      <CanvasTreeContext value={canvasTree}>
         <ThreeSceneContext
           value={{
             containerRef,
