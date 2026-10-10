@@ -14,6 +14,7 @@ import {
   type RefObject,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from "react";
 import {
@@ -53,7 +54,6 @@ import {
   ThreeSceneContext,
   useThreeSceneContext,
 } from "./three-scene-context";
-import { useLazyRef } from "./use-lazy-ref";
 import { useRenderSchedule } from "./use-render-schedule";
 
 /**
@@ -137,13 +137,16 @@ export function ThreeRenderTexture({
   height: heightProp,
   resolution: resolutionProp,
   options,
-  eventPriority = 0,
-  frameloop = "always",
+  eventPriority: eventPriorityProp,
+  frameloop: frameloopProp,
   compute,
   fpsLimit,
   onPointerMissed,
   children,
 }: ThreeRenderTextureProps) {
+  // Defaults live here: React Compiler skips destructured prop defaults
+  const eventPriority = eventPriorityProp ?? 0;
+  const frameloop = frameloopProp ?? "always";
   const size = useViewport();
   const [scene] = useState(() => new Scene());
 
@@ -158,18 +161,20 @@ export function ThreeRenderTexture({
 
   const parentThreeSceneContext = useThreeSceneContext();
   const { containerRef } = parentThreeSceneContext;
-  const textureRef = useLazyRef(() => texture(new Texture()));
+  const [textureNode] = useState(() => texture(new Texture()));
+  // Same node; the render target callback swaps its `value` through this ref
+  const textureRef = useRef(textureNode);
   const { camera } = useThree();
 
   const getAttachedObject = useAttachedObject(objectRef);
 
-  useImperativeHandle(ref, () => textureRef.current);
+  useImperativeHandle(ref, () => textureNode);
 
   useEffect(
     () => () => {
-      textureRef.current.dispose();
+      textureNode.dispose();
     },
-    [textureRef],
+    [textureNode],
   );
 
   const bounds = { width, height };
@@ -435,8 +440,7 @@ export function ThreeRenderTexture({
           )}
         </ThreeSceneContext>
       </CanvasTreeContext>
-      {/* eslint-disable-next-line react-hooks/refs */}
-      <primitive object={textureRef.current} attach={attach} />
+      <primitive object={textureNode} attach={attach} />
     </>
   );
 }

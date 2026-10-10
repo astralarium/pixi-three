@@ -41,8 +41,15 @@ StrictMode keyed reorders trigger the same cascade.
 - `useCanvasTreeSize` publishes a node's size and invalidates it on
   change; `CanvasView` invalidates on every size notification. A stable
   context value ends the accidental redraw that fresh values caused.
-- `PixiTextureInternal` is `memo`; bridge updates reach only consumers of
-  changed contexts.
+- `PixiTextureBridged` and `ThreeRenderTexture` compile: render reads the
+  `TextureNode` from state; a ref to the same node takes `value` swaps.
+  React Compiler caches the `In` element per `BridgeValue`, so an unchanged
+  bridge produces no pixi commit.
+- `ThreeRenderTexture` sets prop defaults in the body; React Compiler
+  skips components with destructured defaults.
+- `ThreeSceneContextProvider` builds `mapPixiToNdc`/`mapNdcToPixi` from
+  `spriteRef`, so its context value is stable across
+  `ThreeSceneSpriteInternal` renders.
 - `ThreeRoot` keeps the latest bridged element in a ref; the async init
   renders it, and an effect re-renders on bridge or children change.
   (`useEffectEvent` is unavailable: `@pixi/react`'s reconciler predates
@@ -65,17 +72,14 @@ StrictMode keyed reorders trigger the same cascade.
 - Measure eternal-engine's stress scene
   (`/debug/zoo/layout/tableau_stress`, procedure in eternal-engine
   `docs/skills/tableau-perf`).
-- `PixiTextureBridged` stays uncompiled (`textureRef.current` read for
-  `<primitive>`), so an unchanged bridge still re-renders its providers
-  in a pixi commit. Compiling it removes that commit.
-- `ThreeSceneContext` values are rebuilt on each `ThreeSceneSpriteInternal`
-  and `ThreeRenderTexture` render, so a viewport resize re-renders every
-  `PixiTextureBridged` below it.
 - **Fonts:** a `PixiTexture` with canvas text draws once, so text drawn
   before its web font loads keeps fallback glyphs. pixi-three could
   redraw text textures on `document.fonts` `loadingdone`.
-- **Two r3f copies:** pixi-three imports `@react-three/fiber`; apps using
-  WebGPU hooks import `@react-three/fiber/webgpu`, a standalone bundle
-  with its own reconciler. Decide which entry pixi-three binds to.
+- **r3f entry:** pixi-three stays on `@react-three/fiber`. In 10.0.0-alpha.5,
+  `/webgpu` is a standalone bundle (own reconciler and `_roots`; context
+  and catalogue shared via `globalThis`), so apps importing its TSL hooks
+  load two copies. Upstream v10 moves the TSL hooks to `@react-three/tsl`
+  on a shared core and deprecates `/webgpu` (pmndrs/react-three-fiber#4013).
+  Revisit at the next r3f release.
 - a11y-tree: keep `A11yTreeMultiplexerContext`'s value stable
   (`../a11y-tree/plans/stable-multiplexer-context.md`).

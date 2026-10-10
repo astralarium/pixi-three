@@ -17,7 +17,6 @@ import {
 } from "pixi.js";
 import {
   Fragment,
-  memo,
   type PropsWithChildren,
   type Ref,
   type RefObject,
@@ -194,18 +193,18 @@ function PixiTextureBridged({
 
   const getAttachedObject = useAttachedObject(objectRef);
 
-  const textureRef = useLazyRef(() => texture(new Texture()));
+  const [textureNode] = useState(() => texture(new Texture()));
+  // Same node; the pixi side swaps its `value` through this ref
+  const textureRef = useRef(textureNode);
 
   useEffect(
     () => () => {
-      textureRef.current.dispose();
+      textureNode.dispose();
     },
-    [textureRef],
+    [textureNode],
   );
 
-  useImperativeHandle(ref, () => {
-    return textureRef.current;
-  });
+  useImperativeHandle(ref, () => textureNode);
 
   return (
     <>
@@ -229,8 +228,7 @@ function PixiTextureBridged({
           </PixiTextureInternal>
         </Bridge>
       </pixiTextureTunnel.In>
-      {/* eslint-disable-next-line react-hooks/refs */}
-      <primitive object={textureRef.current} attach={attach} />
+      <primitive object={textureNode} attach={attach} />
     </>
   );
 }
@@ -247,8 +245,7 @@ interface PixiTextureInternalProps extends Omit<
   textureRef: RefObject<TextureNode>;
 }
 
-/** Memoized so bridge updates reach only consumers of changed contexts */
-const PixiTextureInternal = memo(function PixiTextureInternal({
+function PixiTextureInternal({
   parentThreeSceneContext,
   getAttachedObject,
   containerRef: containerRefProp,
@@ -540,4 +537,4 @@ const PixiTextureInternal = memo(function PixiTextureInternal({
       </CanvasTreeContext>
     </>
   );
-});
+}

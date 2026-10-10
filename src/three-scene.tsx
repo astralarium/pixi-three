@@ -92,6 +92,32 @@ function liveSprite(spriteRef: RefObject<Sprite | null>) {
   return sprite && !sprite.destroyed ? sprite : null;
 }
 
+/** Maps sprite-local Pixi coords to the scene's NDC */
+function spritePixiToNdc(
+  spriteRef: RefObject<Sprite | null>,
+  point: Point,
+  out?: Vector2,
+) {
+  const sprite = liveSprite(spriteRef);
+  if (!sprite) {
+    return null;
+  }
+  return mapPixiToNdcUtil(point, sprite.getLocalBounds(), out);
+}
+
+/** Maps the scene's NDC to sprite-local Pixi coords */
+function spriteNdcToPixi(
+  spriteRef: RefObject<Sprite | null>,
+  ndc: Vector2,
+  out?: Point,
+) {
+  const sprite = liveSprite(spriteRef);
+  if (!sprite) {
+    return null;
+  }
+  return mapNdcToPixiUtil(ndc, sprite.getLocalBounds(), out);
+}
+
 /**
  * @internal
  */
@@ -329,22 +355,6 @@ function ThreeSceneSpriteInternal({
     sprite.setSize(width, height);
   }
 
-  function mapPixiToNdc(point: Point, out?: Vector2) {
-    const sprite = liveSprite(spriteRef);
-    if (!sprite) {
-      return null;
-    }
-    return mapPixiToNdcUtil(point, sprite.getLocalBounds(), out);
-  }
-
-  function mapNdcToPixi(ndc: Vector2, out?: Point) {
-    const sprite = liveSprite(spriteRef);
-    if (!sprite) {
-      return null;
-    }
-    return mapNdcToPixiUtil(ndc, sprite.getLocalBounds(), out);
-  }
-
   const clientPos = new Point();
   const globalPos = new Point();
   const localPos = new Point();
@@ -412,7 +422,7 @@ function ThreeSceneSpriteInternal({
     }
 
     sprite.toLocal(globalPos, undefined, localPos);
-    mapPixiToNdc(localPos, state.pointer);
+    spritePixiToNdc(spriteRef, localPos, state.pointer);
     state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
@@ -454,8 +464,6 @@ function ThreeSceneSpriteInternal({
           <ThreeSceneContextProvider
             containerRef={containerRef}
             sceneTunnel={sceneTunnel}
-            mapPixiToNdc={mapPixiToNdc}
-            mapNdcToPixi={mapNdcToPixi}
             spriteRef={spriteRef}
           >
             <HitAreaSetup setHitArea={setHitArea} />
@@ -485,8 +493,6 @@ function ThreeSceneSpriteInternal({
 interface ThreeSceneContextProviderProps {
   containerRef: RefObject<Container>;
   sceneTunnel: FiberTunnel;
-  mapPixiToNdc: (point: Point, out?: Vector2) => Vector2 | null;
-  mapNdcToPixi: (ndc: Vector2, out?: Point) => Point | null;
   spriteRef: RefObject<Sprite | null>;
   children: ReactNode;
 }
@@ -494,12 +500,19 @@ interface ThreeSceneContextProviderProps {
 function ThreeSceneContextProvider({
   containerRef,
   sceneTunnel,
-  mapPixiToNdc,
-  mapNdcToPixi,
   spriteRef,
   children,
 }: ThreeSceneContextProviderProps) {
   const { camera, scene } = useThree();
+
+  function mapPixiToNdc(point: Point, out?: Vector2) {
+    return spritePixiToNdc(spriteRef, point, out);
+  }
+
+  function mapNdcToPixi(ndc: Vector2, out?: Point) {
+    return spriteNdcToPixi(spriteRef, ndc, out);
+  }
+
   const pixiViewContext = usePixiViewContext();
   const [raycaster] = useState(() => new Raycaster());
 
