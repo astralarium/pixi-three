@@ -8,8 +8,8 @@ import {
   LandmarkPointer,
   PointerTapHandler,
 } from "#components/landmark-pointer";
+import { PIXI_THREE_STAR } from "#components/lib/colors";
 import { SpinnyCubeWithFollowers } from "#components/spinny-cube-with-followers";
-import { PIXI_THREE_STAR } from "#components/spinny-star";
 
 import { Frame } from "./-frame";
 

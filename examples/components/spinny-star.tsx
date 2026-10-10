@@ -4,15 +4,6 @@ import { type ColorSource, Container, Graphics, Point } from "pixi.js";
 import { type ComponentProps, useRef, useState } from "react";
 import { type Vector3 } from "three";
 
-import { pixiRed, threeBlue } from "#components/lib/colors";
-
-export const PIXI_THREE_STAR = {
-  star1: threeBlue[500],
-  star1Hover: threeBlue[300],
-  star2: pixiRed[600],
-  star2Hover: pixiRed[400],
-} as const;
-
 extend({ Container, Graphics });
 
 function randomColor(): ColorSource {

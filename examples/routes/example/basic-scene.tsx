@@ -12,8 +12,9 @@ import { toast } from "sonner";
 import { CirclePing } from "#components/circle-ping";
 import { FadeIn } from "#components/fade-in";
 import { pixiRed, threeBlue } from "#components/lib/colors";
+import { PIXI_THREE_STAR } from "#components/lib/colors";
 import { SpinnyCubeWithStars } from "#components/spinny-cube-with-stars";
-import { PIXI_THREE_STAR, SpinnyStar } from "#components/spinny-star";
+import { SpinnyStar } from "#components/spinny-star";
 
 import { Frame } from "./-frame";
 

@@ -18,8 +18,8 @@ import {
   useState,
 } from "react";
 import { type WebGPURendererParameters } from "three/src/renderers/webgpu/WebGPURenderer.js";
-import { WebGPURenderer } from "three/webgpu";
 import * as THREE from "three/webgpu";
+import { WebGPURenderer } from "three/webgpu";
 
 import { useBridge } from "./use-bridge";
 

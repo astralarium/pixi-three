@@ -263,7 +263,11 @@ function ThreeSceneSpriteInternal({
   onPointerMissed,
   children,
 }: ThreeSceneSpriteInternalProps) {
-  const { canvasRef, containerRef: canvasContainerRef } = useCanvasView();
+  const {
+    canvasRef,
+    canvas,
+    containerRef: canvasContainerRef,
+  } = useCanvasView();
   const size = useViewport();
   const [scene] = useState(() => new Scene());
 
@@ -395,6 +399,7 @@ function ThreeSceneSpriteInternal({
       const rect = canvasRef.current.getBoundingClientRect();
       clientPos.x = event.clientX - rect.left;
       clientPos.y = event.clientY - rect.top;
+      // eslint-disable-next-line react-hooks/immutability
       app.renderer.events.rootBoundary.rootTarget = canvasContainerRef.current;
       canvasContainerRef.current.toGlobal(clientPos, globalPos);
       if (
@@ -461,11 +466,13 @@ function ThreeSceneSpriteInternal({
           <group onPointerOver={() => null} />
         </PortalContent>,
         scene,
+        // computeFn reads refs; r3f calls it on events only
+        // eslint-disable-next-line react-hooks/refs
         {
           events: {
             compute: eventCompute ?? computeFn,
             priority: eventPriority,
-            connected: canvasRef.current,
+            connected: canvas ?? undefined,
           },
           size: { top: 0, left: 0, width, height },
           onPointerMissed,

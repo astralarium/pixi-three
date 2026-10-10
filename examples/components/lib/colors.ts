@@ -27,3 +27,10 @@ export const pixiRed = {
   950: 0x55021a,
   main: 0xe91e63,
 } as const;
+
+export const PIXI_THREE_STAR = {
+  star1: threeBlue[500],
+  star1Hover: threeBlue[300],
+  star2: pixiRed[600],
+  star2Hover: pixiRed[400],
+} as const;

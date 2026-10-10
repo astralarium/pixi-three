@@ -9,21 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ExampleRouteImport } from './routes/example'
-import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as ExampleRouteImport } from './routes/example'
 import { Route as ExampleIndexRouteImport } from './routes/example/index'
-import { Route as ExampleVideoPreviewRouteImport } from './routes/example/video-preview'
-import { Route as ExampleUnmountContextRouteImport } from './routes/example/unmount-context'
-import { Route as ExampleThreeRenderTextureRouteImport } from './routes/example/three-render-texture'
-import { Route as ExampleThreePointerCaptureRouteImport } from './routes/example/three-pointer-capture'
-import { Route as ExampleDemandRenderingRouteImport } from './routes/example/demand-rendering'
-import { Route as ExampleBijectionsRouteImport } from './routes/example/bijections'
 import { Route as ExampleBasicSceneRouteImport } from './routes/example/basic-scene'
+import { Route as ExampleBijectionsRouteImport } from './routes/example/bijections'
+import { Route as ExampleDemandRenderingRouteImport } from './routes/example/demand-rendering'
+import { Route as ExampleThreePointerCaptureRouteImport } from './routes/example/three-pointer-capture'
+import { Route as ExampleThreeRenderTextureRouteImport } from './routes/example/three-render-texture'
+import { Route as ExampleUnmountContextRouteImport } from './routes/example/unmount-context'
+import { Route as ExampleVideoPreviewRouteImport } from './routes/example/video-preview'
 
-const ExampleRoute = ExampleRouteImport.update({
-  id: '/example',
-  path: '/example',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsRoute = DocsRouteImport.update({
@@ -31,9 +31,9 @@ const DocsRoute = DocsRouteImport.update({
   path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ExampleRoute = ExampleRouteImport.update({
+  id: '/example',
+  path: '/example',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExampleIndexRoute = ExampleIndexRouteImport.update({
@@ -41,31 +41,9 @@ const ExampleIndexRoute = ExampleIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ExampleRoute,
 } as any)
-const ExampleVideoPreviewRoute = ExampleVideoPreviewRouteImport.update({
-  id: '/video-preview',
-  path: '/video-preview',
-  getParentRoute: () => ExampleRoute,
-} as any)
-const ExampleUnmountContextRoute = ExampleUnmountContextRouteImport.update({
-  id: '/unmount-context',
-  path: '/unmount-context',
-  getParentRoute: () => ExampleRoute,
-} as any)
-const ExampleThreeRenderTextureRoute =
-  ExampleThreeRenderTextureRouteImport.update({
-    id: '/three-render-texture',
-    path: '/three-render-texture',
-    getParentRoute: () => ExampleRoute,
-  } as any)
-const ExampleThreePointerCaptureRoute =
-  ExampleThreePointerCaptureRouteImport.update({
-    id: '/three-pointer-capture',
-    path: '/three-pointer-capture',
-    getParentRoute: () => ExampleRoute,
-  } as any)
-const ExampleDemandRenderingRoute = ExampleDemandRenderingRouteImport.update({
-  id: '/demand-rendering',
-  path: '/demand-rendering',
+const ExampleBasicSceneRoute = ExampleBasicSceneRouteImport.update({
+  id: '/basic-scene',
+  path: '/basic-scene',
   getParentRoute: () => ExampleRoute,
 } as any)
 const ExampleBijectionsRoute = ExampleBijectionsRouteImport.update({
@@ -73,9 +51,31 @@ const ExampleBijectionsRoute = ExampleBijectionsRouteImport.update({
   path: '/bijections',
   getParentRoute: () => ExampleRoute,
 } as any)
-const ExampleBasicSceneRoute = ExampleBasicSceneRouteImport.update({
-  id: '/basic-scene',
-  path: '/basic-scene',
+const ExampleDemandRenderingRoute = ExampleDemandRenderingRouteImport.update({
+  id: '/demand-rendering',
+  path: '/demand-rendering',
+  getParentRoute: () => ExampleRoute,
+} as any)
+const ExampleThreePointerCaptureRoute =
+  ExampleThreePointerCaptureRouteImport.update({
+    id: '/three-pointer-capture',
+    path: '/three-pointer-capture',
+    getParentRoute: () => ExampleRoute,
+  } as any)
+const ExampleThreeRenderTextureRoute =
+  ExampleThreeRenderTextureRouteImport.update({
+    id: '/three-render-texture',
+    path: '/three-render-texture',
+    getParentRoute: () => ExampleRoute,
+  } as any)
+const ExampleUnmountContextRoute = ExampleUnmountContextRouteImport.update({
+  id: '/unmount-context',
+  path: '/unmount-context',
+  getParentRoute: () => ExampleRoute,
+} as any)
+const ExampleVideoPreviewRoute = ExampleVideoPreviewRouteImport.update({
+  id: '/video-preview',
+  path: '/video-preview',
   getParentRoute: () => ExampleRoute,
 } as any)
 
@@ -167,11 +167,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/example': {
-      id: '/example'
-      path: '/example'
-      fullPath: '/example'
-      preLoaderRoute: typeof ExampleRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs': {
@@ -181,11 +181,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/example': {
+      id: '/example'
+      path: '/example'
+      fullPath: '/example'
+      preLoaderRoute: typeof ExampleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/example/': {
@@ -195,39 +195,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExampleIndexRouteImport
       parentRoute: typeof ExampleRoute
     }
-    '/example/video-preview': {
-      id: '/example/video-preview'
-      path: '/video-preview'
-      fullPath: '/example/video-preview'
-      preLoaderRoute: typeof ExampleVideoPreviewRouteImport
-      parentRoute: typeof ExampleRoute
-    }
-    '/example/unmount-context': {
-      id: '/example/unmount-context'
-      path: '/unmount-context'
-      fullPath: '/example/unmount-context'
-      preLoaderRoute: typeof ExampleUnmountContextRouteImport
-      parentRoute: typeof ExampleRoute
-    }
-    '/example/three-render-texture': {
-      id: '/example/three-render-texture'
-      path: '/three-render-texture'
-      fullPath: '/example/three-render-texture'
-      preLoaderRoute: typeof ExampleThreeRenderTextureRouteImport
-      parentRoute: typeof ExampleRoute
-    }
-    '/example/three-pointer-capture': {
-      id: '/example/three-pointer-capture'
-      path: '/three-pointer-capture'
-      fullPath: '/example/three-pointer-capture'
-      preLoaderRoute: typeof ExampleThreePointerCaptureRouteImport
-      parentRoute: typeof ExampleRoute
-    }
-    '/example/demand-rendering': {
-      id: '/example/demand-rendering'
-      path: '/demand-rendering'
-      fullPath: '/example/demand-rendering'
-      preLoaderRoute: typeof ExampleDemandRenderingRouteImport
+    '/example/basic-scene': {
+      id: '/example/basic-scene'
+      path: '/basic-scene'
+      fullPath: '/example/basic-scene'
+      preLoaderRoute: typeof ExampleBasicSceneRouteImport
       parentRoute: typeof ExampleRoute
     }
     '/example/bijections': {
@@ -237,11 +209,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExampleBijectionsRouteImport
       parentRoute: typeof ExampleRoute
     }
-    '/example/basic-scene': {
-      id: '/example/basic-scene'
-      path: '/basic-scene'
-      fullPath: '/example/basic-scene'
-      preLoaderRoute: typeof ExampleBasicSceneRouteImport
+    '/example/demand-rendering': {
+      id: '/example/demand-rendering'
+      path: '/demand-rendering'
+      fullPath: '/example/demand-rendering'
+      preLoaderRoute: typeof ExampleDemandRenderingRouteImport
+      parentRoute: typeof ExampleRoute
+    }
+    '/example/three-pointer-capture': {
+      id: '/example/three-pointer-capture'
+      path: '/three-pointer-capture'
+      fullPath: '/example/three-pointer-capture'
+      preLoaderRoute: typeof ExampleThreePointerCaptureRouteImport
+      parentRoute: typeof ExampleRoute
+    }
+    '/example/three-render-texture': {
+      id: '/example/three-render-texture'
+      path: '/three-render-texture'
+      fullPath: '/example/three-render-texture'
+      preLoaderRoute: typeof ExampleThreeRenderTextureRouteImport
+      parentRoute: typeof ExampleRoute
+    }
+    '/example/unmount-context': {
+      id: '/example/unmount-context'
+      path: '/unmount-context'
+      fullPath: '/example/unmount-context'
+      preLoaderRoute: typeof ExampleUnmountContextRouteImport
+      parentRoute: typeof ExampleRoute
+    }
+    '/example/video-preview': {
+      id: '/example/video-preview'
+      path: '/video-preview'
+      fullPath: '/example/video-preview'
+      preLoaderRoute: typeof ExampleVideoPreviewRouteImport
       parentRoute: typeof ExampleRoute
     }
   }

@@ -3,8 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import type { PropsWithChildren } from "react";
 
 import { FadeIn } from "#components/fade-in";
+import { PIXI_THREE_STAR } from "#components/lib/colors";
 import { SpinnyCubeWithStars } from "#components/spinny-cube-with-stars";
-import { PIXI_THREE_STAR } from "#components/spinny-star";
 import { Button } from "#components/ui/button";
 
 export const Route = createFileRoute("/")({

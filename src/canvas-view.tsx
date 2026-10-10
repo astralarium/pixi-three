@@ -125,6 +125,7 @@ function CanvasViewBridged({
   const { tunnel } = useRenderContext();
   const Bridge = useBridge();
   const canvasRef = useRef<HTMLCanvasElement>(null!);
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   useImperativeHandle(canvasRefProp, () => canvasRef.current);
   const containerRef = useRef<Container>(null!);
   const renderTargetRef = useRef<RenderTarget>(null!);
@@ -165,16 +166,10 @@ function CanvasViewBridged({
     ) =>
     (event: E) => {
       userHandler?.(event);
+      // Runs in event handlers only
+      // eslint-disable-next-line react-hooks/refs
       handleEvent(event);
     };
-
-  useEffect(
-    () => () => {
-      renderTargetRef.current.colorTextures[0].destroy();
-      renderTargetRef.current.destroy();
-    },
-    [],
-  );
 
   return (
     <>
@@ -185,6 +180,7 @@ function CanvasViewBridged({
               return;
             }
             canvasRef.current = ref;
+            setCanvas(ref);
             renderTargetRef.current = new RenderTarget({
               width: ref.clientWidth,
               height: ref.clientHeight,
@@ -229,6 +225,7 @@ function CanvasViewBridged({
         <Bridge key={id}>
           <CanvasViewContent
             canvasRef={canvasRef}
+            canvas={canvas}
             containerRef={containerRef}
             renderTargetRef={renderTargetRef}
             frameloop={frameloop}
@@ -246,6 +243,8 @@ function CanvasViewBridged({
 interface CanvasViewContentProps extends PropsWithChildren {
   /** Canvas element ref */
   canvasRef: RefObject<HTMLCanvasElement>;
+  /** Canvas element, null until mounted */
+  canvas: HTMLCanvasElement | null;
   /** Pixi Container ref */
   containerRef: Ref<Container>;
   /** Pixi RenderTarget Ref */
@@ -260,6 +259,7 @@ interface CanvasViewContentProps extends PropsWithChildren {
 
 function CanvasViewContent({
   canvasRef,
+  canvas,
   containerRef: containerRefProp,
   renderTargetRef,
   frameloop,
@@ -288,6 +288,15 @@ function CanvasViewContent({
     width: 1,
     height: 1,
   });
+
+  // Destroyed here, alongside the tick that renders into it
+  useEffect(
+    () => () => {
+      renderTargetRef.current.colorTextures[0].destroy();
+      renderTargetRef.current.destroy();
+    },
+    [renderTargetRef],
+  );
 
   useEffect(
     () =>
@@ -399,6 +408,7 @@ function CanvasViewContent({
     <CanvasViewContentContext
       value={{
         canvasRef,
+        canvas,
         containerRef,
         mapViewportToClient: (viewportPoint, out?) => {
           const canvas = canvasRef.current;

@@ -1,1 +1,1 @@
-export { pagesPreviewConfig as default } from "./vite.config";
+export { pagesPreviewConfig as default } from "./vite.config.ts";

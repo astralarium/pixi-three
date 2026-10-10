@@ -83,17 +83,20 @@ export function PortalContent({
 
   const postProcessor = postProcessing ? postProcessing(state) : null;
   useFrame(
+    // eslint-disable-next-line react-hooks/immutability
     () => {
       if (frameloop === "always" || isFrameRequested?.()) {
         const renderer = state.renderer as unknown as WebGPURenderer;
+        // readonly in @types/three; plain field at runtime
+        const xr = renderer.xr as { isPresenting: boolean };
         const oldAutoClear = renderer.autoClear;
         const oldXrEnabled = renderer.xr.enabled;
-        const oldIsPresenting = renderer.xr.isPresenting;
+        const oldIsPresenting = xr.isPresenting;
         const oldRenderTarget = renderer.getRenderTarget();
         // eslint-disable-next-line react-hooks/immutability
         renderer.autoClear = true;
         renderer.xr.enabled = false;
-        renderer.xr.isPresenting = false;
+        xr.isPresenting = false;
         renderer.setRenderTarget(renderTargetRef.current);
         if (postProcessor) {
           postProcessor.render();
@@ -107,7 +110,7 @@ export function PortalContent({
         renderer.setRenderTarget(oldRenderTarget);
         renderer.autoClear = oldAutoClear;
         renderer.xr.enabled = oldXrEnabled;
-        renderer.xr.isPresenting = oldIsPresenting;
+        xr.isPresenting = oldIsPresenting;
         signalFrame?.();
       }
     },

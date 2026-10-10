@@ -25,6 +25,13 @@ export default defineConfig([
     },
   },
   {
+    // TanStack Router plugin owns route file HMR
+    files: ['examples/routes/**/*.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
     plugins: {
       "simple-import-sort": simpleImportSort,
     },

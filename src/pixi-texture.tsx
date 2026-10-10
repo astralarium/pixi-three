@@ -204,6 +204,7 @@ function PixiTextureBridged({
   return (
     <>
       <pixiTextureTunnel.In>
+        {/* eslint-disable-next-line react-hooks/static-components */}
         <Bridge key={key}>
           <PixiTextureInternal
             parentThreeSceneContext={parentThreeSceneContext}
