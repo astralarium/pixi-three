@@ -8,7 +8,9 @@ in fiber order.
 ## Decisions
 
 - `fiber-tunnel` `^0.2.0`, peer and dev dependency. its-fine stays:
-  `three-fiber.ts` (`useFiber`) and `FiberProvider`.
+  `three-fiber.ts` (`useFiber`) and `FiberProvider`. r3f content keeps a
+  `FiberProvider` (`ThreeRoot`, `ThreeScene`), as r3f's `<Canvas>` does,
+  for r3f libraries that call its-fine.
 - Every tunnel is `fiberTunnel({ bridge: true })`:
   - `src/render-context.tsx`: `canvasViewTunnel`, `threeSceneTunnel`,
     `pixiTextureTunnel`.
