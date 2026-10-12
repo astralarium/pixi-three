@@ -1,5 +1,4 @@
 import { extend, useApplication, useTick } from "@pixi/react";
-import { FiberAnchor } from "fiber-tunnel";
 import { FiberProvider } from "its-fine";
 import {
   CanvasSource,
@@ -91,15 +90,7 @@ export interface CanvasViewProps
  * </RenderContext>
  * ```
  */
-export function CanvasView(props: CanvasViewProps) {
-  return (
-    <FiberAnchor>
-      <CanvasViewBridged {...props} />
-    </FiberAnchor>
-  );
-}
-
-function CanvasViewBridged({
+export function CanvasView({
   className = "h-full w-full",
   fallback,
   children,

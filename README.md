@@ -16,6 +16,19 @@ Integrate 3d objects into 2d scenes.
 npm i @astralarium/pixi-three pixi.js @pixi/react @react-three/fiber three
 ```
 
+Pin one `scheduler` copy, until @pixi/react moves to `scheduler@^0.27`:
+
+```jsonc
+// package.json (npm); yarn: "resolutions"
+"overrides": { "scheduler": "^0.27.0" }
+```
+
+```yaml
+# pnpm-workspace.yaml (pnpm)
+overrides:
+  scheduler: ^0.27.0
+```
+
 ## Usage
 
 - [`<RenderContext>`](https://astralarium.github.io/pixi-three/docs/functions/RenderContext.html): Context manager for all canvas views, which share GPU resources. Contains DOM children, including CanvasView.

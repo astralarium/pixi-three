@@ -2,27 +2,35 @@
 
 A changed ancestor context value re-renders every pixi-three bridge below
 it. At 384 textures (dev build) one unread bump costs ~380 ms. fiber-tunnel
-0.2.0 bridged tunnels re-render only content that reads a changed value,
-in fiber order.
+bridged tunnels re-render only content that reads a changed value, in fiber
+order.
 
 ## Decisions
 
-- `fiber-tunnel` `^0.2.0`, peer and dev dependency. its-fine stays:
+- `fiber-tunnel` `^0.4.0`, peer and dev dependency. its-fine stays:
   `three-fiber.ts` (`useFiber`) and `FiberProvider`. r3f content keeps a
   `FiberProvider` (`ThreeRoot`, `ThreeScene`), as r3f's `<Canvas>` does,
   for r3f libraries that call its-fine.
-- Every tunnel is `fiberTunnel({ bridge: true })`:
+- Every tunnel is `fiberTunnel()`, bridged by default:
   - `src/render-context.tsx`: `canvasViewTunnel`, `threeSceneTunnel`,
     `pixiTextureTunnel`.
   - `src/three-scene.tsx`, `src/three-render-texture.tsx`: `sceneTunnel`.
 - `CanvasView`, `ThreeScene` and `PixiTexture` content wraps in its-fine
-  `FiberProvider`, so `useFiber` resolves in the Out's root.
-- `ThreeRoot` renders `ContextBridge` > `FiberProvider` > children.
+  `FiberProvider`, so `useFiber` resolves in the Out's root. These
+  components carry no `FiberAnchor`: user content reaches the pixi and r3f
+  roots only through bridged Ins. An In rendered directly in either root
+  needs an anchor.
+- `FiberAnchor` wraps `ThreeRoot` and passes its bridge; `ThreeRoot`
+  renders `ContextBridge` > `FiberProvider` > children.
+- One `scheduler` copy: `overrides: scheduler: ^0.27.0`. @pixi/react pins
+  `react-reconciler@0.31.0` (`scheduler@^0.25`); a second Scheduler
+  interleaves pixi and r3f renders, and the two secondary renderers
+  clobber each other's context values. README documents the override for
+  apps.
 - `Bridge`, `BridgeValue` and `useBridge` are deleted, exports included.
 - Errors and suspensions in content reach boundaries above the
   component, as with r3f's `<Canvas>`. `CanvasView` docs note the one
   commit before an urgent suspend's fallback.
-- `plans/texture-redraw.md` points at fiber-tunnel's bridge.
 
 ## Verification
 
@@ -40,19 +48,8 @@ in fiber order.
 
 - `/example/context-bridge` takes a `tiles` parameter and controls for a
   transition bump, a texture mount, and a tile unmount.
-- `FiberAnchor` around `CanvasView`, `PixiTexture` and `ThreeScene` orders
-  nothing: bridged Ins drop the anchor context, so other libraries'
-  tunnels inside content lose order. fiber-tunnel 0.3.0 anchors content
-  at its In (`plans/bridged-content.md` §1). On 0.3.0, pixi-three:
-  - drops `FiberAnchor` entirely, folding `CanvasViewBridged` and
-    `PixiTextureBridged` into their components. User content reaches the
-    pixi and r3f roots only through bridged Ins; an In rendered directly
-    in either root needs the anchors back.
-  - drops `{ bridge: true }`: 0.3.0 bridges by default.
-- Dev error "Detected multiple renderers concurrently rendering the same
-  context provider": every clash is @pixi/react's application context.
-  fiber-tunnel's provider fixes leave it unchanged; cause tracked in
-  fiber-tunnel's `plans/bridged-content.md` §2.
+- Upstream: once @pixi/react's `react-reconciler` uses `scheduler@^0.27`,
+  drop the override and README note.
 - `PixiEventsContext` may be redundant: bridged `RenderContextValue`
   carries `pixiEvents` live.
 - Measure eternal-engine's stress scene (`/debug/zoo/layout/tableau_stress`,

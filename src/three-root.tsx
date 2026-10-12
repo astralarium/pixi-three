@@ -9,7 +9,7 @@ import {
   type ThreeToJSXElements,
   unmountComponentAtNode,
 } from "@react-three/fiber";
-import { ContextBridge, useContextBridge } from "fiber-tunnel";
+import { ContextBridge, type ContextBridgeValue } from "fiber-tunnel";
 import { FiberProvider } from "its-fine";
 import { type WebGPURenderer as PixiWebGPURenderer } from "pixi.js";
 import {
@@ -53,17 +53,20 @@ export interface ThreeRootBaseProps {
 }
 
 /** @internal */
-export type ThreeRootProps = ThreeRootBaseProps & PropsWithChildren;
+export interface ThreeRootProps extends ThreeRootBaseProps, PropsWithChildren {
+  /** Pixi-side providers for the r3f root, from `FiberAnchor` */
+  bridge: ContextBridgeValue;
+}
 
 /** @internal */
 export function ThreeRoot({
+  bridge,
   children,
   eventSource,
   threeRendererParameters,
   onCreated,
   onPointerMissed,
 }: ThreeRootProps) {
-  const bridge = useContextBridge();
   const pixi = useApplication();
   const threeRootRef = useRef<ReconcilerRoot<HTMLCanvasElement>>(null);
   const [cleanupFn, setCleanupFn] = useState<(() => void) | null>(null);

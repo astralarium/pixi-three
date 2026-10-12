@@ -10,7 +10,7 @@ import {
   type RootState,
   useThree,
 } from "@react-three/fiber";
-import { FiberAnchor, type FiberTunnel, fiberTunnel } from "fiber-tunnel";
+import { type FiberTunnel, fiberTunnel } from "fiber-tunnel";
 import { FiberProvider } from "its-fine";
 import {
   type Application,
@@ -215,23 +215,21 @@ export function ThreeScene({
 
   return (
     <pixiContainer {...props} ref={containerRef}>
-      <FiberAnchor>
-        <ThreeSceneSprite
-          containerRef={containerRef}
-          width={width}
-          height={height}
-          resolution={resolution}
-          renderTargetOptions={renderTargetOptions}
-          eventPriority={eventPriority}
-          frameloop={frameloop}
-          eventCompute={eventCompute}
-          postProcessing={postProcessing}
-          fpsLimit={fpsLimit}
-          onPointerMissed={onPointerMissed}
-        >
-          {children}
-        </ThreeSceneSprite>
-      </FiberAnchor>
+      <ThreeSceneSprite
+        containerRef={containerRef}
+        width={width}
+        height={height}
+        resolution={resolution}
+        renderTargetOptions={renderTargetOptions}
+        eventPriority={eventPriority}
+        frameloop={frameloop}
+        eventCompute={eventCompute}
+        postProcessing={postProcessing}
+        fpsLimit={fpsLimit}
+        onPointerMissed={onPointerMissed}
+      >
+        {children}
+      </ThreeSceneSprite>
     </pixiContainer>
   );
 }
@@ -421,7 +419,7 @@ function ThreeSceneSpriteInternal({
     state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
-  const [sceneTunnel] = useState(() => fiberTunnel({ bridge: true }));
+  const [sceneTunnel] = useState(() => fiberTunnel());
 
   function setHitArea(
     hitArea: { contains(x: number, y: number): boolean } | null,

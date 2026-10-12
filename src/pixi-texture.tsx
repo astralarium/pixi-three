@@ -5,7 +5,6 @@ import {
   type DomEvent,
   type RootState,
 } from "@react-three/fiber";
-import { FiberAnchor } from "fiber-tunnel";
 import { FiberProvider } from "its-fine";
 import {
   Container,
@@ -162,15 +161,7 @@ export interface PixiTextureEventData {
  * </RenderContext>
  * ```
  */
-export function PixiTexture(props: PixiTextureProps) {
-  return (
-    <FiberAnchor>
-      <PixiTextureBridged {...props} />
-    </FiberAnchor>
-  );
-}
-
-function PixiTextureBridged({
+export function PixiTexture({
   ref,
   containerRef,
   objectRef,

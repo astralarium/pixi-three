@@ -4,7 +4,7 @@ A context change above many `PixiTexture`s re-renders and redraws every
 one of them. In eternal-engine (96 cards × 4 render textures, dev build),
 one cross-column move:
 
-1. re-renders all 384 `PixiTextureBridged` (~45 ms r3f)
+1. re-renders all 384 `PixiTexture`s (~45 ms r3f)
 2. then a pixi commit re-renders and redraws all 96 cards' text and frame
    textures (~230 ms)
 3. then 384 r3f `Portal`s re-render
@@ -16,7 +16,7 @@ StrictMode keyed reorders trigger the same cascade.
 - `useBridge` → its-fine `useContextMap` reads every ancestor context with
   `use()`. Any ancestor context value change re-renders the bridging
   component.
-- `PixiTextureBridged` and `PixiTextureInternal` ship uncompiled (React
+- `PixiTexture` and `PixiTextureInternal` ship uncompiled (React
   Compiler skips them over `react-hooks` suppressions). Each re-render
   hands the tunnel `In` a new element and rebuilds the
   `CanvasTreeContext` and `PixiTextureContext` values.
@@ -32,7 +32,7 @@ StrictMode keyed reorders trigger the same cascade.
 
 - React context propagation already re-renders only consumers of changed
   values; the fix lets bridged subtrees bail out.
-- fiber-tunnel's bridged tunnels (`fiberTunnel({ bridge: true })`)
+- fiber-tunnel's bridged tunnels (`fiberTunnel()`)
   carry ancestor context and StrictMode from each `In`. Bridged content
   re-renders only where it reads a changed value.
 - `useCanvasTree(invalidate)` returns a memoized `CanvasTreeContext`
@@ -41,7 +41,7 @@ StrictMode keyed reorders trigger the same cascade.
 - `useCanvasTreeSize` publishes a node's size and invalidates it on
   change; `CanvasView` invalidates on every size notification. A stable
   context value ends the accidental redraw that fresh values caused.
-- `PixiTextureBridged` and `ThreeRenderTexture` compile: render reads the
+- `PixiTexture` and `ThreeRenderTexture` compile: render reads the
   `TextureNode` from state; a ref to the same node takes `value` swaps.
   React Compiler caches the `In` element, so an unchanged texture
   produces no pixi commit.

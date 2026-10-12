@@ -1,5 +1,5 @@
 import { Application } from "@pixi/react";
-import { fiberTunnel } from "fiber-tunnel";
+import { FiberAnchor, fiberTunnel } from "fiber-tunnel";
 import { FiberProvider } from "its-fine";
 import type { Application as ApplicationType } from "pixi.js";
 import { type ReactNode, useRef, useState } from "react";
@@ -64,9 +64,9 @@ export function RenderContext({
     }
   }
 
-  const [canvasViewTunnel] = useState(() => fiberTunnel({ bridge: true }));
-  const [threeSceneTunnel] = useState(() => fiberTunnel({ bridge: true }));
-  const [pixiTextureTunnel] = useState(() => fiberTunnel({ bridge: true }));
+  const [canvasViewTunnel] = useState(() => fiberTunnel());
+  const [threeSceneTunnel] = useState(() => fiberTunnel());
+  const [pixiTextureTunnel] = useState(() => fiberTunnel());
 
   return (
     <FiberProvider>
@@ -93,14 +93,19 @@ export function RenderContext({
             <pixiContainer renderable={false}>
               <canvasViewTunnel.Out />
             </pixiContainer>
-            <ThreeRoot
-              eventSource={eventSource ?? eventContainer}
-              threeRendererParameters={threeRendererParameters}
-              onCreated={onCreated}
-              onPointerMissed={onPointerMissed}
-            >
-              <ThreeSceneRenderer />
-            </ThreeRoot>
+            <FiberAnchor>
+              {(bridge) => (
+                <ThreeRoot
+                  bridge={bridge}
+                  eventSource={eventSource ?? eventContainer}
+                  threeRendererParameters={threeRendererParameters}
+                  onCreated={onCreated}
+                  onPointerMissed={onPointerMissed}
+                >
+                  <ThreeSceneRenderer />
+                </ThreeRoot>
+              )}
+            </FiberAnchor>
             <PixiTextureRenderer />
           </Application>
           {children}
