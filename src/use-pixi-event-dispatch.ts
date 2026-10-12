@@ -14,9 +14,7 @@ import {
 import { useRenderContext } from "./render-context-hooks";
 
 /**
- * Context to pass fresh pixiEvents to PixiTextureInternal, bypassing Bridge's stale capture.
- * Bridge captures context values at render time, but pixiEvents is set asynchronously
- * after Application initializes. This context is unknown to Bridge so it won't be overridden.
+ * pixiEvents for PixiTexture content, provided at the pixi texture Out.
  * @internal
  */
 export const PixiEventsContext = createContext<PixiSyntheticEventSystem | null>(

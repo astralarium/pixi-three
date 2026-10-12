@@ -1,7 +1,6 @@
 import "./styles.css";
 
 export * from "./bijections";
-export * from "./bridge";
 export * from "./canvas-tree-context";
 export * from "./canvas-view";
 export * from "./canvas-view-context";
@@ -16,5 +15,4 @@ export * from "./three-render-texture";
 export * from "./three-root";
 export * from "./three-scene";
 export * from "./three-scene-context";
-export * from "./use-bridge";
 export * from "./use-three-render-target";

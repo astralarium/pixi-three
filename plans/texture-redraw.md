@@ -32,9 +32,9 @@ StrictMode keyed reorders trigger the same cascade.
 
 - React context propagation already re-renders only consumers of changed
   values; the fix lets bridged subtrees bail out.
-- `useBridge` returns a `BridgeValue` snapshot (context/value pairs,
-  StrictMode flag). Its identity changes only when a bridged value
-  changes. One module-level `Bridge` component renders it.
+- fiber-tunnel's bridged tunnels (`fiberTunnel({ bridge: true })`)
+  carry ancestor context and StrictMode from each `In`. Bridged content
+  re-renders only where it reads a changed value.
 - `useCanvasTree(invalidate)` returns a memoized `CanvasTreeContext`
   value; `CanvasView`, `ThreeScene`, `ThreeRenderTexture` and
   `PixiTexture` use it.
@@ -43,15 +43,15 @@ StrictMode keyed reorders trigger the same cascade.
   context value ends the accidental redraw that fresh values caused.
 - `PixiTextureBridged` and `ThreeRenderTexture` compile: render reads the
   `TextureNode` from state; a ref to the same node takes `value` swaps.
-  React Compiler caches the `In` element per `BridgeValue`, so an unchanged
-  bridge produces no pixi commit.
+  React Compiler caches the `In` element, so an unchanged texture
+  produces no pixi commit.
 - `ThreeRenderTexture` sets prop defaults in the body; React Compiler
   skips components with destructured defaults.
 - `ThreeSceneContextProvider` builds `mapPixiToNdc`/`mapNdcToPixi` from
   `spriteRef`, so its context value is stable across
   `ThreeSceneSpriteInternal` renders.
-- `ThreeRoot` keeps the latest bridged element in a ref; the async init
-  renders it, and an effect re-renders on bridge or children change.
+- `ThreeRoot` keeps the latest `ContextBridge` element in a ref; the
+  async init renders it, and an effect re-renders on children change.
   (`useEffectEvent` is unavailable: `@pixi/react`'s reconciler predates
   it.)
 - Example `/example/context-bridge` counts tile commits for a context read

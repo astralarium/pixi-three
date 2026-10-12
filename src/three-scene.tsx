@@ -11,6 +11,7 @@ import {
   useThree,
 } from "@react-three/fiber";
 import { FiberAnchor, type FiberTunnel, fiberTunnel } from "fiber-tunnel";
+import { FiberProvider } from "its-fine";
 import {
   type Application,
   Container,
@@ -25,7 +26,6 @@ import {
   type ReactNode,
   type RefObject,
   useEffect,
-  useId,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
@@ -49,7 +49,6 @@ import {
   mapThreeToNdc,
   projectRayToMeshPlaneIntersection,
 } from "./bijections";
-import { Bridge } from "./bridge";
 import { useViewport } from "./canvas-tree-context";
 import {
   CanvasTreeContext,
@@ -69,7 +68,6 @@ import {
   ThreeSceneContext,
   useThreeSceneContextOptional,
 } from "./three-scene-context";
-import { useBridge } from "./use-bridge";
 import { useRenderSchedule } from "./use-render-schedule";
 
 extend({ Container, Sprite });
@@ -244,22 +242,19 @@ interface ThreeSceneSpriteProps extends ThreeSceneBaseProps {
 }
 
 function ThreeSceneSprite(props: ThreeSceneSpriteProps) {
-  const bridge = useBridge();
   const { app } = useApplication();
   const { threeSceneTunnel } = useRenderContext();
   const pixiTextureContext = usePixiTextureContextOptional();
   const parentThreeSceneContext = useThreeSceneContextOptional();
 
-  const key = useId();
-
   const sprite = (
-    <Bridge key={key} {...bridge}>
+    <FiberProvider>
       <ThreeSceneSpriteInternal
         app={app}
         pixiTextureContext={pixiTextureContext}
         {...props}
       />
-    </Bridge>
+    </FiberProvider>
   );
   return parentThreeSceneContext ? (
     <parentThreeSceneContext.sceneTunnel.In>
@@ -426,7 +421,7 @@ function ThreeSceneSpriteInternal({
     state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
-  const [sceneTunnel] = useState(fiberTunnel);
+  const [sceneTunnel] = useState(() => fiberTunnel({ bridge: true }));
 
   function setHitArea(
     hitArea: { contains(x: number, y: number): boolean } | null,

@@ -31,9 +31,8 @@ render textures, dev build), patching pixi-three 0.3.0-alpha.4 onto
   `Out`s each render a copy and log a dev error. Verify across the
   examples.
 - `CanvasView`, `PixiTexture` and `ThreeScene` render a `FiberAnchor`
-  around the component that captures the context bridge (`useBridge`),
-  so content tunneled across their roots by any library (a11y-tree)
-  sorts at the boundary's tree position.
+  around their `In`. Bridged Ins drop the anchor context, so the anchors
+  order nothing; see `plans/bridge-sources.md`.
 - Re-measure eternal-engine with the anchors in place: each anchored
   level adds a walk of its root to every Out render, and the numbers
   above predate anchors.

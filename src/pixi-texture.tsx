@@ -6,6 +6,7 @@ import {
   type RootState,
 } from "@react-three/fiber";
 import { FiberAnchor } from "fiber-tunnel";
+import { FiberProvider } from "its-fine";
 import {
   Container,
   EventBoundary,
@@ -45,7 +46,6 @@ import {
   traceUvToThree,
   traceUvToThreeLocal,
 } from "./bijections";
-import { Bridge } from "./bridge";
 import {
   CanvasTreeContext,
   useCanvasTree,
@@ -59,7 +59,6 @@ import {
   type ThreeSceneContextValue,
   useThreeSceneContext,
 } from "./three-scene-context";
-import { useBridge } from "./use-bridge";
 import { useLazyRef } from "./use-lazy-ref";
 import {
   PixiEventsContext,
@@ -186,10 +185,8 @@ function PixiTextureBridged({
   eventGuard,
   onPointerMissed,
 }: PixiTextureProps) {
-  const bridge = useBridge();
   const { pixiTextureTunnel } = useRenderContext();
   const parentThreeSceneContext = useThreeSceneContext();
-  const key = useId();
 
   const getAttachedObject = useAttachedObject(objectRef);
 
@@ -209,7 +206,7 @@ function PixiTextureBridged({
   return (
     <>
       <pixiTextureTunnel.In>
-        <Bridge key={key} {...bridge}>
+        <FiberProvider>
           <PixiTextureInternal
             parentThreeSceneContext={parentThreeSceneContext}
             getAttachedObject={getAttachedObject}
@@ -226,7 +223,7 @@ function PixiTextureBridged({
           >
             {children}
           </PixiTextureInternal>
-        </Bridge>
+        </FiberProvider>
       </pixiTextureTunnel.In>
       <primitive object={textureNode} attach={attach} />
     </>

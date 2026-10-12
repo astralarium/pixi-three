@@ -9,6 +9,8 @@ import {
   type ThreeToJSXElements,
   unmountComponentAtNode,
 } from "@react-three/fiber";
+import { ContextBridge, useContextBridge } from "fiber-tunnel";
+import { FiberProvider } from "its-fine";
 import { type WebGPURenderer as PixiWebGPURenderer } from "pixi.js";
 import {
   type PropsWithChildren,
@@ -21,9 +23,6 @@ import {
 import { type WebGPURendererParameters } from "three/src/renderers/webgpu/WebGPURenderer.js";
 import * as THREE from "three/webgpu";
 import { WebGPURenderer } from "three/webgpu";
-
-import { Bridge } from "./bridge";
-import { useBridge } from "./use-bridge";
 
 extend(THREE as unknown as ConstructorRepresentation);
 
@@ -64,7 +63,7 @@ export function ThreeRoot({
   onCreated,
   onPointerMissed,
 }: ThreeRootProps) {
-  const bridge = useBridge();
+  const bridge = useContextBridge();
   const pixi = useApplication();
   const threeRootRef = useRef<ReconcilerRoot<HTMLCanvasElement>>(null);
   const [cleanupFn, setCleanupFn] = useState<(() => void) | null>(null);
@@ -72,7 +71,11 @@ export function ThreeRoot({
   // Latest bridged tree; read by the async init below
   const rootElementRef = useRef<ReactNode>(null);
   useEffect(() => {
-    rootElementRef.current = <Bridge {...bridge}>{children}</Bridge>;
+    rootElementRef.current = (
+      <ContextBridge bridge={bridge}>
+        <FiberProvider>{children}</FiberProvider>
+      </ContextBridge>
+    );
     threeRootRef.current?.render(rootElementRef.current);
   }, [bridge, children]);
 

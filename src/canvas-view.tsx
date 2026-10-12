@@ -1,5 +1,6 @@
 import { extend, useApplication, useTick } from "@pixi/react";
 import { FiberAnchor } from "fiber-tunnel";
+import { FiberProvider } from "its-fine";
 import {
   CanvasSource,
   Container,
@@ -14,7 +15,6 @@ import {
   type Ref,
   type RefObject,
   useEffect,
-  useId,
   useImperativeHandle,
   useRef,
   useState,
@@ -24,11 +24,9 @@ import {
   mapClientToViewport,
   mapViewportToClient as mapViewportToClientUtil,
 } from "./bijections";
-import { Bridge } from "./bridge";
 import { CanvasTreeContext, useCanvasTree } from "./canvas-tree-context";
 import { CanvasViewContext as CanvasViewContentContext } from "./canvas-view-context";
 import { useRenderContext } from "./render-context-hooks";
-import { useBridge } from "./use-bridge";
 import { usePixiEventDispatch } from "./use-pixi-event-dispatch";
 import { useRenderSchedule } from "./use-render-schedule";
 
@@ -76,6 +74,9 @@ export interface CanvasViewProps
  *
  * It must be inside a {@link RenderContext} component.
  *
+ * An urgent suspend inside shows the canvas for one commit before the
+ * Suspense fallback.
+ *
  * @category component
  * @param props - Component props
  * @example
@@ -122,9 +123,7 @@ function CanvasViewBridged({
   // Spread remaining canvas props
   ...canvasProps
 }: CanvasViewProps) {
-  const id = useId();
   const { tunnel } = useRenderContext();
-  const bridge = useBridge();
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   useImperativeHandle(canvasRefProp, () => canvasRef.current);
@@ -222,7 +221,7 @@ function CanvasViewBridged({
         </canvas>
       </div>
       <tunnel.In>
-        <Bridge key={id} {...bridge}>
+        <FiberProvider>
           <CanvasViewContent
             canvasRef={canvasRef}
             canvas={canvas}
@@ -234,7 +233,7 @@ function CanvasViewBridged({
           >
             {children}
           </CanvasViewContent>
-        </Bridge>
+        </FiberProvider>
       </tunnel.In>
     </>
   );

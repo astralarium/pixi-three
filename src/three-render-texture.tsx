@@ -381,7 +381,7 @@ export function ThreeRenderTexture({
     state.raycaster.setFromCamera(state.pointer, state.camera);
   }
 
-  const [sceneTunnel] = useState(fiberTunnel);
+  const [sceneTunnel] = useState(() => fiberTunnel({ bridge: true }));
 
   return (
     <>
