@@ -9,6 +9,8 @@ import {
   type Vector3,
 } from "three";
 
+import { type UvTrace } from "./bijections";
+
 /**
  * Intersection result for Plane raycasts.
  * @category hook
@@ -52,21 +54,17 @@ export interface ThreeViewParentThreeContextValue {
    */
   mapThreeToParentUv: (vec3: Vector3, out?: Vector2) => Vector2;
   /**
-   * Maps a Three.js world position to local coordinates on the parent Three mesh surface.
-   * With several attached meshes, uses the first in `objectRef` order whose surface holds the UV.
+   * Maps a Three.js world position to local coordinates on the attached parent mesh surfaces.
    * @param vec3 - Three.js Vector3 in world coordinates
-   * @param out - Optional Vector3 to store the result in local mesh coords
-   * @returns The local Vector3
+   * @returns Array of results with position/normal in each result's `mesh` local coords
    */
-  mapThreeToParentThreeLocal: (vec3: Vector3, out?: Vector3) => Vector3;
+  traceThreeToParentThreeLocal: (vec3: Vector3) => UvTrace[];
   /**
    * Maps a Three.js world position to world coordinates in the parent Three scene.
-   * With several attached meshes, uses the first in `objectRef` order whose surface holds the UV.
    * @param vec3 - Three.js Vector3 in world coordinates
-   * @param out - Optional Vector3 to store the result in parent world coords
-   * @returns The world Vector3
+   * @returns Array of results with position/normal in parent world coords
    */
-  mapThreeToParentThree: (vec3: Vector3, out?: Vector3) => Vector3;
+  traceThreeToParentThree: (vec3: Vector3) => UvTrace[];
 }
 
 /**
@@ -97,16 +95,20 @@ export interface ThreeSceneContextValue {
   mapNdcToPixi: (ndc: Vector2, out?: Point) => Point | null;
   /**
    * Maps a Three.js world position to local Pixi sprite coordinates.
+   * In a ThreeRenderTexture, maps through the first parent trace.
    * @param vec3 - Three.js Vector3 in world coordinates
    * @param out - Optional Pixi Point to store the result in local sprite coords
    * @returns The Pixi Point, or null if the scene sprite is destroyed (during teardown)
+   *   or the position maps off every attached surface
    */
   mapThreeToParentPixiLocal: (vec3: Vector3, out?: Point) => Point | null;
   /**
    * Maps a Three.js world position to global Pixi parent coordinates.
+   * In a ThreeRenderTexture, maps through the first parent trace.
    * @param vec3 - Three.js Vector3 in world coordinates
    * @param out - Optional Pixi Point to store the result in global Pixi coords
    * @returns The Pixi Point, or null if the scene sprite is destroyed (during teardown)
+   *   or the position maps off every attached surface
    */
   mapThreeToParentPixi: (vec3: Vector3, out?: Point) => Point | null;
   /**

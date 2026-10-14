@@ -191,7 +191,6 @@ export function ThreeRenderTexture({
 
   const _ndc = new Vector2();
   const _uv = new Vector2();
-  const _threeParent = new Vector3();
   const [raycaster] = useState(() => new Raycaster());
 
   function mapThreeToParentUv(vec3: Vector3, out?: Vector2) {
@@ -202,52 +201,58 @@ export function ThreeRenderTexture({
     return mapNdcToUv(_ndc, out);
   }
 
-  function mapThreeToParentThreeLocal(vec3: Vector3, out?: Vector3) {
-    const result = out ?? new Vector3();
+  function traceThreeToParentThreeLocal(vec3: Vector3) {
     mapThreeToParentUv(vec3, _uv);
 
-    // UV to local position on the first attached mesh surface holding it
-    for (const object of getAttachedObjects()) {
-      if (!(object instanceof Mesh)) continue;
-      const [trace] = traceUvToThreeLocal(_uv, object);
-      if (trace) return result.copy(trace.position);
-    }
-    // UV off every mesh surface: pass vec3 through
-    return result.copy(vec3);
+    return getAttachedObjects().flatMap((object) =>
+      object instanceof Mesh ? traceUvToThreeLocal(_uv, object) : [],
+    );
   }
 
-  function mapThreeToParentThree(vec3: Vector3, out?: Vector3) {
-    const result = out ?? new Vector3();
+  function traceThreeToParentThree(vec3: Vector3) {
     mapThreeToParentUv(vec3, _uv);
 
-    // UV to world position on the first attached mesh surface holding it
-    for (const object of getAttachedObjects()) {
-      if (!(object instanceof Mesh)) continue;
-      const [trace] = traceUvToThree(_uv, object);
-      if (trace) return result.copy(trace.position);
-    }
-    // UV off every mesh surface: pass vec3 through
-    return result.copy(vec3);
+    return getAttachedObjects().flatMap((object) =>
+      object instanceof Mesh ? traceUvToThree(_uv, object) : [],
+    );
   }
 
   function mapThreeToParentPixiLocal(vec3: Vector3, out?: Point) {
-    mapThreeToParentThree(vec3, _threeParent);
-    return parentThreeSceneContext.mapThreeToParentPixiLocal(_threeParent, out);
+    const [trace] = traceThreeToParentThree(vec3);
+    if (!trace) return null;
+    return parentThreeSceneContext.mapThreeToParentPixiLocal(
+      trace.position,
+      out,
+    );
   }
 
   function mapThreeToParentPixi(vec3: Vector3, out?: Point) {
-    mapThreeToParentThree(vec3, _threeParent);
-    return parentThreeSceneContext.mapThreeToParentPixi(_threeParent, out);
+    const [trace] = traceThreeToParentThree(vec3);
+    if (!trace) return null;
+    return parentThreeSceneContext.mapThreeToParentPixi(trace.position, out);
+  }
+
+  /** Projects every parent trace of vec3; `out` holds the first point */
+  function projectTraces(
+    vec3: Vector3,
+    out: Point | undefined,
+    project: (vec: Vector3, out?: Point) => Point[],
+  ) {
+    const points: Point[] = [];
+    for (const trace of traceThreeToParentThree(vec3)) {
+      points.push(
+        ...project(trace.position, points.length === 0 ? out : undefined),
+      );
+    }
+    return points;
   }
 
   function mapThreeToViewport(vec3: Vector3, out?: Point) {
-    mapThreeToParentThree(vec3, _threeParent);
-    return parentThreeSceneContext.mapThreeToViewport(_threeParent, out);
+    return projectTraces(vec3, out, parentThreeSceneContext.mapThreeToViewport);
   }
 
   function mapThreeToClient(vec3: Vector3, out?: Point) {
-    mapThreeToParentThree(vec3, _threeParent);
-    return parentThreeSceneContext.mapThreeToClient(_threeParent, out);
+    return projectTraces(vec3, out, parentThreeSceneContext.mapThreeToClient);
   }
 
   function mapClientToNdc(
@@ -383,8 +388,8 @@ export function ThreeRenderTexture({
             raycastViewport,
             parentThree: {
               mapThreeToParentUv,
-              mapThreeToParentThreeLocal,
-              mapThreeToParentThree,
+              traceThreeToParentThreeLocal,
+              traceThreeToParentThree,
             },
           }}
         >
