@@ -69,6 +69,7 @@ import {
   ThreeSceneContext,
   useThreeSceneContextOptional,
 } from "./three-scene-context";
+import { useLazyRef } from "./use-lazy-ref";
 import { useRenderSchedule } from "./use-render-schedule";
 
 extend({ Container, Sprite });
@@ -89,6 +90,11 @@ function createSprite(renderer: Renderer) {
 function liveSprite(spriteRef: RefObject<Sprite | null>) {
   const sprite = spriteRef.current;
   return sprite && !sprite.destroyed ? sprite : null;
+}
+
+/** Whether any r3f object holds capture of this pointer */
+function isPointerCaptured(state: RootState, pointerId: number) {
+  return (state.internal.pointerMap.get(pointerId)?.captured.size ?? 0) > 0;
 }
 
 /** Maps sprite-local Pixi coords to the scene's NDC */
@@ -306,6 +312,9 @@ function ThreeSceneSpriteInternal({
 
   const hitAreaRef = useRef<IHitArea | null>(null);
   const spriteRef = useRef<Sprite | null>(null);
+  // Last attached mesh hit per live or captured pointer;
+  // captured drags off that mesh extend its plane
+  const lastHitsRef = useLazyRef(() => new Map<number, Mesh>());
 
   // Single owner: create on mount / renderer change, destroy + null the ref
   // on cleanup. StrictMode/Activity effects-remounts destroy and recreate
@@ -360,26 +369,37 @@ function ThreeSceneSpriteInternal({
     }
     const pointerId = (event as PointerEvent).pointerId;
     const isCaptured =
-      pointerId !== undefined && state.internal.capturedMap.has(pointerId);
+      pointerId !== undefined && isPointerCaptured(state, pointerId);
 
     if (pixiTextureContext) {
       if (!previous) {
         return false;
       }
-      if (!computeParent(event, previous) && !isCaptured) {
+      // Parent miss leaves its ray stale; parent ThreeScenes stay hit while captured
+      if (!computeParent(event, previous)) {
         return false;
       }
-      const parent = pixiTextureContext.getAttachedObject();
-      if (!parent) {
-        return false;
+      const lastHits = lastHitsRef.current;
+      for (const id of lastHits.keys()) {
+        if (id !== pointerId && !isPointerCaptured(state, id)) {
+          lastHits.delete(id);
+        }
       }
-      const [intersection] = previous.raycaster.intersectObject(parent, false);
+      // Captured drags stay on the mesh where capture began
+      const capturedMesh = isCaptured ? lastHits.get(pointerId) : undefined;
+      const [intersection] = previous.raycaster.intersectObjects(
+        capturedMesh ? [capturedMesh] : pixiTextureContext.getAttachedObjects(),
+        false,
+      );
       if (intersection?.uv) {
+        if (pointerId !== undefined && intersection.object instanceof Mesh) {
+          lastHits.set(pointerId, intersection.object);
+        }
         pixiTextureContext.mapUvToPixi(intersection.uv, globalPos);
-      } else if (isCaptured && parent instanceof Mesh) {
+      } else if (capturedMesh) {
         const extendedIntersection = projectRayToMeshPlaneIntersection(
           previous.raycaster.ray,
-          parent,
+          capturedMesh,
         );
         if (!extendedIntersection?.uv) {
           return false;

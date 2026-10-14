@@ -47,7 +47,7 @@ import {
   useCanvasTree,
   useCanvasTreeSize,
 } from "./canvas-tree-context";
-import { computeParent, useAttachedObject } from "./three-fiber";
+import { computeParent, useAttachedObjects } from "./three-fiber";
 import { PortalContent } from "./three-portal-content";
 import {
   type RaycastResult,
@@ -72,10 +72,11 @@ export interface ThreeRenderTextureProps {
    */
   attach?: AttachType;
   /**
-   * Optional {@link https://threejs.org/docs/#Object3D | Object3D} whose UVs map events onto this texture,
-   * defaults to the nearest ancestor Object3D. Raycasts that object alone.
+   * Optional {@link https://threejs.org/docs/#Object3D | Object3D}s whose UVs map events onto this texture,
+   * defaults to the nearest ancestor Object3D. Raycasts these objects alone; null hits nothing.
+   * Pass an array to share this texture across many meshes.
    */
-  objectRef?: RefObject<Object3D | null>;
+  objectRef?: RefObject<Object3D | Object3D[] | null>;
   /** Optional width of the texture, defaults to canvas parent bounds */
   width?: number;
   /** Optional height of the texture, defaults to canvas parent bounds */
@@ -167,7 +168,7 @@ export function ThreeRenderTexture({
   const textureRef = useRef(textureNode);
   const { camera } = useThree();
 
-  const getAttachedObject = useAttachedObject(objectRef);
+  const getAttachedObjects = useAttachedObjects(objectRef);
 
   useImperativeHandle(ref, () => textureNode);
 
@@ -205,46 +206,28 @@ export function ThreeRenderTexture({
     const result = out ?? new Vector3();
     mapThreeToParentUv(vec3, _uv);
 
-    // Get attached mesh and convert UV to local position on mesh surface
-    const object = getAttachedObject();
-    if (!object || !(object instanceof Mesh)) {
-      // Fallback: can't map without mesh
-      result.copy(vec3);
-      return result;
+    // UV to local position on the first attached mesh surface holding it
+    for (const object of getAttachedObjects()) {
+      if (!(object instanceof Mesh)) continue;
+      const [trace] = traceUvToThreeLocal(_uv, object);
+      if (trace) return result.copy(trace.position);
     }
-
-    const results = traceUvToThreeLocal(_uv, object);
-    if (results.length === 0) {
-      // UV not on mesh surface, fallback
-      result.copy(vec3);
-      return result;
-    }
-
-    result.copy(results[0].position);
-    return result;
+    // UV off every mesh surface: pass vec3 through
+    return result.copy(vec3);
   }
 
   function mapThreeToParentThree(vec3: Vector3, out?: Vector3) {
     const result = out ?? new Vector3();
     mapThreeToParentUv(vec3, _uv);
 
-    // Get attached mesh and convert UV to world position
-    const object = getAttachedObject();
-    if (!object || !(object instanceof Mesh)) {
-      // Fallback: can't map without mesh
-      result.copy(vec3);
-      return result;
+    // UV to world position on the first attached mesh surface holding it
+    for (const object of getAttachedObjects()) {
+      if (!(object instanceof Mesh)) continue;
+      const [trace] = traceUvToThree(_uv, object);
+      if (trace) return result.copy(trace.position);
     }
-
-    const results = traceUvToThree(_uv, object);
-    if (results.length === 0) {
-      // UV not on mesh surface, fallback
-      result.copy(vec3);
-      return result;
-    }
-
-    result.copy(results[0].position);
-    return result;
+    // UV off every mesh surface: pass vec3 through
+    return result.copy(vec3);
   }
 
   function mapThreeToParentPixiLocal(vec3: Vector3, out?: Point) {
@@ -271,11 +254,9 @@ export function ThreeRenderTexture({
     client: Point | { clientX: number; clientY: number },
     out?: Vector2,
   ) {
-    const object = getAttachedObject();
-    if (!object) return null;
     const intersections = parentThreeSceneContext.raycastClient(
       client,
-      object,
+      getAttachedObjects(),
       false,
     );
     const uv = intersections[0]?.uv;
@@ -286,11 +267,9 @@ export function ThreeRenderTexture({
   }
 
   function mapViewportToNdc(viewport: Point, out?: Vector2) {
-    const object = getAttachedObject();
-    if (!object) return null;
     const intersections = parentThreeSceneContext.raycastViewport(
       viewport,
-      object,
+      getAttachedObjects(),
       false,
     );
     const uv = intersections[0]?.uv;
@@ -367,11 +346,10 @@ export function ThreeRenderTexture({
     if (!computeParent(event, previous)) {
       return false;
     }
-    const parent = getAttachedObject();
-    if (!parent) {
-      return false;
-    }
-    const [intersection] = previous.raycaster.intersectObject(parent, false);
+    const [intersection] = previous.raycaster.intersectObjects(
+      getAttachedObjects(),
+      false,
+    );
     if (!intersection) {
       return false;
     }

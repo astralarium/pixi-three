@@ -15,7 +15,7 @@ export interface PixiTextureContextValue {
   width: number;
   height: number;
   containerRef: RefObject<Container>;
-  getAttachedObject: () => Object3D | undefined;
+  getAttachedObjects: () => Object3D[];
   /**
    * Hit tests a point against the Pixi container tree.
    * @param x - X coordinate in Pixi texture space

@@ -53,7 +53,7 @@ import {
 import { useCanvasView } from "./canvas-view-context";
 import { PixiTextureContext } from "./pixi-texture-context";
 import { useRenderContext } from "./render-context-hooks";
-import { computeParent, useAttachedObject } from "./three-fiber";
+import { computeParent, useAttachedObjects } from "./three-fiber";
 import {
   type ThreeSceneContextValue,
   useThreeSceneContext,
@@ -97,10 +97,11 @@ export interface PixiTextureProps extends PropsWithChildren {
    */
   containerRef?: Ref<Container>;
   /**
-   * Optional {@link https://threejs.org/docs/#Object3D | Object3D} whose UVs map events onto this texture,
-   * defaults to the nearest ancestor Object3D. Raycasts that object alone.
+   * Optional {@link https://threejs.org/docs/#Object3D | Object3D}s whose UVs map events onto this texture,
+   * defaults to the nearest ancestor Object3D. Raycasts these objects alone; null hits nothing.
+   * Pass an array to share this texture across many meshes.
    */
-  objectRef?: RefObject<Object3D | null>;
+  objectRef?: RefObject<Object3D | Object3D[] | null>;
   /**
    * TextureNode {@link https://r3f.docs.pmnd.rs/api/objects#attach | React Three Fiber attach}
    */
@@ -180,7 +181,7 @@ export function PixiTexture({
   const { pixiTextureTunnel } = useRenderContext();
   const parentThreeSceneContext = useThreeSceneContext();
 
-  const getAttachedObject = useAttachedObject(objectRef);
+  const getAttachedObjects = useAttachedObjects(objectRef);
 
   const [textureNode] = useState(() => texture(new Texture()));
   // Same node; the pixi side swaps its `value` through this ref
@@ -201,7 +202,7 @@ export function PixiTexture({
         <FiberProvider>
           <PixiTextureInternal
             parentThreeSceneContext={parentThreeSceneContext}
-            getAttachedObject={getAttachedObject}
+            getAttachedObjects={getAttachedObjects}
             textureRef={textureRef}
             containerRef={containerRef}
             width={width}
@@ -228,15 +229,15 @@ interface PixiTextureInternalProps extends Omit<
 > {
   /** Parent Three Scene Context */
   parentThreeSceneContext: ThreeSceneContextValue;
-  /** Get attached object */
-  getAttachedObject: () => Object3D | undefined;
+  /** Get attached objects */
+  getAttachedObjects: () => Object3D[];
   /** TextureNode Ref */
   textureRef: RefObject<TextureNode>;
 }
 
 function PixiTextureInternal({
   parentThreeSceneContext,
-  getAttachedObject,
+  getAttachedObjects,
   containerRef: containerRefProp,
   children,
   textureRef,
@@ -279,10 +280,10 @@ function PixiTextureInternal({
       return false;
     }
 
-    const object = getAttachedObject();
-    if (!object) return false;
-
-    const intersections = previous.raycaster.intersectObject(object, false);
+    const intersections = previous.raycaster.intersectObjects(
+      getAttachedObjects(),
+      false,
+    );
     const testGuard = eventGuard?.({ intersections }) ?? true;
     const [intersection] = intersections;
     const uv = intersection?.uv;
@@ -372,25 +373,17 @@ function PixiTextureInternal({
   function tracePixiToParentThreeLocal(point: Point) {
     mapPixiToParentUv(point, _uv);
 
-    // Get attached mesh and convert UV to local positions on mesh surface
-    const object = getAttachedObject();
-    if (!object || !(object instanceof Mesh)) {
-      return [];
-    }
-
-    return traceUvToThreeLocal(_uv, object);
+    return getAttachedObjects().flatMap((object) =>
+      object instanceof Mesh ? traceUvToThreeLocal(_uv, object) : [],
+    );
   }
 
   function tracePixiToParentThree(point: Point) {
     mapPixiToParentUv(point, _uv);
 
-    // Get attached mesh and convert UV to world positions
-    const object = getAttachedObject();
-    if (!object || !(object instanceof Mesh)) {
-      return [];
-    }
-
-    return traceUvToThree(_uv, object);
+    return getAttachedObjects().flatMap((object) =>
+      object instanceof Mesh ? traceUvToThree(_uv, object) : [],
+    );
   }
 
   const _threeParent = new Vector3();
@@ -444,11 +437,9 @@ function PixiTextureInternal({
     client: Point | { clientX: number; clientY: number },
     out?: Point,
   ) {
-    const object = getAttachedObject();
-    if (!object) return null;
     const intersections = parentThreeSceneContext.raycastClient(
       client,
-      object,
+      getAttachedObjects(),
       false,
     );
     const uv = intersections[0]?.uv;
@@ -461,11 +452,9 @@ function PixiTextureInternal({
   }
 
   function mapViewportToPixi(viewport: Point, out?: Point) {
-    const object = getAttachedObject();
-    if (!object) return null;
     const intersections = parentThreeSceneContext.raycastViewport(
       viewport,
-      object,
+      getAttachedObjects(),
       false,
     );
     const uv = intersections[0]?.uv;
@@ -500,7 +489,7 @@ function PixiTextureInternal({
             width,
             height,
             containerRef,
-            getAttachedObject,
+            getAttachedObjects,
             hitTest,
             mapUvToPixi,
             mapPixiToParentUv,

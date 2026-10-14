@@ -7,26 +7,33 @@ import { traverseFiber, useFiber } from "its-fine";
 import { type RefObject } from "react";
 import { type Camera, Object3D } from "three";
 
-/** @internal */
-export function useAttachedObject(objectRef?: RefObject<Object3D | null>) {
+/**
+ * Resolves the objects whose UVs map events onto a texture:
+ * `objectRef` when given, else the nearest ancestor Object3D.
+ * @internal
+ */
+export function useAttachedObjects(
+  objectRef?: RefObject<Object3D | Object3D[] | null>,
+) {
   const fiber = useFiber();
-  return function getAttachedObject() {
-    if (objectRef?.current) {
-      return objectRef.current;
-    } else {
-      return (
-        traverseFiber(fiber, true, (node) => {
-          return (
-            (node.stateNode as Instance<unknown>)?.object instanceof Object3D
-          );
-        })?.stateNode as Instance<Object3D> | undefined
-      )?.object;
+  return function getAttachedObjects(): Object3D[] {
+    if (objectRef) {
+      const current = objectRef.current;
+      if (current == null) return [];
+      return Array.isArray(current) ? current : [current];
     }
+    const object = (
+      traverseFiber(fiber, true, (node) => {
+        return (
+          (node.stateNode as Instance<unknown>)?.object instanceof Object3D
+        );
+      })?.stateNode as Instance<Object3D> | undefined
+    )?.object;
+    return object ? [object] : [];
   };
 }
 
 /**
- * @internal
  * Runs the parent root's compute at most once per event.
  *
  * Shares r3f's per-event cache: r3f resets `raycaster.camera` to undefined on
@@ -34,6 +41,7 @@ export function useAttachedObject(objectRef?: RefObject<Object3D | null>) {
  * to own an interactive object, as pixi-three portals do.
  *
  * @returns Whether the parent raycaster holds this event's ray
+ * @internal
  */
 export function computeParent(event: DomEvent, previous: RootState) {
   const raycaster = previous.raycaster as { camera: Camera | null | undefined };

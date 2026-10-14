@@ -49,6 +49,11 @@ export const EXAMPLES: readonly ExampleMeta[] = [
     description: "Pointer cost per event across many textures",
   },
   {
+    label: "Shared Texture",
+    to: "/example/shared-texture",
+    description: "One Pixi texture with events across many meshes",
+  },
+  {
     label: "Unmount Context",
     to: "/example/unmount-context",
     description: "Unmount the <RenderContext>",

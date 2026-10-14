@@ -53,6 +53,7 @@ export interface ThreeViewParentThreeContextValue {
   mapThreeToParentUv: (vec3: Vector3, out?: Vector2) => Vector2;
   /**
    * Maps a Three.js world position to local coordinates on the parent Three mesh surface.
+   * With several attached meshes, uses the first in `objectRef` order whose surface holds the UV.
    * @param vec3 - Three.js Vector3 in world coordinates
    * @param out - Optional Vector3 to store the result in local mesh coords
    * @returns The local Vector3
@@ -60,6 +61,7 @@ export interface ThreeViewParentThreeContextValue {
   mapThreeToParentThreeLocal: (vec3: Vector3, out?: Vector3) => Vector3;
   /**
    * Maps a Three.js world position to world coordinates in the parent Three scene.
+   * With several attached meshes, uses the first in `objectRef` order whose surface holds the UV.
    * @param vec3 - Three.js Vector3 in world coordinates
    * @param out - Optional Vector3 to store the result in parent world coords
    * @returns The world Vector3

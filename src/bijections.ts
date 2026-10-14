@@ -299,6 +299,8 @@ export function disposeBvh(geometry: BufferGeometry): void {
  * @category bijection
  */
 export interface UvTrace {
+  /** Mesh whose surface holds this trace */
+  mesh: Mesh;
   position: Vector3;
   normal: Vector3;
   faceIndex: number;
@@ -325,7 +327,7 @@ export function traceUvToThreeLocal(
   const results: UvTrace[] = [];
 
   if (faceIndex !== undefined) {
-    const result = traceTriangle(faceIndex, uv, mesh.geometry);
+    const result = traceTriangle(faceIndex, uv, mesh);
     if (result) {
       results.push(result);
     }
@@ -338,7 +340,7 @@ export function traceUvToThreeLocal(
   bvh.shapecast({
     intersectsBounds: (box) => box.containsPoint(_queryPoint),
     intersectsTriangle: (_tri, triFaceIndex) => {
-      const result = traceTriangle(triFaceIndex, uv, mesh.geometry);
+      const result = traceTriangle(triFaceIndex, uv, mesh);
       if (result) {
         results.push(result);
       }
@@ -373,6 +375,7 @@ export function traceUvToThree(
     worldNormal.transformDirection(mesh.matrixWorld);
 
     return {
+      mesh,
       position: worldPosition,
       normal: worldNormal,
       faceIndex,
@@ -390,8 +393,9 @@ const _normal = new Vector3();
 function traceTriangle(
   faceIndex: number,
   uv: Vector2,
-  geometry: BufferGeometry,
+  mesh: Mesh,
 ): UvTrace | null {
+  const geometry = mesh.geometry;
   const uvAttr = geometry.getAttribute("uv");
   const posAttr = geometry.getAttribute("position");
   const normAttr = geometry.getAttribute("normal");
@@ -426,6 +430,7 @@ function traceTriangle(
   const barycentric = _bary.clone();
 
   return {
+    mesh,
     position,
     normal,
     faceIndex,
