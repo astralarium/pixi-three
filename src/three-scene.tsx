@@ -62,6 +62,7 @@ import {
   usePixiViewContext,
 } from "./pixi-texture-context";
 import { useRenderContext } from "./render-context-hooks";
+import { computeParent } from "./three-fiber";
 import { PortalContent } from "./three-portal-content";
 import {
   type RaycastResult,
@@ -365,19 +366,14 @@ function ThreeSceneSpriteInternal({
       if (!previous) {
         return false;
       }
-      const status = previous.events.compute?.(
-        event,
-        previous,
-        previous.previousRoot?.getState(),
-      ) as void | false;
-      if (status === false && !isCaptured) {
+      if (!computeParent(event, previous) && !isCaptured) {
         return false;
       }
       const parent = pixiTextureContext.getAttachedObject();
       if (!parent) {
         return false;
       }
-      const [intersection] = previous.raycaster.intersectObject(parent);
+      const [intersection] = previous.raycaster.intersectObject(parent, false);
       if (intersection?.uv) {
         pixiTextureContext.mapUvToPixi(intersection.uv, globalPos);
       } else if (isCaptured && parent instanceof Mesh) {

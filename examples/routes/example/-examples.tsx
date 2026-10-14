@@ -44,6 +44,11 @@ export const EXAMPLES: readonly ExampleMeta[] = [
     description: "Textures redraw only for contexts they read",
   },
   {
+    label: "Event Cost",
+    to: "/example/event-cost",
+    description: "Pointer cost per event across many textures",
+  },
+  {
     label: "Unmount Context",
     to: "/example/unmount-context",
     description: "Unmount the <RenderContext>",

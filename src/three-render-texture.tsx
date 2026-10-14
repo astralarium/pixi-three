@@ -47,7 +47,7 @@ import {
   useCanvasTree,
   useCanvasTreeSize,
 } from "./canvas-tree-context";
-import { useAttachedObject } from "./three-fiber";
+import { computeParent, useAttachedObject } from "./three-fiber";
 import { PortalContent } from "./three-portal-content";
 import {
   type RaycastResult,
@@ -72,9 +72,10 @@ export interface ThreeRenderTextureProps {
    */
   attach?: AttachType;
   /**
-   * Optional {@link https://threejs.org/docs/#Object3D | Object3D} for event computation, defaults to fiber parent if any
+   * Optional {@link https://threejs.org/docs/#Object3D | Object3D} whose UVs map events onto this texture,
+   * defaults to the nearest ancestor Object3D. Raycasts that object alone.
    */
-  objectRef?: RefObject<Object3D>;
+  objectRef?: RefObject<Object3D | null>;
   /** Optional width of the texture, defaults to canvas parent bounds */
   width?: number;
   /** Optional height of the texture, defaults to canvas parent bounds */
@@ -270,9 +271,12 @@ export function ThreeRenderTexture({
     client: Point | { clientX: number; clientY: number },
     out?: Vector2,
   ) {
+    const object = getAttachedObject();
+    if (!object) return null;
     const intersections = parentThreeSceneContext.raycastClient(
       client,
-      getAttachedObject(),
+      object,
+      false,
     );
     const uv = intersections[0]?.uv;
     if (uv) {
@@ -282,9 +286,12 @@ export function ThreeRenderTexture({
   }
 
   function mapViewportToNdc(viewport: Point, out?: Vector2) {
+    const object = getAttachedObject();
+    if (!object) return null;
     const intersections = parentThreeSceneContext.raycastViewport(
       viewport,
-      getAttachedObject(),
+      object,
+      false,
     );
     const uv = intersections[0]?.uv;
     if (uv) {
@@ -357,19 +364,14 @@ export function ThreeRenderTexture({
     if (!previous) {
       return false;
     }
-    const status = previous.events.compute?.(
-      event,
-      previous,
-      previous.previousRoot?.getState(),
-    ) as void | false;
-    if (status === false) {
+    if (!computeParent(event, previous)) {
       return false;
     }
     const parent = getAttachedObject();
     if (!parent) {
       return false;
     }
-    const [intersection] = previous.raycaster.intersectObject(parent) ?? [];
+    const [intersection] = previous.raycaster.intersectObject(parent, false);
     if (!intersection) {
       return false;
     }

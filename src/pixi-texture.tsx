@@ -53,7 +53,7 @@ import {
 import { useCanvasView } from "./canvas-view-context";
 import { PixiTextureContext } from "./pixi-texture-context";
 import { useRenderContext } from "./render-context-hooks";
-import { useAttachedObject } from "./three-fiber";
+import { computeParent, useAttachedObject } from "./three-fiber";
 import {
   type ThreeSceneContextValue,
   useThreeSceneContext,
@@ -97,9 +97,10 @@ export interface PixiTextureProps extends PropsWithChildren {
    */
   containerRef?: Ref<Container>;
   /**
-   * Optional {@link https://threejs.org/docs/#Object3D | Object3D} for event computation, defaults to fiber parent if any
+   * Optional {@link https://threejs.org/docs/#Object3D | Object3D} whose UVs map events onto this texture,
+   * defaults to the nearest ancestor Object3D. Raycasts that object alone.
    */
-  objectRef?: RefObject<Object3D>;
+  objectRef?: RefObject<Object3D | null>;
   /**
    * TextureNode {@link https://r3f.docs.pmnd.rs/api/objects#attach | React Three Fiber attach}
    */
@@ -268,16 +269,9 @@ function PixiTextureInternal({
   function computeFn(event: DomEvent, _state: RootState, previous?: RootState) {
     if (!previous) return false;
 
-    // Call parent's compute first to set up raycaster
-    const status = previous.events.compute?.(
-      event,
-      previous,
-      previous.previousRoot?.getState(),
-    ) as void | false;
-
-    // If parent compute returns false (e.g., pointer not over ThreeScene sprite),
-    // we still need to dispatch null if we were previously over
-    if (status === false) {
+    // Parent miss (e.g., pointer outside the ThreeScene sprite) still
+    // dispatches null if we were previously over
+    if (!computeParent(event, previous)) {
       if (wasOverRef.current) {
         dispatchEvent(event, null);
         wasOverRef.current = false;
@@ -288,7 +282,7 @@ function PixiTextureInternal({
     const object = getAttachedObject();
     if (!object) return false;
 
-    const intersections = previous.raycaster.intersectObject(object);
+    const intersections = previous.raycaster.intersectObject(object, false);
     const testGuard = eventGuard?.({ intersections }) ?? true;
     const [intersection] = intersections;
     const uv = intersection?.uv;
@@ -450,9 +444,12 @@ function PixiTextureInternal({
     client: Point | { clientX: number; clientY: number },
     out?: Point,
   ) {
+    const object = getAttachedObject();
+    if (!object) return null;
     const intersections = parentThreeSceneContext.raycastClient(
       client,
-      getAttachedObject(),
+      object,
+      false,
     );
     const uv = intersections[0]?.uv;
     if (uv) {
@@ -464,9 +461,12 @@ function PixiTextureInternal({
   }
 
   function mapViewportToPixi(viewport: Point, out?: Point) {
+    const object = getAttachedObject();
+    if (!object) return null;
     const intersections = parentThreeSceneContext.raycastViewport(
       viewport,
-      getAttachedObject(),
+      object,
+      false,
     );
     const uv = intersections[0]?.uv;
     if (uv) {
