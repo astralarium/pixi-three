@@ -56,6 +56,11 @@ export const pagesConfig = defineConfig({
   build: {
     outDir: "dist-pages",
   },
+  ssr: {
+    // @pixi/react ESM imports extensionless `react-reconciler/constants`,
+    // which Node ESM rejects; bundling resolves it
+    noExternal: ["@pixi/react"],
+  },
   resolve: {
     alias: {
       "@astralarium/pixi-three": resolve(__dirname, "src/index.ts"),
