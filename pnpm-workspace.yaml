@@ -1,6 +1,6 @@
 allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
-  - fiber-tunnel@0.4.0
+  - fiber-tunnel@0.4.1
 overrides:
   scheduler: ^0.27.0

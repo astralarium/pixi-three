@@ -91,8 +91,8 @@ importers:
         specifier: ^14.0.0
         version: 14.0.0(eslint@10.12.0(jiti@2.7.0))
       fiber-tunnel:
-        specifier: ^0.4.0
-        version: 0.4.0(react@19.2.8)
+        specifier: ^0.4.1
+        version: 0.4.1(react@19.2.8)
       globals:
         specifier: ^17.13.0
         version: 17.13.0
@@ -1277,8 +1277,8 @@ packages:
   fflate@0.8.3:
     resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
-  fiber-tunnel@0.4.0:
-    resolution: {integrity: sha512-qYrkRm+HugtZ1cD4ixk/w0yFeITjglRVFqR7lAG+ldAjRsInOERNpbBF/7+qeTdQXv6L+NExT2Xn5UGXqw2zdQ==}
+  fiber-tunnel@0.4.1:
+    resolution: {integrity: sha512-+MpO6+DfAGih6AYcWmfkrrW+kw+8pjNJ/W2JnM84jp1Gj0T74W2v+DDQZ8BENkf2j9UAnQmgqPFTthUjR6p5vA==}
     peerDependencies:
       react: ^19.2.0
 
@@ -3443,7 +3443,7 @@ snapshots:
 
   fflate@0.8.3: {}
 
-  fiber-tunnel@0.4.0(react@19.2.8):
+  fiber-tunnel@0.4.1(react@19.2.8):
     dependencies:
       react: 19.2.8
 
